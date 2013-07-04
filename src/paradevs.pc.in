@@ -1,0 +1,12 @@
+prefix=@PARADEVS_PKGCONFIG_PREFIXPATH@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@PARADEVS_PKGCONFIG_LIBDIR@
+includedir=${prefix}/include
+
+Name: vle
+Description: PARADEVS multimodelling and Simulation tools
+Requires: libxml-2.0 glibmm-2.4
+Version: @PARADEVS_VERSION@
+Libs:	-L${libdir} \
+    -lpdevs-@PARADEVS_VERSION_SHORT@
+Cflags: -I${includedir}/vle-@PARADEVS_VERSION_SHORT@ -I@PARADEVS_PKGCONFIG_BOOSTINCLUDE_DIRS@
