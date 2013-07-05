@@ -97,7 +97,7 @@ Time Coordinator::x_message(const Message& xmsg, Time t)
     std::cout << "[" << get_name() << "] " << _link_list.to_string()
               << std::endl;
 
-    assert(tl <= t and t <= tn);
+    assert(_tl <= t and t <= _tn);
 
     std::pair < Links::iterator, Links::iterator > result =
         _link_list.equal_range(Node(xmsg.get_port_name(), this));
