@@ -139,10 +139,9 @@ Time Coordinator::y_message(Messages messages, Time t)
 
             messages.pop_back();
 
-            std::pair <Links::iterator , Links::iterator > result_model =
-                _link_list.equal_range(Node(ymsg.get_port_name(), ymsg.get_model()));
-
-            assert(result_model.first != result_model.second);
+            std::pair < Links::iterator , Links::iterator > result_model =
+                _link_list.equal_range(Node(ymsg.get_port_name(),
+                                            ymsg.get_model()));
 
             for (Links::iterator it = result_model.first;
                  it != result_model.second; ++it) {
@@ -153,8 +152,8 @@ Time Coordinator::y_message(Messages messages, Time t)
                     ymessages.push_back(Message(it->second.get_port_name(),
                                                 it->second.get_model(),
                                                 ymsg.get_content()));
-                    dynamic_cast < Coordinator* >(get_parent())->y_message(ymessages,
-                                                                           t);
+                    dynamic_cast < Coordinator* >(get_parent())->y_message(
+                        ymessages,t);
                 } else { // event on input port of internal model
                     Message message(it->second.get_port_name(),
                                     it->second.get_model(),
