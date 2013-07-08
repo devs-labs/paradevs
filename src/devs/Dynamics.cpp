@@ -26,7 +26,7 @@
 
 #include <devs/Dynamics.hpp>
 
-namespace paradevs {
+namespace paradevs { namespace devs {
 
 Dynamics::Dynamics(const std::string& name) : _name(name)
 { }
@@ -34,8 +34,8 @@ Dynamics::Dynamics(const std::string& name) : _name(name)
 Dynamics::~Dynamics()
 { }
 
-Messages Dynamics::lambda() const
-{ return Messages(); }
+common::Messages Dynamics::lambda() const
+{ return common::Messages(); }
 
-} // namespace paradevs
+} } // namespace paradevs devs
 

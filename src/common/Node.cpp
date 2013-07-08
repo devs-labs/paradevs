@@ -1,5 +1,5 @@
 /**
- * @file Node.hpp
+ * @file Node.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,35 +24,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_NODE
-#define DEVS_NODE 1
+#include <common/Node.hpp>
 
-#include <devs/Model.hpp>
+namespace paradevs { namespace common {
 
-#include <string>
+Node::Node(const std::string& port_name, Model* model)
+    : _port_name(port_name), _model(model)
+{ }
 
-namespace paradevs {
+Node::Node(const Node& other)
+    : _port_name(other._port_name), _model(other._model)
+{ }
 
-class Model;
+Node::~Node()
+{ }
 
-class Node
+bool Node::operator<(const Node& o) const
 {
-public :
-    Node(const std::string& port_name, Model* model);
-    Node(const Node & other);
-    virtual ~Node();
+    if (o._model == _model) {
+        return o._port_name < _port_name;
+    } else {
+        return o._model < _model;
+    }
+}
 
-    Model* get_model() const;
-    const std::string& get_port_name() const;
+bool Node::operator==(const Node& o) const
+{
+    return (o._port_name == _port_name and o._model == _model);
+}
 
-    virtual bool operator<(const Node& e) const;
-    virtual bool operator==(const Node& other) const;
+const std::string& Node::get_port_name() const
+{ return _port_name; }
 
-private :
-    std::string _port_name;
-    Model*      _model;
-};
+Model* Node::get_model() const
+{ return _model; }
 
-} // namespace paradevs
-
-#endif
+} } // namespace paradevs common

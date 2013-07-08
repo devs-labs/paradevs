@@ -1,5 +1,5 @@
 /**
- * @file InternalEvent.cpp
+ * @file Simulator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,20 +24,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/InternalEvent.hpp>
+#ifndef PDEVS_SIMULATOR
+#define PDEVS_SIMULATOR 1
 
-namespace paradevs {
+#include <common/Links.hpp>
+#include <common/Node.hpp>
 
-InternalEvent::InternalEvent(const Time& time, Model* model)
- : _time(time), _model(model)
-{ }
+#include <pdevs/Model.hpp>
+#include <pdevs/Dynamics.hpp>
 
-InternalEvent::~InternalEvent()
-{ }
+namespace paradevs { namespace pdevs {
 
-bool InternalEvent::operator<(InternalEvent const &e) const
+class Simulator : public Model
 {
-    return e._time < _time;
-}
+public :
+    Simulator(Dynamics* dynamics);
+    virtual ~Simulator();
 
-} // namespace paradevs
+    virtual common::Time i_message(common::Time /* t */);
+    virtual common::Time s_message(common::Time /* t */);
+    virtual void observation(std::ostream& file) const;
+
+    virtual Dynamics* get_dynamics() const
+    { return _dynamics; }
+
+    virtual bool is_atomic() const
+    { return true;}
+
+    virtual void clear_messages();
+    virtual void post_message(const common::Message& /* message */);
+    virtual bool message_number() const
+    { return _x_messages.size(); }
+
+private :
+    Dynamics* _dynamics;
+    common::Messages _x_messages;
+};
+
+} } // namespace paradevs pdevs
+
+#endif

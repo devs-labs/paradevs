@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file Links.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#include <common/Links.hpp>
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+#include <sstream>
 
-namespace paradevs { namespace devs {
+namespace paradevs { namespace common {
 
-class RootCoordinator
+std::string Links::to_string() const
 {
-public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+    std::stringstream ss;
 
-    void run();
+    ss << "Graph = { ";
+    for (const_iterator it = begin(); it != end(); ++it) {
+        ss << "(" << it->first.get_model()->get_name() << ":"
+           << it->first.get_port_name()
+           << " -> "
+           << it->second.get_model()->get_name() << ":"
+           << it->second.get_port_name()
+           << ") ";
+    }
+    ss << "}";
+    return ss.str();
+}
 
-private :
-    Coordinator* _root;
-    common::Time _t_max;
-
-    common::Time _tn;
-};
-
-} } // namespace paradevs devs
-
-#endif
+} } // namespace paradevs common

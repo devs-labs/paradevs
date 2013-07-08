@@ -9,26 +9,22 @@ LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
   ${LIBXML_LIBRARY_DIR})
 
-SET(DEVS_CPP Coordinator.cpp Dynamics.cpp EventTable.cpp
-  InternalEvent.cpp Links.cpp Message.cpp Model.cpp Node.cpp RootCoordinator.cpp
-  Simulator.cpp)
+SET(DEVS_CPP Coordinator.cpp Dynamics.cpp Model.cpp RootCoordinator.cpp Simulator.cpp)
 
-SET(DEVS_HPP Builder.hpp Coordinator.hpp Dynamics.hpp EventTable.hpp
-  InternalEvent.hpp Links.hpp Message.hpp Model.hpp Node.hpp RootCoordinator.hpp
-  Simulator.hpp Time.hpp)
+SET(DEVS_HPP Coordinator.hpp Dynamics.hpp Model.hpp RootCoordinator.hpp Simulator.hpp)
 
-ADD_LIBRARY(pdevs SHARED ${DEVS_CPP};${DEVS_HPP})
+ADD_LIBRARY(devs SHARED ${DEVS_CPP};${DEVS_HPP})
 
-SET_TARGET_PROPERTIES(pdevs PROPERTIES ${PARADEVS_LIBRARY_PROPERTIES})
-SET_TARGET_PROPERTIES(pdevs PROPERTIES OUTPUT_NAME
-  "paradevs-pdevs-${PARADEVS_VERSION_SHORT}")
+SET_TARGET_PROPERTIES(devs PROPERTIES ${PARADEVS_LIBRARY_PROPERTIES})
+SET_TARGET_PROPERTIES(devs PROPERTIES OUTPUT_NAME
+  "paradevs-devs-${PARADEVS_VERSION_SHORT}")
 
-TARGET_LINK_LIBRARIES(pdevs
+TARGET_LINK_LIBRARIES(devs
   ${GLIBMM_LIBRARIES}
   ${LIBXML_LIBRARIES}
   ${GTHREAD_LIBRARIES})
 
-INSTALL(TARGETS pdevs
+INSTALL(TARGETS devs
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)

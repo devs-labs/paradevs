@@ -26,11 +26,13 @@
 
 #include <devs/RootCoordinator.hpp>
 
-namespace paradevs {
+namespace paradevs { namespace devs {
 
-RootCoordinator::RootCoordinator(const Time& t_start, const Time& t_max,
-                                 const Builder& builder) :
-    _root(builder.build()), _t_max(t_max), _tn(t_start)
+RootCoordinator::RootCoordinator(const common::Time& t_start,
+                                 const common::Time& t_max,
+                                 const common::Builder& builder) :
+    _root(dynamic_cast < Coordinator* >(builder.build())),
+    _t_max(t_max), _tn(t_start)
 { }
 
 RootCoordinator::~RootCoordinator()
@@ -44,4 +46,4 @@ void RootCoordinator::run()
     }
 }
 
-} // namespace paradevs
+} } // namespace paradevs devs

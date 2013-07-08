@@ -24,13 +24,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/Message.hpp>
-#include <devs/Node.hpp>
+#include <common/Message.hpp>
+#include <common/Node.hpp>
 
-#include <cassert>
 #include <sstream>
 
-namespace paradevs {
+namespace paradevs { namespace common {
 
 Message::Message(const std::string& port_name, double content) :
     _port_name(port_name), _model(0), _content(content)
@@ -81,4 +80,4 @@ std::string Messages::to_string() const
     return ss.str();
 }
 
-} // namespace paradevs
+} } // namespace paradevs common

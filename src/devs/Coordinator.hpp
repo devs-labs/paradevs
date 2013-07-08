@@ -28,16 +28,16 @@
 #define DEVS_COORDINATOR 1
 
 #include <devs/Model.hpp>
-#include <devs/EventTable.hpp>
-#include <devs/Links.hpp>
-#include <devs/Message.hpp>
-#include <devs/Node.hpp>
+
+#include <common/EventTable.hpp>
+#include <common/Links.hpp>
+#include <common/Message.hpp>
+#include <common/Node.hpp>
+#include <common/Time.hpp>
 
 #include <iostream>
-#include <vector>
-#include <map>
 
-namespace paradevs {
+namespace paradevs { namespace devs {
 
 class Coordinator : public Model
 {
@@ -46,22 +46,23 @@ public :
     virtual ~Coordinator();
 
 // DEVS methods
-    virtual Time i_message(Time /* t */);
-    virtual Time s_message(Time /* t */);
-    virtual Time x_message(const Message& /* message */, Time /* t */);
-    virtual Time y_message(Messages /* messages */, Time /* t */);
+    virtual common::Time i_message(common::Time /* t */);
+    virtual common::Time s_message(common::Time /* t */);
+    virtual common::Time x_message(const common::Message& /* message */,
+                                   common::Time /* t */);
+    virtual common::Time y_message(common::Messages /* messages */, common::Time /* t */);
     virtual void observation(std::ostream& file) const;
 
 // graph methods
     virtual void add_child(Model* child);
-    virtual void add_link(const Node& source, const Node& destination);
+    virtual void add_link(const common::Node& source, const common::Node& destination);
 
 private :
-    Links      _link_list;
-    Models     _child_list;
-    EventTable _event_table;
+    common::Links      _link_list;
+    Models             _child_list;
+    common::EventTable _event_table;
 };
 
-} // namespace paradevs
+} } // namespace paradevs devs
 
 #endif

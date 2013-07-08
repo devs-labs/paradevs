@@ -24,13 +24,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#ifndef PDEVS_ROOT_COORDINATOR
+#define PDEVS_ROOT_COORDINATOR 1
 
 #include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+#include <pdevs/Coordinator.hpp>
 
-namespace paradevs { namespace devs {
+namespace paradevs { namespace pdevs {
 
 class RootCoordinator
 {
@@ -48,6 +48,6 @@ private :
     common::Time _tn;
 };
 
-} } // namespace paradevs devs
+} } // namespace paradevs pdevs
 
 #endif

@@ -14,7 +14,7 @@ ADD_EXECUTABLE(paradevs main.cpp)
 SET_TARGET_PROPERTIES(paradevs PROPERTIES ${PARADEVS_APP_PROPERTIES})
 
 TARGET_LINK_LIBRARIES(paradevs
-  pdevs examples
+  common devs examples pdevs
   ${GLIBMM_LIBRARIES}
   ${LIBXML_LIBRARIES}
   ${GTHREAD_LIBRARIES}

@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file Node.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#ifndef COMMON_NODE
+#define COMMON_NODE 1
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+#include <common/Model.hpp>
 
-namespace paradevs { namespace devs {
+#include <string>
 
-class RootCoordinator
+namespace paradevs { namespace common {
+
+class Model;
+
+class Node
 {
 public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+    Node(const std::string& port_name, Model* model);
+    Node(const Node & other);
+    virtual ~Node();
 
-    void run();
+    Model* get_model() const;
+    const std::string& get_port_name() const;
+
+    virtual bool operator<(const Node& e) const;
+    virtual bool operator==(const Node& other) const;
 
 private :
-    Coordinator* _root;
-    common::Time _t_max;
-
-    common::Time _tn;
+    std::string _port_name;
+    Model*      _model;
 };
 
-} } // namespace paradevs devs
+} } // namespace paradevs common
 
 #endif

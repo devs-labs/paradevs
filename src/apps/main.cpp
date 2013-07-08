@@ -25,15 +25,20 @@
  */
 
 #include <devs/RootCoordinator.hpp>
-#include <examples/Examples.hpp>
+#include <tests/devs_examples.hpp>
 
 using namespace paradevs;
 
-int main()
+void devs_examples()
 {
-    MyBuilder builder;
-    paradevs::RootCoordinator rc(0, 10, builder);
+    devs::MyBuilder builder;
+    devs::RootCoordinator rc(0, 10, builder);
 
     rc.run();
+}
+
+int main()
+{
+    devs_examples();
     return 0;
 }

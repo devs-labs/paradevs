@@ -24,12 +24,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/Coordinator.hpp>
-#include <devs/Simulator.hpp>
+#include <pdevs/Coordinator.hpp>
+#include <pdevs/Simulator.hpp>
 
+#include <algorithm>
 #include <cassert>
 
-namespace paradevs { namespace devs {
+namespace paradevs { namespace pdevs {
 
 Coordinator::Coordinator(const std::string& name) : Model(name)
 { }
@@ -62,6 +63,15 @@ common::Time Coordinator::i_message(common::Time t)
     return _tn;
 }
 
+/**************************************************
+ * when *-message(t)
+ *   calculate IMM (models with tn = t in scheduler
+ *   calculate INF from IMM
+ *   for each e in IMM U INF
+ *     calculate influencer
+ *   ...
+ *  send done to parent
+ **************************************************/
 common::Time Coordinator::s_message(common::Time t)
 {
 
@@ -72,14 +82,47 @@ common::Time Coordinator::s_message(common::Time t)
 
     assert(t == _tn);
 
-    Model* current = dynamic_cast < devs::Model* >(
-        _event_table.get_current_model());
-    common::Time tn = current->s_message(_tn);
+    Models IMM = _event_table.get_current_models(t);
 
-    _event_table.put(tn, current);
+    for (Models::const_iterator it = _child_list.begin();
+         it != _child_list.end(); ++it) {
+        Model* model = dynamic_cast < Model* >(*it);
+
+        if (model->is_atomic() and
+            dynamic_cast < Simulator* >(model)->message_number() > 0) {
+            Models::const_iterator itm = std::find(IMM.begin(), IMM.end(),
+                                                   model);
+            if (itm == IMM.end()) {
+                IMM.push_back(model);
+            }
+        }
+    }
+
+    std::cout << "[" << get_name() << "] at " << t << ": IMM = "
+              << IMM.to_string() << std::endl;
+
+    for (Models::const_iterator it = IMM.begin(); it != IMM.end(); ++it) {
+        common::Time tn = (*it)->s_message(_tn);
+
+        _event_table.put(tn, *it);
+    }
 
     _tl = t;
-    _tn = _event_table.get_current_time();
+
+    bool found = false;
+
+    for (Models::const_iterator it = _child_list.begin();
+         not found and it != _child_list.end(); ++it) {
+        Model* model = dynamic_cast < Model* >(*it);
+
+        if (model->is_atomic() and
+            dynamic_cast < Simulator* >(model)->message_number() > 0) {
+            found = true;
+        }
+    }
+    if (not found) {
+        _tn = _event_table.get_current_time();
+    }
 
     std::cout << "[" << get_name() << "] at " << t << ": AFTER - s_message => "
               << "tl = " << _tl << " ; tn = " << _tn << std::endl;
@@ -90,39 +133,21 @@ common::Time Coordinator::s_message(common::Time t)
     return _tn;
 }
 
-common::Time Coordinator::x_message(const common::Message& xmsg, common::Time t)
+void Coordinator::post_message(const common::Message& message)
 {
 
-    std::cout << "[" << get_name() << "] at " << t << ": BEFORE - x_message on "
-              << xmsg.get_port_name() << " => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
-    std::cout << "[" << get_name() << "] " << _link_list.to_string()
-              << std::endl;
-
-    assert(_tl <= t and t <= _tn);
+    std::cout << "[" << get_name() << "]: post_message" << std::endl;
 
     std::pair < common::Links::iterator, common::Links::iterator > result =
-        _link_list.equal_range(common::Node(xmsg.get_port_name(), this));
+        _link_list.equal_range(common::Node(message.get_port_name(), this));
 
-    for (common::Links::iterator it_r = result.first; it_r != result.second;
-         ++it_r) {
-        _tn = dynamic_cast < devs::Simulator* >(
-            (*it_r).second.get_model())->x_message(
-                common::Message(it_r->second.get_port_name(),
-                                it_r->second.get_model(),
-                                xmsg.get_content()), t);
-        _event_table.put(
-            _tn,
-            dynamic_cast < devs::Simulator* >(it_r->second.get_model()));
+    for (common::Links::iterator it_r = result.first;
+         it_r != result.second; ++it_r) {
+        Model* model = dynamic_cast < Model* >((*it_r).second.get_model());
+
+        model->post_message(common::Message(it_r->second.get_port_name(),
+                                            model, message.get_content()));
     }
-
-    _tl = t;
-    _tn = _event_table.get_current_time();
-
-    std::cout << "[" << get_name() << "] at " << t << ": AFTER - x_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
-
-    return _tn;
 }
 
 common::Time Coordinator::y_message(common::Messages messages, common::Time t)
@@ -134,8 +159,6 @@ common::Time Coordinator::y_message(common::Messages messages, common::Time t)
               << messages.to_string() << std::endl;
 
     if (not messages.empty()) {
-        bool internal = false;
-
         while (not messages.empty()) {
             common::Message ymsg = messages.back();
 
@@ -156,26 +179,17 @@ common::Time Coordinator::y_message(common::Messages messages, common::Time t)
                         common::Message(it->second.get_port_name(),
                                         it->second.get_model(),
                                         ymsg.get_content()));
-                    dynamic_cast < devs::Coordinator* >(
-                        get_parent())->y_message(ymessages, t);
+                    dynamic_cast < Coordinator* >(get_parent())->y_message(
+                        ymessages, t);
                 } else { // event on input port of internal model
-                    common::Message message(
-                        it->second.get_port_name(),
-                        it->second.get_model(),
-                        ymsg.get_content());
-                    common::Time tn = dynamic_cast < devs::Model* >(
-                        it->second.get_model())->x_message(message, t);
+                    Model* model = dynamic_cast < Model* >(
+                        it->second.get_model());
+                    common::Message message(it->second.get_port_name(),
+                                            model, ymsg.get_content());
 
-                    _event_table.put(
-                        tn,
-                        dynamic_cast < devs::Model* >(it->second.get_model()));
-                    internal = true;
+                    model->post_message(message);
                 }
             }
-        }
-        if (internal) {
-            _tl = t;
-            _tn = _event_table.get_current_time();
         }
     }
 
@@ -200,9 +214,7 @@ void Coordinator::add_child(Model* child)
 
 void Coordinator::add_link(const common::Node& source,
                            const common::Node& destination)
-{
-    _link_list.insert(std::pair < common::Node, common::Node >(source,
-                                                               destination));
-}
+{ _link_list.insert(std::pair < common::Node, common::Node >(source,
+                                                             destination)); }
 
-} } // namespace paradevs devs
+} } // namespace paradevs pdevs

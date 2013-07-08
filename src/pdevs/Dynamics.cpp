@@ -1,5 +1,5 @@
 /**
- * @file Builder.hpp
+ * @file Dynamics.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,25 +24,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_BUILDER
-#define DEVS_BUILDER 1
+#include <pdevs/Dynamics.hpp>
 
-#include <devs/Coordinator.hpp>
+namespace paradevs { namespace pdevs {
 
-namespace paradevs {
+Dynamics::Dynamics(const std::string& name) : _name(name)
+{ }
 
-class Builder
-{
-public :
-    Builder()
-    { }
+Dynamics::~Dynamics()
+{ }
 
-    virtual ~Builder()
-    { }
+common::Messages Dynamics::lambda() const
+{ return common::Messages(); }
 
-    virtual Coordinator* build() const =0;
-};
+} } // namespace paradevs pdevs
 
-} // namespace paradevs
-
-#endif

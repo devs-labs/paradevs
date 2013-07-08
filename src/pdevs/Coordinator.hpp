@@ -1,5 +1,5 @@
 /**
- * @file Simulator.hpp
+ * @file Coordinator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,35 +24,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_SIMULATOR
-#define DEVS_SIMULATOR 1
+#ifndef PDEVS_COORDINATOR
+#define PDEVS_COORDINATOR 1
 
-#include <devs/Model.hpp>
-#include <devs/Dynamics.hpp>
+#include <pdevs/Model.hpp>
+#include <pdevs/EventTable.hpp>
+
 #include <common/Links.hpp>
+#include <common/Message.hpp>
 #include <common/Node.hpp>
 
-namespace paradevs { namespace devs {
+#include <iostream>
 
-class Simulator : public Model
+namespace paradevs { namespace pdevs {
+
+class Coordinator : public Model
 {
 public :
-    Simulator(Dynamics* dynamics);
-    virtual ~Simulator();
+    Coordinator(const std::string& name);
+    virtual ~Coordinator();
 
+// DEVS methods
     virtual common::Time i_message(common::Time /* t */);
     virtual common::Time s_message(common::Time /* t */);
-    virtual common::Time x_message(const common::Message& /* message */,
+    virtual common::Time y_message(common::Messages /* messages */,
                                    common::Time /* t */);
     virtual void observation(std::ostream& file) const;
 
-    virtual Dynamics* get_dynamics() const
-    { return _dynamics; }
+    virtual bool is_atomic() const
+    { return false;}
+
+    virtual void post_message(const common::Message& /* message */);
+
+// graph methods
+    virtual void add_child(Model* child);
+    virtual void add_link(const common::Node& source, const common::Node& destination);
 
 private :
-    Dynamics* _dynamics;
+    common::Links      _link_list;
+    Models             _child_list;
+    pdevs::EventTable  _event_table;
 };
 
-} } // namespace paradevs devs
+} } // namespace paradevs pdevs
 
 #endif

@@ -1,5 +1,5 @@
 /**
- * @file examples.hpp
+ * @file pdevs_examples.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,11 +24,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/Builder.hpp>
-#include <devs/Dynamics.hpp>
-#include <devs/Simulator.hpp>
+#include <common/Builder.hpp>
+#include <pdevs/Dynamics.hpp>
+#include <pdevs/Simulator.hpp>
 
-namespace paradevs {
+namespace paradevs { namespace pdevs {
 
 class A : public Dynamics
 {
@@ -38,11 +38,12 @@ public:
     virtual ~A()
     { }
 
-    virtual void dint(const Time& t);
-    virtual void dext(const Time& /* e */, const Message& msg);
-    virtual Time start();
-    virtual Time ta() const;
-    virtual Messages lambda() const;
+    virtual void dint(const common::Time& t);
+    virtual void dext(const common::Time& /* e */,
+                      const common::Messages& /* msgs */);
+    virtual common::Time start();
+    virtual common::Time ta() const;
+    virtual common::Messages lambda() const;
     virtual void observation(std::ostream& /* file */) const;
 
 private:
@@ -59,11 +60,12 @@ public:
     virtual ~B()
     { }
 
-    virtual void dint(const Time& t);
-    virtual void dext(const Time& /* e */, const Message& msg);
-    virtual Time start();
-    virtual Time ta() const;
-    virtual Messages lambda() const;
+    virtual void dint(const common::Time& t);
+    virtual void dext(const common::Time& /* e */,
+                      const common::Messages& /* msgs */);
+    virtual common::Time start();
+    virtual common::Time ta() const;
+    virtual common::Messages lambda() const;
     virtual void observation(std::ostream& /* file */) const;
 
 private:
@@ -72,15 +74,37 @@ private:
     Phase _phase;
 };
 
-class MyBuilder : public Builder
+class HierachicalBuilder : public common::Builder
 {
 public:
-    MyBuilder()
+    HierachicalBuilder()
     { }
-    virtual ~MyBuilder()
+    virtual ~HierachicalBuilder()
     { }
 
-    virtual Coordinator* build() const;
+    virtual common::Model* build() const;
 };
 
-} // namespace paradevs
+class OnlyOneBuilder : public common::Builder
+{
+public:
+    OnlyOneBuilder()
+    { }
+    virtual ~OnlyOneBuilder()
+    { }
+
+    virtual common::Model* build() const;
+};
+
+class FlatBuilder : public common::Builder
+{
+public:
+    FlatBuilder()
+    { }
+    virtual ~FlatBuilder()
+    { }
+
+    virtual common::Model* build() const;
+};
+
+} } // namespace paradevs pdevs

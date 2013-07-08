@@ -24,57 +24,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_CHILD
-#define DEVS_CHILD 1
+#ifndef DEVS_MODEL
+#define DEVS_MODEL 1
 
-#include <devs/Dynamics.hpp>
-#include <devs/Links.hpp>
-#include <devs/Message.hpp>
-#include <devs/Node.hpp>
-#include <devs/Time.hpp>
+#include <common/Message.hpp>
+#include <common/Model.hpp>
+#include <common/Time.hpp>
 
-#include <iostream>
-#include <limits>
 #include <vector>
 
-namespace paradevs {
+namespace paradevs { namespace devs {
 
-class Dynamics;
-class Links;
-class Message;
-class Messages;
-class Node;
-
-class Model;
-typedef std::vector < Model* > Models;
-
-class Model
+class Model : public common::Model
 {
 public:
     Model(const std::string& name);
     virtual ~Model();
 
-    virtual Time i_message(Time /* t */) = 0;
-    virtual Time s_message(Time /* t */) =0;
-    virtual Time x_message(const Message& /* message */, Time /* t */) =0;
-    // virtual Time y_message(Messages /* messages */, Time /* t */) =0;
-    virtual void observation(std::ostream& file) const = 0;
-
-    virtual const std::string& get_name() const
-    { return _name; }
-
-    virtual Model* get_parent() const;
-    virtual void set_parent(Model* parent);
-
-protected:
-    Time        _tl;
-    Time        _tn;
-
-private :
-    Model*      _parent;
-    std::string _name;
+    virtual common::Time i_message(common::Time /* t */) =0;
+    virtual common::Time s_message(common::Time /* t */) =0;
+    virtual common::Time x_message(const common::Message& /* message */,
+                                   common::Time /* t */) =0;
 };
 
-} // namespace paradevs
+typedef std::vector < Model* > Models;
+
+} } // namespace paradevs devs
 
 #endif

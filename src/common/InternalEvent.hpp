@@ -1,5 +1,5 @@
 /**
- * @file Links.hpp
+ * @file InternalEvent.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,28 +24,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_LINKS
-#define DEVS_LINKS 1
+#ifndef COMMON_INTERNAL_EVENT
+#define COMMON_INTERNAL_EVENT 1
 
-#include <devs/Node.hpp>
+#include <common/Model.hpp>
+#include <common/Time.hpp>
 
-#include <map>
+namespace paradevs { namespace common {
 
-namespace paradevs {
-
-class Node;
-
-class Links : public std::multimap < Node, Node >
+class InternalEvent
 {
 public:
-    Links()
-    { }
-    virtual ~Links()
-    { }
+    InternalEvent(const common::Time& time, common::Model* model);
+    virtual ~InternalEvent();
 
-    std::string to_string() const;
+    common::Model* get_model() const
+    { return _model; }
+
+    common::Time get_time() const
+    { return _time; }
+
+    bool operator<(InternalEvent const& e) const;
+
+private:
+    common::Time   _time;
+    common::Model* _model;
 };
 
-} // namespace paradevs
+} } // namespace paradevs common
 
 #endif

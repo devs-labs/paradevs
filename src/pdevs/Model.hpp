@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file Model.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#ifndef PDEVS_MODEL
+#define PDEVS_MODEL 1
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+#include <pdevs/Dynamics.hpp>
+#include <common/Message.hpp>
+#include <common/Time.hpp>
 
-namespace paradevs { namespace devs {
+#include <iostream>
+#include <vector>
 
-class RootCoordinator
+namespace paradevs { namespace pdevs {
+
+class Model : public common::Model
 {
-public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+public:
+    Model(const std::string& name);
+    virtual ~Model();
 
-    void run();
+    virtual common::Time i_message(common::Time /* t */) = 0;
+    virtual common::Time s_message(common::Time /* t */) =0;
 
-private :
-    Coordinator* _root;
-    common::Time _t_max;
+    virtual bool is_atomic() const = 0;
 
-    common::Time _tn;
+    virtual void post_message(const common::Message& /* message */) = 0;
 };
 
-} } // namespace paradevs devs
+class Models : public std::vector < Model* >
+{
+public:
+    Models()
+    { }
+    virtual ~Models()
+    { }
+
+    std::string to_string() const;
+};
+
+} } // namespace paradevs pdevs
 
 #endif

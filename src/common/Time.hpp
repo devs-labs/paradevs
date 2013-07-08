@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file Time.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#ifndef COMMON_TIME
+#define COMMON_TIME 1
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+namespace paradevs { namespace common {
 
-namespace paradevs { namespace devs {
+typedef double Time;
 
-class RootCoordinator
-{
-public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
-
-    void run();
-
-private :
-    Coordinator* _root;
-    common::Time _t_max;
-
-    common::Time _tn;
-};
-
-} } // namespace paradevs devs
+} } // namespace paradevs common
 
 #endif

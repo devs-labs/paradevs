@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file Links.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#ifndef COMMON_LINKS
+#define COMMON_LINKS 1
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+#include <common/Node.hpp>
 
-namespace paradevs { namespace devs {
+#include <map>
 
-class RootCoordinator
+namespace paradevs { namespace common {
+
+class Node;
+
+class Links : public std::multimap < Node, Node >
 {
-public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+public:
+    Links()
+    { }
+    virtual ~Links()
+    { }
 
-    void run();
-
-private :
-    Coordinator* _root;
-    common::Time _t_max;
-
-    common::Time _tn;
+    std::string to_string() const;
 };
 
-} } // namespace paradevs devs
+} } // namespace paradevs common
 
 #endif

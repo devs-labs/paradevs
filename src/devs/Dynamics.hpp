@@ -27,14 +27,14 @@
 #ifndef DEVS_DYNAMICS
 #define DEVS_DYNAMICS 1
 
-#include <devs/Message.hpp>
-#include <devs/Time.hpp>
+#include <common/Message.hpp>
+#include <common/Time.hpp>
 
 #include <limits>
 #include <string>
 #include <vector>
 
-namespace paradevs {
+namespace paradevs { namespace devs {
 
 class Message;
 class Messages;
@@ -45,15 +45,15 @@ public:
     Dynamics(const std::string& name);
     virtual ~Dynamics();
 
-    virtual void dint(const Time& /* t */)
+    virtual void dint(const common::Time& /* t */)
     { }
-    virtual void dext(const Time& /* e */, const Message& /* msg */)
+    virtual void dext(const common::Time& /* e */, const common::Message& /* msg */)
     { }
-    virtual Time start()
+    virtual common::Time start()
     { return std::numeric_limits < double >::max(); }
-    virtual Time ta() const
+    virtual common::Time ta() const
     { return std::numeric_limits < double >::max(); }
-    virtual Messages lambda() const;
+    virtual common::Messages lambda() const;
     virtual void observation(std::ostream& /* file */) const
     { }
 
@@ -64,6 +64,6 @@ private:
     std::string _name;
 };
 
-} // namespace paradevs
+} } // namespace paradevs devs
 
 #endif

@@ -24,13 +24,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/Coordinator.hpp>
-#include <devs/Simulator.hpp>
+#include <pdevs/Coordinator.hpp>
+#include <pdevs/Simulator.hpp>
 
 #include <cassert>
 #include <stdexcept>
 
-namespace paradevs { namespace devs {
+namespace paradevs { namespace pdevs {
 
 Simulator::Simulator(Dynamics* dynamics) :
     Model(dynamics->get_name()), _dynamics(dynamics)
@@ -46,26 +46,49 @@ common::Time Simulator::i_message(common::Time t)
     return _tn;
 }
 
+/*************************************************
+ * when *-message(t)
+ *   if (t = tn) then
+ *     y = lambda(s)
+ *     send #-message(y,t) to parent
+ *     if (???) then
+ *       s = delta_int(s)
+ *     else
+ *       s = delta_conf(s,x)
+ *  else
+ *    s = delta_ext(s,t-tl,x)
+ *  tn = t + ta(s)
+ *  tl = t
+ *  empty x
+ *  send done to parent
+ *************************************************/
 common::Time Simulator::s_message(common::Time t)
 {
 
     std::cout << "[" << get_name() << "] at " << t << ": BEFORE - s_message => "
               << "tl = " << _tl << " ; tn = " << _tn << std::endl;
 
-    assert(t == _tn);
+    if(t == _tn) {
+        common::Messages msgs = _dynamics->lambda();
 
-    common::Messages msgs = _dynamics->lambda();
-
-    if (not msgs.empty()) {
-        for (common::Messages::iterator it = msgs.begin(); it != msgs.end(); ++it) {
-            it->set_model(this);
+        if (not msgs.empty()) {
+            for (common::Messages::iterator it = msgs.begin(); it != msgs.end();
+                 ++it) {
+                it->set_model(this);
+            }
+            dynamic_cast < Coordinator* >(get_parent())->y_message(msgs, t);
         }
-        dynamic_cast < Coordinator* >(get_parent())->y_message(msgs, t);
+        if (message_number() == 0) {
+            _dynamics->dint(t);
+        } else {
+            _dynamics->dconf(t - _tl, _x_messages);
+        }
+    } else {
+        _dynamics->dext(t - _tl, _x_messages);
     }
-
-    _dynamics->dint(t);
-    _tl = t;
     _tn = t + _dynamics->ta();
+    _tl = t;
+    clear_messages();
 
     std::cout << "[" << get_name() << "] at " << t << ": AFTER - s_message => "
               << "tl = " << _tl << " ; tn = " << _tn << std::endl;
@@ -73,27 +96,27 @@ common::Time Simulator::s_message(common::Time t)
     return _tn;
 }
 
-common::Time Simulator::x_message(const common::Message& msg, common::Time t)
+void Simulator::observation(std::ostream &file) const
 {
-
-    std::cout << "[" << get_name() << "] at " << t << ": BEFORE - x_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
-
-    assert(_tl <= t and t <= _tn);
-
-    common::Time e = t - _tl;
-
-    _dynamics->dext(e, msg);
-    _tl = t;
-    _tn = _tl + _dynamics->ta();
-
-    std::cout << "[" << get_name() << "] at " << t << ": AFTER - x_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
-
-    return _tn;
+    _dynamics->observation(file);
 }
 
-void Simulator::observation(std::ostream &file) const
-{ _dynamics->observation(file); }
+void Simulator::clear_messages()
+{
+    _x_messages.clear();
+}
 
-} } // namespace paradevs devs
+void Simulator::post_message(const common::Message& message)
+{
+
+    std::cout << "[" << get_name() << "]: [BEFORE] post_message => "
+              << message.to_string() << std::endl;
+
+    _x_messages.push_back(message);
+
+    std::cout << "[" << get_name() << "]: [AFTER] post_message => "
+              << _x_messages.to_string() << std::endl;
+
+}
+
+} } // namespace paradevs pdevs

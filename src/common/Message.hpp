@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file Message.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#ifndef COMMON_MESSAGE
+#define COMMON_MESSAGE 1
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+#include <common/Model.hpp>
 
-namespace paradevs { namespace devs {
+#include <string>
+#include <vector>
 
-class RootCoordinator
+namespace paradevs { namespace common {
+
+class Model;
+
+class Message
 {
-public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+public:
+    Message(const std::string& port_name, double content);
+    Message(const std::string& port_name, Model* model, double content);
+    Message();
+    virtual ~Message();
 
-    void run();
+    double get_content() const;
+    Model* get_model() const;
+    const std::string& get_port_name() const;
+
+    void set_content(double content);
+    void set_model(Model* model);
+
+    std::string to_string() const;
 
 private :
-    Coordinator* _root;
-    common::Time _t_max;
-
-    common::Time _tn;
+    std::string _port_name;
+    Model*      _model;
+    double      _content;
 };
 
-} } // namespace paradevs devs
+class Messages : public std::vector < Message >
+{
+public:
+    Messages()
+    { }
+    virtual ~Messages()
+    { }
+
+    std::string to_string() const;
+};
+
+} } // namespace paradevs common
 
 #endif

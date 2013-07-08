@@ -1,5 +1,5 @@
 /**
- * @file Message.hpp
+ * @file Dynamics.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,53 +24,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_MESSAGE
-#define DEVS_MESSAGE 1
+#ifndef PDEVS_DYNAMICS
+#define PDEVS_DYNAMICS 1
 
-#include <devs/Model.hpp>
+#include <common/Message.hpp>
+#include <common/Time.hpp>
 
+#include <limits>
 #include <string>
 #include <vector>
 
-namespace paradevs {
+namespace paradevs { namespace pdevs {
 
-class Model;
-typedef std::vector < Model* > Models;
-
-class Message
+class Dynamics
 {
 public:
-    Message(const std::string& port_name, double content);
-    Message(const std::string& port_name, Model* model, double content);
-    Message();
-    virtual ~Message();
+    Dynamics(const std::string& name);
+    virtual ~Dynamics();
 
-    double get_content() const;
-    Model* get_model() const;
-    const std::string& get_port_name() const;
-
-    void set_content(double content);
-    void set_model(Model* model);
-
-    std::string to_string() const;
-
-private :
-    std::string _port_name;
-    Model*      _model;
-    double      _content;
-};
-
-class Messages : public std::vector < Message >
-{
-public:
-    Messages()
+    virtual void dconf(const common::Time& /* e */,
+                       const common::Messages& /* msgs */)
     { }
-    virtual ~Messages()
+    virtual void dint(const common::Time& /* t */)
+    { }
+    virtual void dext(const common::Time& /* e */,
+                      const common::Messages& /* msgs */)
+    { }
+    virtual common::Time start()
+    { return std::numeric_limits < double >::max(); }
+    virtual common::Time ta() const
+    { return std::numeric_limits < double >::max(); }
+    virtual common::Messages lambda() const;
+    virtual void observation(std::ostream& /* file */) const
     { }
 
-    std::string to_string() const;
+    const std::string& get_name() const
+    { return _name; }
+
+private:
+    std::string _name;
 };
 
-} // namespace paradevs
+} } // namespace paradevs pdevs
 
 #endif

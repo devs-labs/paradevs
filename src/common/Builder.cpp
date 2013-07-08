@@ -1,5 +1,5 @@
 /**
- * @file InternalEvent.hpp
+ * @file Builder.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,34 +24,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_INTERNAL_EVENT
-#define DEVS_INTERNAL_EVENT 1
+#include <common/Builder.hpp>
 
-#include <devs/Model.hpp>
-#include <devs/Time.hpp>
+namespace paradevs { namespace common {
 
-namespace paradevs {
+Builder::Builder()
+{ }
 
-class InternalEvent
-{
-public:
+Builder::~Builder()
+{ }
 
-    InternalEvent(const Time& time, Model* model);
-    virtual ~InternalEvent();
-
-    Model* get_model() const
-    { return _model; }
-
-    Time get_time() const
-    { return _time; }
-
-    bool operator<(InternalEvent const& e) const;
-
-private:
-    Time   _time;
-    Model* _model;
-};
-
-} // namespace paradevs
-
-#endif
+} } // namespace paradevs common

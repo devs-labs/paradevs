@@ -1,5 +1,5 @@
 /**
- * @file Time.hpp
+ * @file Model.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,13 +24,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_TIME
-#define DEVS_TIME 1
+#include <pdevs/Model.hpp>
 
-namespace paradevs {
+#include <sstream>
 
-typedef double Time;
+namespace paradevs { namespace pdevs {
 
-} // namespace paradevs
+Model::Model(const std::string& name) : common::Model(name)
+{ }
 
-#endif
+Model::~Model()
+{ }
+
+std::string Models::to_string() const
+{
+    std::ostringstream ss;
+
+    ss << "{ ";
+    for (const_iterator it = begin(); it != end(); ++it) {
+        ss << (*it)->get_name() << " ";
+    }
+    ss << "}";
+    return ss.str();
+}
+
+} } // namespace paradevs pdevs

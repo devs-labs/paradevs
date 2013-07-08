@@ -1,5 +1,5 @@
 /**
- * @file examples.cpp
+ * @file devs_examples.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,11 +24,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <examples/Examples.hpp>
+#include <tests/devs_examples.hpp>
+#include <devs/Coordinator.hpp>
 
-namespace paradevs {
+namespace paradevs { namespace devs {
 
-void A::dint(const Time& t)
+void A::dint(const common::Time& t)
 {
 
     std::cout << "[ model " << get_name() << " ] dint at " << t << std::endl;
@@ -38,7 +39,7 @@ void A::dint(const Time& t)
     }
 }
 
-void A::dext(const Time& /* e */, const Message& msg)
+void A::dext(const common::Time& /* e */, const common::Message& msg)
 {
 
     std::cout << "[ model " << get_name() << " ] dext: "
@@ -48,7 +49,7 @@ void A::dext(const Time& /* e */, const Message& msg)
     _phase = SEND;
 }
 
-Time A::start()
+common::Time A::start()
 {
 
     std::cout << "[ model " << get_name() << " ] start" << std::endl;
@@ -57,7 +58,7 @@ Time A::start()
     return 0;
 }
 
-Time A::ta() const
+common::Time A::ta() const
 {
     if (_phase == WAIT) {
         return 1;
@@ -66,21 +67,21 @@ Time A::ta() const
     }
 }
 
-Messages A::lambda() const
+common::Messages A::lambda() const
 {
 
     std::cout << "[ model " << get_name() << " ] lambda" << std::endl;
 
-    Messages msgs;
+    common::Messages msgs;
 
-    msgs.push_back(Message("out", 0, true));
+    msgs.push_back(common::Message("out", 0, true));
     return msgs;
 }
 
 void A::observation(std::ostream& /* file */) const
 { }
 
-void B::dint(const Time& t)
+void B::dint(const common::Time& t)
 {
 
     std::cout << "[ model " << get_name() << " ] dint at " << t
@@ -91,7 +92,7 @@ void B::dint(const Time& t)
     }
 }
 
-void B::dext(const Time& /* e */, const Message& msg)
+void B::dext(const common::Time& /* e */, const common::Message& msg)
 {
 
     std::cout << "[ model " << get_name() << " ] dext: "
@@ -101,7 +102,7 @@ void B::dext(const Time& /* e */, const Message& msg)
     _phase = SEND;
 }
 
-Time B::start()
+common::Time B::start()
 {
 
     std::cout << "[ model " << get_name() << " ] start" << std::endl;
@@ -110,7 +111,7 @@ Time B::start()
     return 0;
 }
 
-Time B::ta() const
+common::Time B::ta() const
 {
     if (_phase == WAIT) {
         return std::numeric_limits < double >::max();
@@ -119,49 +120,49 @@ Time B::ta() const
     }
 }
 
-Messages B::lambda() const
+common::Messages B::lambda() const
 {
 
     std::cout << "[ model " << get_name() << " ] lambda" << std::endl;
 
-    Messages msgs;
+    common::Messages msgs;
 
-    msgs.push_back(Message("out", 0, true));
+    msgs.push_back(common::Message("out", 0, true));
     return msgs;
 }
 
 void B::observation(std::ostream& /* file */) const
 { }
 
-Coordinator* MyBuilder::build() const
+common::Model* MyBuilder::build() const
 {
-    Coordinator* root = new Coordinator("root");
+    devs::Coordinator* root = new devs::Coordinator("root");
 
-    Coordinator* S1 = new Coordinator("S1");
+    devs::Coordinator* S1 = new devs::Coordinator("S1");
     {
-        Simulator* a = new Simulator(new A("a1"));
-        Simulator* b = new Simulator(new B("b1"));
+        devs::Simulator* a = new devs::Simulator(new A("a1"));
+        devs::Simulator* b = new devs::Simulator(new B("b1"));
 
         S1->add_child(a);
         S1->add_child(b);
-        S1->add_link(Node("out", a), Node("in", b));
-        S1->add_link(Node("out", b), Node("out", S1));
+        S1->add_link(common::Node("out", a), common::Node("in", b));
+        S1->add_link(common::Node("out", b), common::Node("out", S1));
     }
 
-    Coordinator* S2 = new Coordinator("S2");
+    devs::Coordinator* S2 = new devs::Coordinator("S2");
     {
-        Simulator* a = new Simulator(new A("a2"));
-        Simulator* b = new Simulator(new B("b2"));
+        devs::Simulator* a = new devs::Simulator(new A("a2"));
+        devs::Simulator* b = new devs::Simulator(new B("b2"));
 
         S2->add_child(a);
         S2->add_child(b);
-        S2->add_link(Node("out", a), Node("in", b));
-        S2->add_link(Node("in", S2), Node("in", a));
+        S2->add_link(common::Node("out", a), common::Node("in", b));
+        S2->add_link(common::Node("in", S2), common::Node("in", a));
     }
     root->add_child(S1);
     root->add_child(S2);
-    root->add_link(Node("out", S1), Node("in", S2));
+    root->add_link(common::Node("out", S1), common::Node("in", S2));
     return root;
 }
 
-} // namespace paradevs
+} } // namespace paradevs devs

@@ -1,5 +1,5 @@
 /**
- * @file Node.cpp
+ * @file Model.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,39 +24,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/Node.hpp>
+#ifndef COMMON_MODEL
+#define COMMON_MODEL 1
 
-namespace paradevs {
+#include <common/Time.hpp>
 
-Node::Node(const std::string& port_name, Model* model)
-    : _port_name(port_name), _model(model)
-{ }
+#include <iostream>
+#include <vector>
 
-Node::Node(const Node& other)
-    : _port_name(other._port_name), _model(other._model)
-{ }
+namespace paradevs { namespace common {
 
-Node::~Node()
-{ }
-
-bool Node::operator<(const Node& o) const
+class Model
 {
-    if (o._model == _model) {
-        return o._port_name < _port_name;
-    } else {
-        return o._model < _model;
-    }
-}
+public:
+    Model(const std::string& name) : _tl(0), _tn(0), _parent(0), _name(name)
+    { }
 
-bool Node::operator==(const Node& o) const
-{
-    return (o._port_name == _port_name and o._model == _model);
-}
+    virtual ~Model()
+    { }
 
-const std::string& Node::get_port_name() const
-{ return _port_name; }
+    virtual const std::string& get_name() const
+    { return _name; }
 
-Model* Node::get_model() const
-{ return _model; }
+    Model* get_parent() const
+    { return _parent; }
 
-} // namespace paradevs
+    virtual void observation(std::ostream& file) const = 0;
+
+    void set_parent(Model* parent)
+    { _parent = parent; }
+
+protected:
+    Time        _tl;
+    Time        _tn;
+
+private :
+    Model*      _parent;
+    std::string _name;
+};
+
+typedef std::vector < Model* > Models;
+
+} } // namespace paradevs common
+
+#endif

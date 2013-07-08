@@ -24,53 +24,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/EventTable.hpp>
+#include <pdevs/EventTable.hpp>
 
 #include <algorithm>
 #include <sstream>
 
-namespace paradevs {
+namespace paradevs { namespace pdevs {
 
-Model* EventTable::get_current_model()
-{ return back().get_model(); }
-
-void EventTable::init(Time time, Model* model)
+Models EventTable::get_current_models(common::Time time) const
 {
-    push_back(InternalEvent(time, model));
-    std::sort(begin(), end());
-}
+    Models models;
+    bool found = true;
 
-void EventTable::put(Time time, Model* model)
-{
-    remove(model);
-    push_back(InternalEvent(time, model));
-    std::sort(begin(), end());
-}
-
-void EventTable::remove(Model* model)
-{
-    iterator jt = begin();
-
-    while (jt != end()) {
-        if (jt->get_model() == model) {
-            jt = erase(jt);
+    for (const_reverse_iterator it = rbegin(); found and it != rend(); ++it) {
+        if (it->get_time() == time) {
+            models.push_back(dynamic_cast < Model* >(it->get_model()));
         } else {
-            ++jt;
+            found = false;
         }
     }
+    return models;
 }
 
-std::string EventTable::to_string() const
-{
-    std::stringstream ss;
-
-    ss << "EventTable = { ";
-    for (const_iterator it = begin(); it != end(); ++it) {
-        ss << "(" << it->get_time() << " -> " << it->get_model()->get_name()
-           << ") ";
-    }
-    ss << "}";
-    return ss.str();
-}
-
-} // namespace paradevs
+} } // namespace paradevs pdevs

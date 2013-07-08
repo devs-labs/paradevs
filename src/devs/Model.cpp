@@ -26,19 +26,12 @@
 
 #include <devs/Model.hpp>
 
-namespace paradevs {
+namespace paradevs { namespace devs {
 
-Model::Model(const std::string& name) :
-    _tl(0), _tn(0), _parent(0), _name(name)
+Model::Model(const std::string& name) : common::Model(name)
 { }
 
 Model::~Model()
 { }
 
-Model* Model::get_parent() const
-{ return _parent; }
-
-void Model::set_parent(Model* parent)
-{ _parent = parent; }
-
-} // namespace paradevs
+} } // namespace paradevs devs

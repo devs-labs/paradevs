@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file InternalEvent.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#include <common/InternalEvent.hpp>
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+namespace paradevs { namespace common {
 
-namespace paradevs { namespace devs {
+InternalEvent::InternalEvent(const common::Time& time, common::Model* model)
+ : _time(time), _model(model)
+{ }
 
-class RootCoordinator
+InternalEvent::~InternalEvent()
+{ }
+
+bool InternalEvent::operator<(InternalEvent const &e) const
 {
-public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+    return e._time < _time;
+}
 
-    void run();
-
-private :
-    Coordinator* _root;
-    common::Time _t_max;
-
-    common::Time _tn;
-};
-
-} } // namespace paradevs devs
-
-#endif
+} } // namespace paradevs common
