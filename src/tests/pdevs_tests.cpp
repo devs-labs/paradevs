@@ -52,6 +52,14 @@ void A::dext(const common::Time& /* e */, const common::Messages& msgs)
     _phase = SEND;
 }
 
+void A::dconf(const common::Time& /* e */, const common::Messages& msgs)
+{
+
+    std::cout << "[ model " << get_name() << " ] dconf: "
+              << msgs.to_string() << std::endl;
+
+}
+
 common::Time A::start()
 {
 
@@ -102,6 +110,14 @@ void B::dext(const common::Time& /* e */, const common::Messages& msgs)
               << msgs.to_string() << std::endl;
 
     _phase = SEND;
+}
+
+void B::dconf(const common::Time& /* e */, const common::Messages& msgs)
+{
+
+    std::cout << "[ model " << get_name() << " ] dconf: "
+              << msgs.to_string() << std::endl;
+
 }
 
 common::Time B::start()

@@ -41,6 +41,8 @@ public:
     virtual void dint(const common::Time& t);
     virtual void dext(const common::Time& /* e */,
                       const common::Messages& /* msgs */);
+    virtual void dconf(const common::Time& /* e */,
+                       const common::Messages& /* msgs */);
     virtual common::Time start();
     virtual common::Time ta() const;
     virtual common::Messages lambda() const;
@@ -63,6 +65,8 @@ public:
     virtual void dint(const common::Time& t);
     virtual void dext(const common::Time& /* e */,
                       const common::Messages& /* msgs */);
+    virtual void dconf(const common::Time& /* e */,
+                       const common::Messages& /* msgs */);
     virtual common::Time start();
     virtual common::Time ta() const;
     virtual common::Messages lambda() const;
