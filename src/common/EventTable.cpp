@@ -32,7 +32,9 @@
 namespace paradevs { namespace common {
 
 Model* EventTable::get_current_model()
-{ return back().get_model(); }
+{
+    return back().get_model();
+}
 
 void EventTable::init(common::Time time, Model* model)
 {

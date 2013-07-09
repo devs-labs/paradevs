@@ -250,6 +250,7 @@ TEST_CASE("pdevs/only_one", "run")
     paradevs::pdevs::OnlyOneBuilder builder;
     paradevs::pdevs::RootCoordinator rc(0, 10, builder);
 
+    paradevs::common::Trace::trace().clear();
     rc.run();
 
     REQUIRE(paradevs::common::Trace::trace().elements().
@@ -279,6 +280,7 @@ TEST_CASE("pdevs/flat", "run")
     paradevs::pdevs::FlatBuilder builder;
     paradevs::pdevs::RootCoordinator rc(0, 10, builder);
 
+    paradevs::common::Trace::trace().clear();
     rc.run();
 
     REQUIRE(paradevs::common::Trace::trace().elements().
@@ -293,9 +295,6 @@ TEST_CASE("pdevs/flat", "run")
     REQUIRE(paradevs::common::Trace::trace().elements().
             filter_model_name("b2").
             filter_type(paradevs::common::START).size() == 1);
-
-    REQUIRE(paradevs::common::Trace::trace().elements().
-            filter_type(paradevs::common::DELTA_CONF).size() == 0);
 
     REQUIRE(paradevs::common::Trace::trace().elements().
             filter_model_name("a1").
@@ -340,6 +339,9 @@ TEST_CASE("pdevs/flat", "run")
         REQUIRE(paradevs::common::Trace::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 1);
+        REQUIRE(paradevs::common::Trace::trace().elements().
+                filter_model_name("a2").filter_time(t).
+                filter_type(paradevs::common::DELTA_CONF).size() == 0);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
@@ -363,12 +365,8 @@ TEST_CASE("pdevs/hierachical", "run")
     paradevs::pdevs::HierachicalBuilder builder;
     paradevs::pdevs::RootCoordinator rc(0, 10, builder);
 
+    paradevs::common::Trace::trace().clear();
     rc.run();
-
-    std::cout << paradevs::common::Trace::trace().elements().
-        filter_model_name("b1").
-        filter_type(paradevs::common::I_MESSAGE).to_string()
-              << std::endl;
 
     REQUIRE(paradevs::common::Trace::trace().elements().
             filter_model_name("a1").
@@ -382,9 +380,6 @@ TEST_CASE("pdevs/hierachical", "run")
     REQUIRE(paradevs::common::Trace::trace().elements().
             filter_model_name("b2").
             filter_type(paradevs::common::START).size() == 1);
-
-    REQUIRE(paradevs::common::Trace::trace().elements().
-            filter_type(paradevs::common::DELTA_CONF).size() == 0);
 
     REQUIRE(paradevs::common::Trace::trace().elements().
             filter_model_name("a1").
@@ -429,6 +424,9 @@ TEST_CASE("pdevs/hierachical", "run")
         REQUIRE(paradevs::common::Trace::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 1);
+        REQUIRE(paradevs::common::Trace::trace().elements().
+                filter_model_name("a2").filter_time(t).
+                filter_type(paradevs::common::DELTA_CONF).size() == 0);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {

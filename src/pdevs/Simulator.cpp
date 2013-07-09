@@ -123,11 +123,6 @@ void Simulator::observation(std::ostream &file) const
     _dynamics->observation(file);
 }
 
-void Simulator::clear_messages()
-{
-    _x_messages.clear();
-}
-
 void Simulator::post_message(common::Time t, const common::Message& message)
 {
 

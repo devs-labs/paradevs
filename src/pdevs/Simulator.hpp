@@ -51,15 +51,11 @@ public :
     virtual bool is_atomic() const
     { return true;}
 
-    virtual void clear_messages();
     virtual void post_message(common::Time /* t */,
                               const common::Message& /* message */);
-    virtual bool message_number() const
-    { return _x_messages.size(); }
 
 private :
     Dynamics* _dynamics;
-    common::Messages _x_messages;
 };
 
 } } // namespace paradevs pdevs

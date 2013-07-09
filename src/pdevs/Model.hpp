@@ -47,8 +47,17 @@ public:
 
     virtual bool is_atomic() const = 0;
 
+    virtual void clear_messages()
+    { _x_messages.clear(); }
+
     virtual void post_message(common::Time /* t */,
                               const common::Message& /* message */) = 0;
+
+    virtual bool message_number() const
+    { return _x_messages.size(); }
+
+protected:
+    common::Messages _x_messages;
 };
 
 class Models : public std::vector < Model* >

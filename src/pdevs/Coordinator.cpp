@@ -114,27 +114,23 @@ common::Time Coordinator::s_message(common::Time t)
     common::Trace::trace().flush();
 
     for (Models::const_iterator it = IMM.begin(); it != IMM.end(); ++it) {
-        common::Time tn = (*it)->s_message(_tn);
+        common::Time tn = (*it)->s_message(t);
 
         _event_table.put(tn, *it);
     }
 
-    _tl = t;
-
-    bool found = false;
-
     for (Models::const_iterator it = _child_list.begin();
-         not found and it != _child_list.end(); ++it) {
+         it != _child_list.end(); ++it) {
         Model* model = dynamic_cast < Model* >(*it);
 
-        if (model->is_atomic() and
-            dynamic_cast < Simulator* >(model)->message_number() > 0) {
-            found = true;
+        if (model->message_number() > 0) {
+            _event_table.put(t, model);
         }
     }
-    if (not found) {
-        _tn = _event_table.get_current_time();
-    }
+
+    _tl = t;
+    _tn = _event_table.get_current_time();
+    clear_messages();
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::S_MESSAGE)
@@ -154,6 +150,8 @@ void Coordinator::post_message(common::Time t, const common::Message& message)
                            << ": BEFORE => " << message.to_string();
     common::Trace::trace().flush();
 
+    _x_messages.push_back(message);
+
     std::pair < common::Links::iterator, common::Links::iterator > result =
         _link_list.equal_range(common::Node(message.get_port_name(), this));
 
@@ -164,6 +162,15 @@ void Coordinator::post_message(common::Time t, const common::Message& message)
         model->post_message(t, common::Message(it_r->second.get_port_name(),
                                                model, message.get_content()));
     }
+    for (Models::const_iterator it = _child_list.begin();
+         it != _child_list.end(); ++it) {
+        Model* model = dynamic_cast < Model* >(*it);
+
+        if (model->message_number() > 0) {
+            _event_table.put(t, model);
+        }
+    }
+    _tn = _event_table.get_current_time();
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::POST_MESSAGE)

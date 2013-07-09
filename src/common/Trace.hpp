@@ -120,6 +120,9 @@ class Trace
 public:
     static Trace& trace();
 
+    void clear()
+    { _trace.clear(); }
+
     const TraceElements& elements() const
     { return _trace; }
 
