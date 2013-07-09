@@ -42,19 +42,19 @@ public:
     Dynamics(const std::string& name);
     virtual ~Dynamics();
 
-    virtual void dconf(const common::Time& /* e */,
+    virtual void dconf(common::Time /* t */, common::Time /* e */,
                        const common::Messages& /* msgs */)
     { }
-    virtual void dint(const common::Time& /* t */)
+    virtual void dint(common::Time /* t */)
     { }
-    virtual void dext(const common::Time& /* e */,
+    virtual void dext(common::Time /* t */, common::Time /* e */,
                       const common::Messages& /* msgs */)
     { }
-    virtual common::Time start()
+    virtual common::Time start(common::Time /* time */)
     { return std::numeric_limits < double >::max(); }
-    virtual common::Time ta() const
+    virtual common::Time ta(common::Time /* time */) const
     { return std::numeric_limits < double >::max(); }
-    virtual common::Messages lambda() const;
+    virtual common::Messages lambda(common::Time /* time */) const;
     virtual void observation(std::ostream& /* file */) const
     { }
 

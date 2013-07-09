@@ -24,6 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <common/Trace.hpp>
+
 #include <pdevs/Coordinator.hpp>
 #include <pdevs/Simulator.hpp>
 
@@ -44,8 +46,11 @@ Coordinator::~Coordinator()
 common::Time Coordinator::i_message(common::Time t)
 {
 
-    std::cout << "[" << get_name() << "] at " << t << ": BEFORE - i_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::I_MESSAGE)
+                           << ": BEFORE => "
+                           << "tl = " << _tl << " ; tn = " << _tn;
+    common::Trace::trace().flush();
 
     assert(_child_list.size() > 0);
 
@@ -57,8 +62,11 @@ common::Time Coordinator::i_message(common::Time t)
     _tl = t;
     _tn = _event_table.get_current_time();
 
-    std::cout << "[" << get_name() << "] at " << t << ": AFTER - i_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::I_MESSAGE)
+                           << ": AFTER => "
+                           << "tl = " << _tl << " ; tn = " << _tn;
+    common::Trace::trace().flush();
 
     return _tn;
 }
@@ -75,10 +83,12 @@ common::Time Coordinator::i_message(common::Time t)
 common::Time Coordinator::s_message(common::Time t)
 {
 
-    std::cout << "[" << get_name() << "] at " << t << ": BEFORE - s_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
-    std::cout << "[" << get_name() << "]: " << _event_table.to_string()
-              << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::S_MESSAGE)
+                           << ": BEFORE => "
+                           << "tl = " << _tl << " ; tn = " << _tn
+                           << " ; scheduler = " << _event_table.to_string();
+    common::Trace::trace().flush();
 
     assert(t == _tn);
 
@@ -98,8 +108,10 @@ common::Time Coordinator::s_message(common::Time t)
         }
     }
 
-    std::cout << "[" << get_name() << "] at " << t << ": IMM = "
-              << IMM.to_string() << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::S_MESSAGE)
+                           << ": IMM = " << IMM.to_string();
+    common::Trace::trace().flush();
 
     for (Models::const_iterator it = IMM.begin(); it != IMM.end(); ++it) {
         common::Time tn = (*it)->s_message(_tn);
@@ -124,19 +136,23 @@ common::Time Coordinator::s_message(common::Time t)
         _tn = _event_table.get_current_time();
     }
 
-    std::cout << "[" << get_name() << "] at " << t << ": AFTER - s_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
-    std::cout << "[" << get_name() << "]: " << _event_table.to_string()
-              << std::endl;
-    std::cout << "**************" << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::S_MESSAGE)
+                           << ": AFTER => "
+                           << "tl = " << _tl << " ; tn = " << _tn
+                           << " ; scheduler = " << _event_table.to_string();
+    common::Trace::trace().flush();
 
     return _tn;
 }
 
-void Coordinator::post_message(const common::Message& message)
+void Coordinator::post_message(common::Time t, const common::Message& message)
 {
 
-    std::cout << "[" << get_name() << "]: post_message" << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::POST_MESSAGE)
+                           << ": BEFORE => " << message.to_string();
+    common::Trace::trace().flush();
 
     std::pair < common::Links::iterator, common::Links::iterator > result =
         _link_list.equal_range(common::Node(message.get_port_name(), this));
@@ -145,18 +161,26 @@ void Coordinator::post_message(const common::Message& message)
          it_r != result.second; ++it_r) {
         Model* model = dynamic_cast < Model* >((*it_r).second.get_model());
 
-        model->post_message(common::Message(it_r->second.get_port_name(),
-                                            model, message.get_content()));
+        model->post_message(t, common::Message(it_r->second.get_port_name(),
+                                               model, message.get_content()));
     }
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::POST_MESSAGE)
+                           << ": AFTER => " << message.to_string();
+    common::Trace::trace().flush();
+
 }
 
 common::Time Coordinator::y_message(common::Messages messages, common::Time t)
 {
 
-    std::cout << "[" << get_name() << "] at " << t << ": BEFORE - y_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
-    std::cout << "[" << get_name() << "] at " << t << ": "
-              << messages.to_string() << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::Y_MESSAGE)
+                           << ": BEFORE => "
+                           << "tl = " << _tl << " ; tn = " << _tn
+                           << " ; messages = " << messages.to_string();
+    common::Trace::trace().flush();
 
     if (not messages.empty()) {
         while (not messages.empty()) {
@@ -187,14 +211,17 @@ common::Time Coordinator::y_message(common::Messages messages, common::Time t)
                     common::Message message(it->second.get_port_name(),
                                             model, ymsg.get_content());
 
-                    model->post_message(message);
+                    model->post_message(t, message);
                 }
             }
         }
     }
 
-    std::cout << "[" << get_name() << "] at " << t << ": AFTER - y_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::Y_MESSAGE)
+                           << ": BEFORE => "
+                           << "tl = " << _tl << " ; tn = " << _tn;
+    common::Trace::trace().flush();
 
     return _tn;
 }

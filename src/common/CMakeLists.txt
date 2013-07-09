@@ -9,11 +9,11 @@ LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
   ${LIBXML_LIBRARY_DIR})
 
-SET(COMMON_CPP Builder.cpp EventTable.cpp InternalEvent.cpp Links.cpp Message.cpp
-  Node.cpp)
+SET(COMMON_CPP Builder.cpp EventTable.cpp InternalEvent.cpp Links.cpp
+  Message.cpp Node.cpp Trace.cpp)
 
-SET(COMMON_HPP Builder.hpp EventTable.hpp InternalEvent.hpp Links.hpp Message.hpp
-  Node.hpp Time.hpp)
+SET(COMMON_HPP Builder.hpp EventTable.hpp InternalEvent.hpp Links.hpp
+  Message.hpp Node.hpp Time.hpp Trace.cpp)
 
 ADD_LIBRARY(common SHARED ${COMMON_CPP};${COMMON_HPP})
 

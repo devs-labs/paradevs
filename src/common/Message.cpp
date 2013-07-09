@@ -64,7 +64,8 @@ std::string Message::to_string() const
 {
     std::ostringstream ss;
 
-    ss << "( " << _port_name << " , " << _model->get_name() << ")";
+    ss << "( " << _port_name << " , " << (_model?_model->get_name():"<>")
+       << ")";
     return ss.str();
 }
 

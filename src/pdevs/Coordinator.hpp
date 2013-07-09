@@ -54,7 +54,8 @@ public :
     virtual bool is_atomic() const
     { return false;}
 
-    virtual void post_message(const common::Message& /* message */);
+    virtual void post_message(common::Time /* t */,
+                              const common::Message& /* message */);
 
 // graph methods
     virtual void add_child(Model* child);

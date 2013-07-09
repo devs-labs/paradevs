@@ -24,6 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <common/Trace.hpp>
+
 #include <pdevs/Coordinator.hpp>
 #include <pdevs/Simulator.hpp>
 
@@ -41,8 +43,22 @@ Simulator::~Simulator()
 
 common::Time Simulator::i_message(common::Time t)
 {
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::I_MESSAGE)
+                           << ": BEFORE => "
+                           << "tl = " << _tl << " ; tn = " << _tn;
+    common::Trace::trace().flush();
+
     _tl = t;
-    _tn = _tl + _dynamics->start();
+    _tn = _tl + _dynamics->start(t);
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::I_MESSAGE)
+                           << ": AFTER => "
+                           << "tl = " << _tl << " ; tn = " << _tn;
+    common::Trace::trace().flush();
+
     return _tn;
 }
 
@@ -65,11 +81,14 @@ common::Time Simulator::i_message(common::Time t)
 common::Time Simulator::s_message(common::Time t)
 {
 
-    std::cout << "[" << get_name() << "] at " << t << ": BEFORE - s_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::S_MESSAGE)
+                           << ": BEFORE => "
+                           << "tl = " << _tl << " ; tn = " << _tn;
+    common::Trace::trace().flush();
 
     if(t == _tn) {
-        common::Messages msgs = _dynamics->lambda();
+        common::Messages msgs = _dynamics->lambda(t);
 
         if (not msgs.empty()) {
             for (common::Messages::iterator it = msgs.begin(); it != msgs.end();
@@ -81,17 +100,20 @@ common::Time Simulator::s_message(common::Time t)
         if (message_number() == 0) {
             _dynamics->dint(t);
         } else {
-            _dynamics->dconf(t - _tl, _x_messages);
+            _dynamics->dconf(t, t - _tl, _x_messages);
         }
     } else {
-        _dynamics->dext(t - _tl, _x_messages);
+        _dynamics->dext(t, t - _tl, _x_messages);
     }
-    _tn = t + _dynamics->ta();
+    _tn = t + _dynamics->ta(t);
     _tl = t;
     clear_messages();
 
-    std::cout << "[" << get_name() << "] at " << t << ": AFTER - s_message => "
-              << "tl = " << _tl << " ; tn = " << _tn << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::S_MESSAGE)
+                           << ": AFTER => "
+                           << "tl = " << _tl << " ; tn = " << _tn;
+    common::Trace::trace().flush();
 
     return _tn;
 }
@@ -106,16 +128,20 @@ void Simulator::clear_messages()
     _x_messages.clear();
 }
 
-void Simulator::post_message(const common::Message& message)
+void Simulator::post_message(common::Time t, const common::Message& message)
 {
 
-    std::cout << "[" << get_name() << "]: [BEFORE] post_message => "
-              << message.to_string() << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::POST_MESSAGE)
+                           << ": BEFORE => " << message.to_string();
+    common::Trace::trace().flush();
 
     _x_messages.push_back(message);
 
-    std::cout << "[" << get_name() << "]: [AFTER] post_message => "
-              << _x_messages.to_string() << std::endl;
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::POST_MESSAGE)
+                           << ": AFTER => " << message.to_string();
+    common::Trace::trace().flush();
 
 }
 

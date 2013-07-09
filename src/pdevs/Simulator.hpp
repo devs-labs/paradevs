@@ -52,7 +52,8 @@ public :
     { return true;}
 
     virtual void clear_messages();
-    virtual void post_message(const common::Message& /* message */);
+    virtual void post_message(common::Time /* t */,
+                              const common::Message& /* message */);
     virtual bool message_number() const
     { return _x_messages.size(); }
 

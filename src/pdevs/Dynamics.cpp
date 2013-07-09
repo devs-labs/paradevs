@@ -34,7 +34,7 @@ Dynamics::Dynamics(const std::string& name) : _name(name)
 Dynamics::~Dynamics()
 { }
 
-common::Messages Dynamics::lambda() const
+common::Messages Dynamics::lambda(common::Time /* time */) const
 { return common::Messages(); }
 
 } } // namespace paradevs pdevs
