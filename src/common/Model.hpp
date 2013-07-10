@@ -27,6 +27,8 @@
 #ifndef COMMON_MODEL
 #define COMMON_MODEL 1
 
+#include <common/Bag.hpp>
+#include <common/ExternalEvent.hpp>
 #include <common/Time.hpp>
 
 #include <iostream>
@@ -34,14 +36,21 @@
 
 namespace paradevs { namespace common {
 
+class Bag;
+class ExternalEvent;
+
 class Model
 {
 public:
-    Model(const std::string& name) : _tl(0), _tn(0), _parent(0), _name(name)
-    { }
+    Model(const std::string& name);
+    virtual ~Model();
 
-    virtual ~Model()
-    { }
+    virtual void observation(std::ostream& file) const =0;
+    virtual void output(common::Time t) =0;
+    virtual void post_message(common::Time t,
+                              const common::ExternalEvent& event) = 0;
+    virtual common::Time start(common::Time t) =0;
+    virtual common::Time transition(common::Time t) =0;
 
     virtual const std::string& get_name() const
     { return _name; }
@@ -49,10 +58,13 @@ public:
     Model* get_parent() const
     { return _parent; }
 
-    virtual void observation(std::ostream& file) const = 0;
-
     void set_parent(Model* parent)
     { _parent = parent; }
+
+    void add_event(const common::ExternalEvent& event);
+    void clear_bag();
+    const common::Bag& get_bag() const;
+    unsigned int event_number() const;
 
 protected:
     Time        _tl;
@@ -61,9 +73,19 @@ protected:
 private :
     Model*      _parent;
     std::string _name;
+    Bag*        _inputs;
 };
 
-typedef std::vector < Model* > Models;
+class Models : public std::vector < Model* >
+{
+public:
+    Models()
+    { }
+    virtual ~Models()
+    { }
+
+    std::string to_string() const;
+};
 
 } } // namespace paradevs common
 

@@ -1,5 +1,5 @@
 /**
- * @file Model.hpp
+ * @file EventTable.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,31 +24,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_MODEL
-#define DEVS_MODEL 1
+#include <pdevs/EventTable.hpp>
 
-#include <common/Message.hpp>
-#include <common/Model.hpp>
-#include <common/Time.hpp>
+#include <algorithm>
+#include <sstream>
 
-#include <vector>
+namespace paradevs { namespace pdevs {
 
-namespace paradevs { namespace devs {
-
-class Model : public common::Model
+common::Models EventTable::get_current_models(common::Time time) const
 {
-public:
-    Model(const std::string& name);
-    virtual ~Model();
+    common::Models models;
+    bool found = true;
 
-    virtual common::Time i_message(common::Time /* t */) =0;
-    virtual common::Time s_message(common::Time /* t */) =0;
-    virtual common::Time x_message(const common::Message& /* message */,
-                                   common::Time /* t */) =0;
-};
+    for (const_reverse_iterator it = rbegin(); found and it != rend(); ++it) {
+        if (it->get_time() == time) {
+            models.push_back(it->get_model());
+        } else {
+            found = false;
+        }
+    }
+    return models;
+}
 
-typedef std::vector < Model* > Models;
-
-} } // namespace paradevs devs
-
-#endif
+} } // namespace paradevs pdevs

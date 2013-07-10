@@ -34,7 +34,7 @@
 
 namespace paradevs { namespace pdevs {
 
-Coordinator::Coordinator(const std::string& name) : Model(name)
+Coordinator::Coordinator(const std::string& name) : common::Coordinator(name)
 { }
 
 Coordinator::~Coordinator()
@@ -43,7 +43,7 @@ Coordinator::~Coordinator()
     { delete _child_list[i]; }
 }
 
-common::Time Coordinator::i_message(common::Time t)
+common::Time Coordinator::start(common::Time t)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -54,10 +54,8 @@ common::Time Coordinator::i_message(common::Time t)
 
     assert(_child_list.size() > 0);
 
-    for (unsigned int i = 0; i < _child_list.size(); i++) {
-        Model* model = _child_list[i];
-
-        _event_table.init(model->i_message(_tn), model);
+    for (auto & child : _child_list) {
+        _event_table.init(child->start(_tn), child);
     }
     _tl = t;
     _tn = _event_table.get_current_time();
@@ -80,7 +78,41 @@ common::Time Coordinator::i_message(common::Time t)
  *   ...
  *  send done to parent
  **************************************************/
-common::Time Coordinator::s_message(common::Time t)
+void Coordinator::output(common::Time t)
+{
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::OUTPUT)
+                           << ": BEFORE";
+    common::Trace::trace().flush();
+
+    assert(t == _tn);
+
+    common::Models IMM = _event_table.get_current_models(t);
+
+    for (auto & model : IMM) {
+        model->output(t);
+    }
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::OUTPUT)
+                           << ": AFTER";
+    common::Trace::trace().flush();
+
+}
+
+/*******************************************************************
+ * when x-message(t)
+ *   receivers = { r | r in children, N in Ir, Z(N,r)(x) isn't empty
+ *   for each r in receivers
+ *     send x-message(Z(N,r)(x), t) with input value Z(N,r)(x) to r
+ *   for each r in IMM and not in receivers
+ *     send x-message(empty, t) to r
+ *   sort event list acocrding to tn
+ *   tl = t
+ *   tn = min(tn_d | d in D)
+ *******************************************************************/
+common::Time Coordinator::transition(common::Time t)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -90,47 +122,48 @@ common::Time Coordinator::s_message(common::Time t)
                            << " ; scheduler = " << _event_table.to_string();
     common::Trace::trace().flush();
 
-    assert(t == _tn);
+    assert(t >= _tl and t <= _tn);
 
-    Models IMM = _event_table.get_current_models(t);
+    common::Models receivers = _event_table.get_current_models(t);
 
-    for (Models::const_iterator it = _child_list.begin();
+    for (common::Models::const_iterator it = _child_list.begin();
          it != _child_list.end(); ++it) {
         Model* model = dynamic_cast < Model* >(*it);
 
-        if (model->is_atomic() and
-            dynamic_cast < Simulator* >(model)->message_number() > 0) {
-            Models::const_iterator itm = std::find(IMM.begin(), IMM.end(),
-                                                   model);
-            if (itm == IMM.end()) {
-                IMM.push_back(model);
+        if (model->event_number() > 0) {
+            common::Models::const_iterator itm = std::find(receivers.begin(),
+                                                           receivers.end(),
+                                                           model);
+            if (itm == receivers.end()) {
+                receivers.push_back(model);
             }
         }
     }
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::S_MESSAGE)
-                           << ": IMM = " << IMM.to_string();
+                           << ": receivers = " << receivers.to_string();
     common::Trace::trace().flush();
 
-    for (Models::const_iterator it = IMM.begin(); it != IMM.end(); ++it) {
-        common::Time tn = (*it)->s_message(t);
+    for (common::Models::const_iterator it = receivers.begin();
+         it != receivers.end(); ++it) {
+        common::Time tn = (*it)->transition(t);
 
         _event_table.put(tn, *it);
     }
 
-    for (Models::const_iterator it = _child_list.begin();
+    for (common::Models::const_iterator it = _child_list.begin();
          it != _child_list.end(); ++it) {
         Model* model = dynamic_cast < Model* >(*it);
 
-        if (model->message_number() > 0) {
+        if (model->event_number() > 0) {
             _event_table.put(t, model);
         }
     }
 
     _tl = t;
     _tn = _event_table.get_current_time();
-    clear_messages();
+    clear_bag();
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::S_MESSAGE)
@@ -142,7 +175,8 @@ common::Time Coordinator::s_message(common::Time t)
     return _tn;
 }
 
-void Coordinator::post_message(common::Time t, const common::Message& message)
+void Coordinator::post_message(common::Time t,
+                               const common::ExternalEvent& message)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -150,7 +184,7 @@ void Coordinator::post_message(common::Time t, const common::Message& message)
                            << ": BEFORE => " << message.to_string();
     common::Trace::trace().flush();
 
-    _x_messages.push_back(message);
+    add_event(message);
 
     std::pair < common::Links::iterator, common::Links::iterator > result =
         _link_list.equal_range(common::Node(message.get_port_name(), this));
@@ -159,14 +193,16 @@ void Coordinator::post_message(common::Time t, const common::Message& message)
          it_r != result.second; ++it_r) {
         Model* model = dynamic_cast < Model* >((*it_r).second.get_model());
 
-        model->post_message(t, common::Message(it_r->second.get_port_name(),
-                                               model, message.get_content()));
+        model->post_message(t,
+                            common::ExternalEvent(it_r->second.get_port_name(),
+                                                  model,
+                                                  message.get_content()));
     }
-    for (Models::const_iterator it = _child_list.begin();
+    for (common::Models::const_iterator it = _child_list.begin();
          it != _child_list.end(); ++it) {
         Model* model = dynamic_cast < Model* >(*it);
 
-        if (model->message_number() > 0) {
+        if (model->event_number() > 0) {
             _event_table.put(t, model);
         }
     }
@@ -179,47 +215,44 @@ void Coordinator::post_message(common::Time t, const common::Message& message)
 
 }
 
-common::Time Coordinator::y_message(common::Messages messages, common::Time t)
+/*******************************************************************
+ * when y-message(y_d, t) with output y_d from d
+ *******************************************************************/
+common::Time Coordinator::dispatch_events(common::Bag bag, common::Time t)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::Y_MESSAGE)
                            << ": BEFORE => "
                            << "tl = " << _tl << " ; tn = " << _tn
-                           << " ; messages = " << messages.to_string();
+                           << " ; bag = " << bag.to_string();
     common::Trace::trace().flush();
 
-    if (not messages.empty()) {
-        while (not messages.empty()) {
-            common::Message ymsg = messages.back();
+    for (auto & ymsg : bag) {
+        std::pair < common::Links::iterator ,
+                    common::Links::iterator > result_model =
+            _link_list.equal_range(common::Node(ymsg.get_port_name(),
+                                                ymsg.get_model()));
 
-            messages.pop_back();
+        for (common::Links::iterator it = result_model.first;
+             it != result_model.second; ++it) {
+            // event on output port of coupled model
+            if (it->second.get_model() == this) {
+                common::Bag ymessages;
 
-            std::pair < common::Links::iterator ,
-                        common::Links::iterator > result_model =
-                _link_list.equal_range(common::Node(ymsg.get_port_name(),
-                                                    ymsg.get_model()));
+                ymessages.push_back(
+                    common::ExternalEvent(it->second.get_port_name(),
+                                          it->second.get_model(),
+                                          ymsg.get_content()));
+                dynamic_cast < Coordinator* >(get_parent())->dispatch_events(
+                    ymessages, t);
+            } else { // event on input port of internal model
+                Model* model = dynamic_cast < Model* >(
+                    it->second.get_model());
+                common::ExternalEvent message(it->second.get_port_name(),
+                                              model, ymsg.get_content());
 
-            for (common::Links::iterator it = result_model.first;
-                 it != result_model.second; ++it) {
-                // event on output port of coupled model
-                if (it->second.get_model() == this) {
-                    common::Messages ymessages;
-
-                    ymessages.push_back(
-                        common::Message(it->second.get_port_name(),
-                                        it->second.get_model(),
-                                        ymsg.get_content()));
-                    dynamic_cast < Coordinator* >(get_parent())->y_message(
-                        ymessages, t);
-                } else { // event on input port of internal model
-                    Model* model = dynamic_cast < Model* >(
-                        it->second.get_model());
-                    common::Message message(it->second.get_port_name(),
-                                            model, ymsg.get_content());
-
-                    model->post_message(t, message);
-                }
+                model->post_message(t, message);
             }
         }
     }

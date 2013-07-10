@@ -24,45 +24,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_COORDINATOR
-#define DEVS_COORDINATOR 1
+#ifndef DTSS_COORDINATOR
+#define DTSS_COORDINATOR 1
 
-#include <devs/Model.hpp>
-
+#include <common/Bag.hpp>
+#include <common/Coordinator.hpp>
 #include <common/EventTable.hpp>
 #include <common/Links.hpp>
-#include <common/Message.hpp>
+#include <common/ExternalEvent.hpp>
 #include <common/Node.hpp>
-#include <common/Time.hpp>
 
 #include <iostream>
 
-namespace paradevs { namespace devs {
+namespace paradevs { namespace dtss {
 
-class Coordinator : public Model
+class Coordinator : public common::Coordinator
 {
-public :
-    Coordinator(const std::string& name);
+public:
+    Coordinator(const std::string& name, common::Time time_step);
     virtual ~Coordinator();
 
 // DEVS methods
-    virtual common::Time i_message(common::Time /* t */);
-    virtual common::Time s_message(common::Time /* t */);
-    virtual common::Time x_message(const common::Message& /* message */,
-                                   common::Time /* t */);
-    virtual common::Time y_message(common::Messages /* messages */, common::Time /* t */);
+    virtual void output(common::Time /* t */);
+    virtual void post_message(common::Time /* t */,
+                              const common::ExternalEvent& /* message */);
+    virtual common::Time dispatch_events(common::Bag /* bag */,
+                                         common::Time /* t */);
+    virtual common::Time start(common::Time /* t */);
+    virtual common::Time transition(common::Time /* t */);
     virtual void observation(std::ostream& file) const;
 
 // graph methods
     virtual void add_child(Model* child);
-    virtual void add_link(const common::Node& source, const common::Node& destination);
+    virtual void add_link(const common::Node& source,
+                          const common::Node& destination);
 
-private :
-    common::Links      _link_list;
-    Models             _child_list;
-    common::EventTable _event_table;
+private:
+    common::Links  _link_list;
+    common::Models _child_list;
+    common::Time   _time_step;
 };
 
-} } // namespace paradevs devs
+} } // namespace paradevs dtss
 
 #endif

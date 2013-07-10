@@ -27,7 +27,8 @@
 #ifndef PDEVS_DYNAMICS
 #define PDEVS_DYNAMICS 1
 
-#include <common/Message.hpp>
+#include <common/Bag.hpp>
+#include <common/ExternalEvent.hpp>
 #include <common/Time.hpp>
 
 #include <limits>
@@ -43,18 +44,18 @@ public:
     virtual ~Dynamics();
 
     virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Messages& /* msgs */)
+                       const common::Bag& /* bag */)
     { }
     virtual void dint(common::Time /* t */)
     { }
     virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Messages& /* msgs */)
+                      const common::Bag& /* bag */)
     { }
     virtual common::Time start(common::Time /* time */)
     { return std::numeric_limits < double >::max(); }
     virtual common::Time ta(common::Time /* time */) const
     { return std::numeric_limits < double >::max(); }
-    virtual common::Messages lambda(common::Time /* time */) const;
+    virtual common::Bag lambda(common::Time /* time */) const;
     virtual void observation(std::ostream& /* file */) const
     { }
 

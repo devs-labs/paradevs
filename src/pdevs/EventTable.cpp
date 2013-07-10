@@ -31,14 +31,14 @@
 
 namespace paradevs { namespace pdevs {
 
-Models EventTable::get_current_models(common::Time time) const
+common::Models EventTable::get_current_models(common::Time time) const
 {
-    Models models;
+    common::Models models;
     bool found = true;
 
     for (const_reverse_iterator it = rbegin(); found and it != rend(); ++it) {
         if (it->get_time() == time) {
-            models.push_back(dynamic_cast < Model* >(it->get_model()));
+            models.push_back(it->get_model());
         } else {
             found = false;
         }

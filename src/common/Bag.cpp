@@ -1,5 +1,5 @@
 /**
- * @file Dynamics.cpp
+ * @file Bag.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,18 +24,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/Dynamics.hpp>
+#include <common/Bag.hpp>
 
-namespace paradevs { namespace devs {
+#include <sstream>
 
-Dynamics::Dynamics(const std::string& name) : _name(name)
-{ }
+namespace paradevs { namespace common {
 
-Dynamics::~Dynamics()
-{ }
+std::string Bag::to_string() const
+{
+    std::ostringstream ss;
 
-common::Messages Dynamics::lambda() const
-{ return common::Messages(); }
+    ss << "{ ";
+    for (const_iterator it = begin(); it != end(); ++it) {
+        ss << it->to_string() << " ";
+    }
+    ss << "}";
+    return ss.str();
+}
 
-} } // namespace paradevs devs
-
+} } // namespace paradevs common

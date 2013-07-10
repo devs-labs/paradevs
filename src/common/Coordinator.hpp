@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file Coordinator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_ROOT_COORDINATOR
-#define DEVS_ROOT_COORDINATOR 1
+#ifndef COMMON_COORDINATOR
+#define COMMON_COORDINATOR 1
 
-#include <common/Builder.hpp>
-#include <devs/Coordinator.hpp>
+#include <common/Bag.hpp>
+#include <common/ExternalEvent.hpp>
+#include <common/Links.hpp>
+#include <common/Model.hpp>
+#include <common/Node.hpp>
 
-namespace paradevs { namespace devs {
+#include <iostream>
 
-class RootCoordinator
+namespace paradevs { namespace common {
+
+class Coordinator : public Model
 {
 public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+    Coordinator(const std::string& name) : Model(name)
+    { }
 
-    void run();
+    virtual ~Coordinator()
+    { }
 
-private :
-    Coordinator* _root;
-    common::Time _t_max;
-
-    common::Time _tn;
+// DEVS methods
+    virtual void output(common::Time t) =0;
+    virtual void post_message(common::Time t,
+                              const common::ExternalEvent& event) =0;
+    virtual common::Time dispatch_events(common::Bag bag,
+                                         common::Time t) =0;
+    virtual common::Time start(common::Time t) =0;
+    virtual common::Time transition(common::Time t) =0;
 };
 
-} } // namespace paradevs devs
+} } // namespace paradevs common
 
 #endif

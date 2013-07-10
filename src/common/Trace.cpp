@@ -50,6 +50,7 @@ std::string TraceElements::to_string() const
         case TA: ss << "ta"; break;
         case LAMBDA: ss << "lambda"; break;
         case START: ss << "start"; break;
+        case OUTPUT: ss << "output"; break;
         };
         ss << ">";
         if (not it->get_comment().empty()) {

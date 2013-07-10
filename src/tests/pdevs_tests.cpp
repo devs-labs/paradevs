@@ -48,7 +48,7 @@ void A::dint(common::Time t)
     }
 }
 
-void A::dext(common::Time t, common::Time /* e */, const common::Messages& msgs)
+void A::dext(common::Time t, common::Time /* e */, const common::Bag& msgs)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -60,7 +60,7 @@ void A::dext(common::Time t, common::Time /* e */, const common::Messages& msgs)
 }
 
 void A::dconf(common::Time t, common::Time /* e */,
-              const common::Messages& msgs)
+              const common::Bag& msgs)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -93,11 +93,11 @@ common::Time A::ta(common::Time t) const
     }
 }
 
-common::Messages A::lambda(common::Time t) const
+common::Bag A::lambda(common::Time t) const
 {
-    common::Messages msgs;
+    common::Bag msgs;
 
-    msgs.push_back(common::Message("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", 0, true));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)
@@ -122,7 +122,7 @@ void B::dint(common::Time t)
     }
 }
 
-void B::dext(common::Time t, common::Time /* e */, const common::Messages& msgs)
+void B::dext(common::Time t, common::Time /* e */, const common::Bag& msgs)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -134,7 +134,7 @@ void B::dext(common::Time t, common::Time /* e */, const common::Messages& msgs)
 }
 
 void B::dconf(common::Time t, common::Time /* e */,
-              const common::Messages& msgs)
+              const common::Bag& msgs)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -168,11 +168,11 @@ common::Time B::ta(common::Time t) const
     }
 }
 
-common::Messages B::lambda(common::Time t) const
+common::Bag B::lambda(common::Time t) const
 {
-    common::Messages msgs;
+    common::Bag msgs;
 
-    msgs.push_back(common::Message("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", 0, true));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)

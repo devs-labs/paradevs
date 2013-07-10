@@ -40,12 +40,12 @@ public:
 
     virtual void dint(common::Time /* t */);
     virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Messages& /* msgs */);
+                      const common::Bag& /* msgs */);
     virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Messages& /* msgs */);
+                       const common::Bag& /* msgs */);
     virtual common::Time start(common::Time /* t */);
     virtual common::Time ta(common::Time /* t */) const;
-    virtual common::Messages lambda(common::Time /* t */) const;
+    virtual common::Bag lambda(common::Time /* t */) const;
     virtual void observation(std::ostream& /* file */) const;
 
 private:
@@ -64,12 +64,12 @@ public:
 
     virtual void dint(common::Time /* t */);
     virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Messages& /* msgs */);
+                      const common::Bag& /* msgs */);
     virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Messages& /* msgs */);
+                       const common::Bag& /* msgs */);
     virtual common::Time start(common::Time /* t */);
     virtual common::Time ta(common::Time /* t */) const;
-    virtual common::Messages lambda(common::Time /* t */) const;
+    virtual common::Bag lambda(common::Time /* t */) const;
     virtual void observation(std::ostream& /* file */) const;
 
 private:

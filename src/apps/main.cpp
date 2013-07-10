@@ -24,21 +24,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/RootCoordinator.hpp>
-#include <tests/devs_examples.hpp>
+// #include <devs/RootCoordinator.hpp>
+// #include <tests/devs_examples.hpp>
 
-using namespace paradevs;
+// using namespace paradevs;
 
-void devs_examples()
-{
-    devs::MyBuilder builder;
-    devs::RootCoordinator rc(0, 10, builder);
+// void devs_examples()
+// {
+//     devs::MyBuilder builder;
+//     devs::RootCoordinator rc(0, 10, builder);
 
-    rc.run();
-}
+//     rc.run();
+// }
 
 int main()
 {
-    devs_examples();
+    // devs_examples();
     return 0;
 }

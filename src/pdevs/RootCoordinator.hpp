@@ -42,10 +42,10 @@ public :
     void run();
 
 private :
-    Coordinator* _root;
-    common::Time _t_max;
+    common::Coordinator* _root;
+    common::Time         _t_max;
 
-    common::Time _tn;
+    common::Time         _tn;
 };
 
 } } // namespace paradevs pdevs

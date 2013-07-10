@@ -1,5 +1,5 @@
 /**
- * @file Message.hpp
+ * @file Bag.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,47 +24,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_MESSAGE
-#define COMMON_MESSAGE 1
+#ifndef COMMON_BAG
+#define COMMON_BAG 1
 
-#include <common/Model.hpp>
+#include <common/ExternalEvent.hpp>
 
 #include <string>
 #include <vector>
 
 namespace paradevs { namespace common {
 
-class Model;
+class ExternalEvent;
 
-class Message
+class Bag : public std::vector < ExternalEvent >
 {
 public:
-    Message(const std::string& port_name, double content);
-    Message(const std::string& port_name, Model* model, double content);
-    Message();
-    virtual ~Message();
-
-    double get_content() const;
-    Model* get_model() const;
-    const std::string& get_port_name() const;
-
-    void set_content(double content);
-    void set_model(Model* model);
-
-    std::string to_string() const;
-
-private :
-    std::string _port_name;
-    Model*      _model;
-    double      _content;
-};
-
-class Messages : public std::vector < Message >
-{
-public:
-    Messages()
+    Bag()
     { }
-    virtual ~Messages()
+    virtual ~Bag()
     { }
 
     std::string to_string() const;

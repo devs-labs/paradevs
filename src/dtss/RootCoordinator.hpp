@@ -1,5 +1,5 @@
 /**
- * @file EventTable.hpp
+ * @file RootCoordinator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,38 +24,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_EVENT_TABLE
-#define COMMON_EVENT_TABLE 1
+#ifndef PDEVS_ROOT_COORDINATOR
+#define PDEVS_ROOT_COORDINATOR 1
 
-#include <common/InternalEvent.hpp>
+#include <common/Builder.hpp>
+#include <pdevs/Coordinator.hpp>
 
-namespace paradevs { namespace common {
+namespace paradevs { namespace pdevs {
 
-class EventTable : protected std::vector < InternalEvent >
+class RootCoordinator
 {
-public:
-    EventTable()
-    { }
-    virtual ~EventTable()
-    { }
+public :
+    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
+                    const common::Builder& builder);
+    virtual ~RootCoordinator();
 
-    Model* get_current_model();
+    void run();
 
-    Models get_current_models(Time time) const;
+private :
+    Coordinator* _root;
+    common::Time _t_max;
 
-    Time get_current_time() const
-    { return back().get_time(); }
-
-    void init(Time time, Model* model);
-    void put(Time time, Model* model);
-
-    std::string to_string() const;
-
-private:
-    void remove(Model* model);
-
+    common::Time _tn;
 };
 
-} } // namespace paradevs common
+} } // namespace paradevs pdevs
 
 #endif

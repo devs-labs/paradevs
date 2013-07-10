@@ -1,5 +1,5 @@
 /**
- * @file Simulator.hpp
+ * @file RootCoordinator.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,35 +24,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_SIMULATOR
-#define DEVS_SIMULATOR 1
+#include <pdevs/RootCoordinator.hpp>
 
-#include <devs/Model.hpp>
-#include <devs/Dynamics.hpp>
-#include <common/Links.hpp>
-#include <common/Node.hpp>
+namespace paradevs { namespace pdevs {
 
-namespace paradevs { namespace devs {
+RootCoordinator::RootCoordinator(const common::Time& t_start,
+                                 const common::Time& t_max,
+                                 const common::Builder& builder) :
+    _root(dynamic_cast < Coordinator* >(builder.build())),
+    _t_max(t_max), _tn(t_start)
+{ }
 
-class Simulator : public Model
+RootCoordinator::~RootCoordinator()
+{ delete _root; }
+
+void RootCoordinator::run()
 {
-public :
-    Simulator(Dynamics* dynamics);
-    virtual ~Simulator();
+    _tn = _root->start(_tn);
+    while (_tn <= _t_max) {
+        _root->output(_tn);
+        _tn = _root->transition(_tn);
+    }
+}
 
-    virtual common::Time i_message(common::Time /* t */);
-    virtual common::Time s_message(common::Time /* t */);
-    virtual common::Time x_message(const common::Message& /* message */,
-                                   common::Time /* t */);
-    virtual void observation(std::ostream& file) const;
-
-    virtual Dynamics* get_dynamics() const
-    { return _dynamics; }
-
-private :
-    Dynamics* _dynamics;
-};
-
-} } // namespace paradevs devs
-
-#endif
+} } // namespace paradevs pdevs

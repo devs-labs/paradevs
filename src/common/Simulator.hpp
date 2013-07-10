@@ -1,5 +1,5 @@
 /**
- * @file Dynamics.hpp
+ * @file Simulator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,46 +24,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVS_DYNAMICS
-#define DEVS_DYNAMICS 1
+#ifndef COMMON_SIMULATOR
+#define COMMON_SIMULATOR 1
 
-#include <common/Message.hpp>
-#include <common/Time.hpp>
+#include <common/Links.hpp>
+#include <common/Node.hpp>
 
-#include <limits>
-#include <string>
-#include <vector>
+namespace paradevs { namespace common {
 
-namespace paradevs { namespace devs {
-
-class Message;
-class Messages;
-
-class Dynamics
+class Simulator : public Model
 {
-public:
-    Dynamics(const std::string& name);
-    virtual ~Dynamics();
-
-    virtual void dint(const common::Time& /* t */)
+public :
+    Simulator(const std::string& name) : Model(name)
     { }
-    virtual void dext(const common::Time& /* e */, const common::Message& /* msg */)
-    { }
-    virtual common::Time start()
-    { return std::numeric_limits < double >::max(); }
-    virtual common::Time ta() const
-    { return std::numeric_limits < double >::max(); }
-    virtual common::Messages lambda() const;
-    virtual void observation(std::ostream& /* file */) const
+    virtual ~Simulator()
     { }
 
-    const std::string& get_name() const
-    { return _name; }
-
-private:
-    std::string _name;
+    virtual void observation(std::ostream& file) const =0;
+    virtual void output(common::Time t) =0;
+    virtual void post_message(common::Time t,
+                              const common::ExternalEvent& event) = 0;
+    virtual common::Time start(common::Time t) =0;
+    virtual common::Time transition(common::Time t) =0;
 };
 
-} } // namespace paradevs devs
+} } // namespace paradevs common
 
 #endif

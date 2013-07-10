@@ -1,5 +1,5 @@
 /**
- * @file Model.cpp
+ * @file Dynamics.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,14 +24,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/Model.hpp>
+#include <dtss/Dynamics.hpp>
 
-namespace paradevs { namespace devs {
+namespace paradevs { namespace dtss {
 
-Model::Model(const std::string& name) : common::Model(name)
+Dynamics::Dynamics(const std::string& name) : _name(name)
 { }
 
-Model::~Model()
+Dynamics::~Dynamics()
 { }
 
-} } // namespace paradevs devs
+common::Bag Dynamics::lambda(common::Time /* time */) const
+{ return common::Bag(); }
+
+} } // namespace paradevs dtss

@@ -36,6 +36,21 @@ Model* EventTable::get_current_model()
     return back().get_model();
 }
 
+Models EventTable::get_current_models(Time time) const
+{
+    common::Models models;
+    bool found = true;
+
+    for (const_reverse_iterator it = rbegin(); found and it != rend(); ++it) {
+        if (it->get_time() == time) {
+            models.push_back(it->get_model());
+        } else {
+            found = false;
+        }
+    }
+    return models;
+}
+
 void EventTable::init(common::Time time, Model* model)
 {
     push_back(InternalEvent(time, model));

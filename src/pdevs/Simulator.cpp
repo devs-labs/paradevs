@@ -35,13 +35,18 @@
 namespace paradevs { namespace pdevs {
 
 Simulator::Simulator(Dynamics* dynamics) :
-    Model(dynamics->get_name()), _dynamics(dynamics)
+    common::Simulator(dynamics->get_name()), _dynamics(dynamics)
 { }
 
 Simulator::~Simulator()
 { delete _dynamics; }
 
-common::Time Simulator::i_message(common::Time t)
+/*************************************************
+ * when i-message(t)
+ *   tl = t - e
+ *   tn = tl + ta(s)
+ *************************************************/
+common::Time Simulator::start(common::Time t)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -62,23 +67,76 @@ common::Time Simulator::i_message(common::Time t)
     return _tn;
 }
 
+void Simulator::observation(std::ostream &file) const
+{
+    _dynamics->observation(file);
+}
+
 /*************************************************
  * when *-message(t)
  *   if (t = tn) then
  *     y = lambda(s)
- *     send #-message(y,t) to parent
- *     if (???) then
+ *     send y-message(y,t) to parent
+ *************************************************/
+void Simulator::output(common::Time t)
+{
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::OUTPUT)
+                           << ": BEFORE";
+    common::Trace::trace().flush();
+
+    if(t == _tn) {
+        common::Bag bag = _dynamics->lambda(t);
+
+        if (not bag.empty()) {
+            for (common::Bag::iterator it = bag.begin(); it != bag.end();
+                 ++it) {
+                it->set_model(this);
+            }
+            dynamic_cast < Coordinator* >(get_parent())->dispatch_events(bag,
+                                                                         t);
+        }
+    }
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::OUTPUT)
+                           << ": AFTER";
+    common::Trace::trace().flush();
+
+}
+
+void Simulator::post_message(common::Time t,
+                             const common::ExternalEvent& message)
+{
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::POST_MESSAGE)
+                           << ": BEFORE => " << message.to_string();
+    common::Trace::trace().flush();
+
+    add_event(message);
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::POST_MESSAGE)
+                           << ": AFTER => " << message.to_string();
+    common::Trace::trace().flush();
+
+}
+
+/*************************************************
+ * when x-message(t)
+ *   if (x is empty and t = tn) then
  *       s = delta_int(s)
- *     else
+ *  else if (x isn't empty and t = tn)
  *       s = delta_conf(s,x)
- *  else
- *    s = delta_ext(s,t-tl,x)
+ *  else if (x isn't empty and t < tn)
+ *    e = t - tl
+ *    s = delta_ext(s,e,x)
  *  tn = t + ta(s)
  *  tl = t
- *  empty x
- *  send done to parent
  *************************************************/
-common::Time Simulator::s_message(common::Time t)
+common::Time Simulator::transition(common::Time t)
 {
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
@@ -87,27 +145,20 @@ common::Time Simulator::s_message(common::Time t)
                            << "tl = " << _tl << " ; tn = " << _tn;
     common::Trace::trace().flush();
 
-    if(t == _tn) {
-        common::Messages msgs = _dynamics->lambda(t);
+    assert(_tl <= t and t <= _tn);
 
-        if (not msgs.empty()) {
-            for (common::Messages::iterator it = msgs.begin(); it != msgs.end();
-                 ++it) {
-                it->set_model(this);
-            }
-            dynamic_cast < Coordinator* >(get_parent())->y_message(msgs, t);
-        }
-        if (message_number() == 0) {
+    if(t == _tn) {
+        if (event_number() == 0) {
             _dynamics->dint(t);
         } else {
-            _dynamics->dconf(t, t - _tl, _x_messages);
+            _dynamics->dconf(t, t - _tl, get_bag());
         }
     } else {
-        _dynamics->dext(t, t - _tl, _x_messages);
+        _dynamics->dext(t, t - _tl, get_bag());
     }
     _tn = t + _dynamics->ta(t);
     _tl = t;
-    clear_messages();
+    clear_bag();
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::S_MESSAGE)
@@ -116,28 +167,6 @@ common::Time Simulator::s_message(common::Time t)
     common::Trace::trace().flush();
 
     return _tn;
-}
-
-void Simulator::observation(std::ostream &file) const
-{
-    _dynamics->observation(file);
-}
-
-void Simulator::post_message(common::Time t, const common::Message& message)
-{
-
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::POST_MESSAGE)
-                           << ": BEFORE => " << message.to_string();
-    common::Trace::trace().flush();
-
-    _x_messages.push_back(message);
-
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::POST_MESSAGE)
-                           << ": AFTER => " << message.to_string();
-    common::Trace::trace().flush();
-
 }
 
 } } // namespace paradevs pdevs

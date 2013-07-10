@@ -1,5 +1,5 @@
 /**
- * @file Model.hpp
+ * @file ExternalEvent.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,53 +24,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PDEVS_MODEL
-#define PDEVS_MODEL 1
+#ifndef COMMON_EXTERNAL_EVENT
+#define COMMON_EXTERNAL_EVENT 1
 
-#include <pdevs/Dynamics.hpp>
-#include <common/Message.hpp>
-#include <common/Time.hpp>
+#include <common/Model.hpp>
 
-#include <iostream>
+#include <string>
 #include <vector>
 
-namespace paradevs { namespace pdevs {
+namespace paradevs { namespace common {
 
-class Model : public common::Model
+class Model;
+
+class ExternalEvent
 {
 public:
-    Model(const std::string& name);
-    virtual ~Model();
+    ExternalEvent(const std::string& port_name, double content);
+    ExternalEvent(const std::string& port_name, Model* model, double content);
+    ExternalEvent();
+    virtual ~ExternalEvent();
 
-    virtual common::Time i_message(common::Time /* t */) = 0;
-    virtual common::Time s_message(common::Time /* t */) =0;
+    double get_content() const;
+    Model* get_model() const;
+    const std::string& get_port_name() const;
 
-    virtual bool is_atomic() const = 0;
-
-    virtual void clear_messages()
-    { _x_messages.clear(); }
-
-    virtual void post_message(common::Time /* t */,
-                              const common::Message& /* message */) = 0;
-
-    virtual bool message_number() const
-    { return _x_messages.size(); }
-
-protected:
-    common::Messages _x_messages;
-};
-
-class Models : public std::vector < Model* >
-{
-public:
-    Models()
-    { }
-    virtual ~Models()
-    { }
+    void set_content(double content);
+    void set_model(Model* model);
 
     std::string to_string() const;
+
+private :
+    std::string _port_name;
+    Model*      _model;
+    double      _content;
 };
 
-} } // namespace paradevs pdevs
+} } // namespace paradevs common
 
 #endif

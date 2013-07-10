@@ -38,7 +38,7 @@
 namespace paradevs { namespace common {
 
 enum TraceType { NONE = 0, I_MESSAGE, POST_MESSAGE, S_MESSAGE, Y_MESSAGE,
-                 DELTA_INT, DELTA_EXT, DELTA_CONF, TA, LAMBDA, START };
+                 DELTA_INT, DELTA_EXT, DELTA_CONF, TA, LAMBDA, START, OUTPUT };
 
 class TraceElement
 {

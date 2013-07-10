@@ -29,30 +29,27 @@
 
 #include <common/Links.hpp>
 #include <common/Node.hpp>
+#include <common/Simulator.hpp>
 
-#include <pdevs/Model.hpp>
 #include <pdevs/Dynamics.hpp>
 
 namespace paradevs { namespace pdevs {
 
-class Simulator : public Model
+class Simulator : public common::Simulator
 {
 public :
     Simulator(Dynamics* dynamics);
     virtual ~Simulator();
 
-    virtual common::Time i_message(common::Time /* t */);
-    virtual common::Time s_message(common::Time /* t */);
     virtual void observation(std::ostream& file) const;
+    virtual void output(common::Time /* t */);
+    virtual void post_message(common::Time /* t */,
+                              const common::ExternalEvent& /* message */);
+    virtual common::Time start(common::Time /* t */);
+    virtual common::Time transition(common::Time /* t */);
 
     virtual Dynamics* get_dynamics() const
     { return _dynamics; }
-
-    virtual bool is_atomic() const
-    { return true;}
-
-    virtual void post_message(common::Time /* t */,
-                              const common::Message& /* message */);
 
 private :
     Dynamics* _dynamics;

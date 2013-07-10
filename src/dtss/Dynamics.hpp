@@ -1,5 +1,5 @@
 /**
- * @file EventTable.hpp
+ * @file Dynamics.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,38 +24,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_EVENT_TABLE
-#define COMMON_EVENT_TABLE 1
+#ifndef DTSS_DYNAMICS
+#define DTSS_DYNAMICS 1
 
-#include <common/InternalEvent.hpp>
+#include <common/Bag.hpp>
+#include <common/ExternalEvent.hpp>
+#include <common/Time.hpp>
 
-namespace paradevs { namespace common {
+#include <limits>
+#include <string>
+#include <vector>
 
-class EventTable : protected std::vector < InternalEvent >
+namespace paradevs { namespace dtss {
+
+class Dynamics
 {
 public:
-    EventTable()
+    Dynamics(const std::string& name);
+    virtual ~Dynamics();
+
+    virtual void transition(const common::Bag& /* x */, common::Time /* t */)
     { }
-    virtual ~EventTable()
+    virtual common::Time start(common::Time /* time */)
+    { return std::numeric_limits < double >::max(); }
+    virtual common::Bag lambda(common::Time /* time */) const;
+    virtual void observation(std::ostream& /* file */) const
     { }
 
-    Model* get_current_model();
-
-    Models get_current_models(Time time) const;
-
-    Time get_current_time() const
-    { return back().get_time(); }
-
-    void init(Time time, Model* model);
-    void put(Time time, Model* model);
-
-    std::string to_string() const;
+    const std::string& get_name() const
+    { return _name; }
 
 private:
-    void remove(Model* model);
-
+    std::string _name;
 };
 
-} } // namespace paradevs common
+} } // namespace paradevs dtss
 
 #endif

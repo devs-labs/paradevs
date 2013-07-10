@@ -27,43 +27,42 @@
 #ifndef PDEVS_COORDINATOR
 #define PDEVS_COORDINATOR 1
 
-#include <pdevs/Model.hpp>
 #include <pdevs/EventTable.hpp>
 
+#include <common/Bag.hpp>
+#include <common/Coordinator.hpp>
 #include <common/Links.hpp>
-#include <common/Message.hpp>
+#include <common/ExternalEvent.hpp>
 #include <common/Node.hpp>
 
 #include <iostream>
 
 namespace paradevs { namespace pdevs {
 
-class Coordinator : public Model
+class Coordinator : public common::Coordinator
 {
-public :
+public:
     Coordinator(const std::string& name);
     virtual ~Coordinator();
 
 // DEVS methods
-    virtual common::Time i_message(common::Time /* t */);
-    virtual common::Time s_message(common::Time /* t */);
-    virtual common::Time y_message(common::Messages /* messages */,
-                                   common::Time /* t */);
-    virtual void observation(std::ostream& file) const;
-
-    virtual bool is_atomic() const
-    { return false;}
-
+    virtual void output(common::Time /* t */);
     virtual void post_message(common::Time /* t */,
-                              const common::Message& /* message */);
+                              const common::ExternalEvent& /* message */);
+    virtual common::Time dispatch_events(common::Bag /* bag */,
+                                         common::Time /* t */);
+    virtual common::Time start(common::Time /* t */);
+    virtual common::Time transition(common::Time /* t */);
+    virtual void observation(std::ostream& file) const;
 
 // graph methods
     virtual void add_child(Model* child);
-    virtual void add_link(const common::Node& source, const common::Node& destination);
+    virtual void add_link(const common::Node& source,
+                          const common::Node& destination);
 
-private :
+private:
     common::Links      _link_list;
-    Models             _child_list;
+    common::Models     _child_list;
     pdevs::EventTable  _event_table;
 };
 

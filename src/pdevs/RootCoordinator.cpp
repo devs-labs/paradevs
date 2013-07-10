@@ -31,7 +31,7 @@ namespace paradevs { namespace pdevs {
 RootCoordinator::RootCoordinator(const common::Time& t_start,
                                  const common::Time& t_max,
                                  const common::Builder& builder) :
-    _root(dynamic_cast < Coordinator* >(builder.build())),
+    _root(dynamic_cast < common::Coordinator* >(builder.build())),
     _t_max(t_max), _tn(t_start)
 { }
 
@@ -40,9 +40,10 @@ RootCoordinator::~RootCoordinator()
 
 void RootCoordinator::run()
 {
-    _tn = _root->i_message(_tn);
+    _tn = _root->start(_tn);
     while (_tn <= _t_max) {
-        _tn = _root->s_message(_tn);
+        _root->output(_tn);
+        _tn = _root->transition(_tn);
     }
 }
 

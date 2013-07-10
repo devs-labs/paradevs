@@ -1,5 +1,5 @@
 /**
- * @file devs_examples.hpp
+ * @file pdevs_examples.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -25,10 +25,10 @@
  */
 
 #include <common/Builder.hpp>
-#include <devs/Dynamics.hpp>
-#include <devs/Simulator.hpp>
+#include <dtss/Dynamics.hpp>
+#include <dtss/Simulator.hpp>
 
-namespace paradevs { namespace devs {
+namespace paradevs { namespace dtss {
 
 class A : public Dynamics
 {
@@ -38,17 +38,9 @@ public:
     virtual ~A()
     { }
 
-    virtual void dint(const common::Time& t);
-    virtual void dext(const common::Time& /* e */, const common::Message& msg);
-    virtual common::Time start();
-    virtual common::Time ta() const;
-    virtual common::Messages lambda() const;
-    virtual void observation(std::ostream& /* file */) const;
-
-private:
-    enum Phase { WAIT, SEND };
-
-    Phase _phase;
+    virtual void transition(const common::Bag& /* x */, common::Time /* t */);
+    virtual common::Time start(common::Time /* t */);
+    virtual common::Bag lambda(common::Time /* t */) const;
 };
 
 class B : public Dynamics
@@ -59,28 +51,31 @@ public:
     virtual ~B()
     { }
 
-    virtual void dint(const common::Time& t);
-    virtual void dext(const common::Time& /* e */, const common::Message& msg);
-    virtual common::Time start();
-    virtual common::Time ta() const;
-    virtual common::Messages lambda() const;
-    virtual void observation(std::ostream& /* file */) const;
-
-private:
-    enum Phase { WAIT, SEND };
-
-    Phase _phase;
+    virtual void transition(const common::Bag& /* x */, common::Time /* t */);
+    virtual common::Time start(common::Time /* t */);
+    virtual common::Bag lambda(common::Time /* t */) const;
 };
 
-class MyBuilder : public common::Builder
+class OnlyOneBuilder : public common::Builder
 {
 public:
-    MyBuilder()
+    OnlyOneBuilder()
     { }
-    virtual ~MyBuilder()
+    virtual ~OnlyOneBuilder()
     { }
 
     virtual common::Model* build() const;
 };
 
-} } // namespace paradevs devs
+class TwoBuilder : public common::Builder
+{
+public:
+    TwoBuilder()
+    { }
+    virtual ~TwoBuilder()
+    { }
+
+    virtual common::Model* build() const;
+};
+
+} } // namespace paradevs dtss

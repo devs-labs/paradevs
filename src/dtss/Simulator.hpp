@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.cpp
+ * @file Simulator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,26 +24,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <devs/RootCoordinator.hpp>
+#ifndef DTSS_SIMULATOR
+#define DTSS_SIMULATOR 1
 
-namespace paradevs { namespace devs {
+#include <common/Links.hpp>
+#include <common/Node.hpp>
+#include <common/Simulator.hpp>
 
-RootCoordinator::RootCoordinator(const common::Time& t_start,
-                                 const common::Time& t_max,
-                                 const common::Builder& builder) :
-    _root(dynamic_cast < Coordinator* >(builder.build())),
-    _t_max(t_max), _tn(t_start)
-{ }
+#include <dtss/Dynamics.hpp>
 
-RootCoordinator::~RootCoordinator()
-{ delete _root; }
+namespace paradevs { namespace dtss {
 
-void RootCoordinator::run()
+class Simulator : public common::Simulator
 {
-    _tn = _root->i_message(_tn);
-    while (_tn <= _t_max) {
-        _tn = _root->s_message(_tn);
-    }
-}
+public :
+    Simulator(Dynamics* dynamics, common::Time time_step);
+    virtual ~Simulator();
 
-} } // namespace paradevs devs
+    virtual void observation(std::ostream& file) const;
+    virtual void output(common::Time /* t */);
+    virtual void post_message(common::Time /* t */,
+                              const common::ExternalEvent& /* message */);
+    virtual common::Time start(common::Time /* t */);
+    virtual common::Time transition(common::Time /* t */);
+
+    virtual Dynamics* get_dynamics() const
+    { return _dynamics; }
+
+private :
+    Dynamics*    _dynamics;
+    common::Time _time_step;
+};
+
+} } // namespace paradevs dtss
+
+#endif
