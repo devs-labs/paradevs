@@ -63,7 +63,7 @@ public:
 
     void add_event(const common::ExternalEvent& event);
     void clear_bag();
-    const common::Bag& get_bag() const;
+    const common::Bag& get_bag();
     unsigned int event_number() const;
 
 protected:

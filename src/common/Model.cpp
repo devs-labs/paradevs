@@ -49,8 +49,13 @@ void Model::add_event(const common::ExternalEvent& message)
     _inputs->push_back(message);
 }
 
-const common::Bag& Model::get_bag() const
-{ return *_inputs; }
+const common::Bag& Model::get_bag()
+{
+    if (_inputs == 0) {
+        _inputs = new Bag;
+    }
+    return *_inputs;
+}
 
 void Model::clear_bag()
 {

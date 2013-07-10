@@ -30,3 +30,14 @@ TARGET_LINK_LIBRARIES(dtss-tests
   ${LIBXML_LIBRARIES}
   ${GTHREAD_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY})
+
+# mixed tests
+ADD_EXECUTABLE(mixed-tests mixed_tests.hpp mixed_tests.cpp)
+SET_TARGET_PROPERTIES(mixed-tests PROPERTIES ${PARADEVS_APP_PROPERTIES})
+
+TARGET_LINK_LIBRARIES(mixed-tests
+  common dtss pdevs
+  ${GLIBMM_LIBRARIES}
+  ${LIBXML_LIBRARIES}
+  ${GTHREAD_LIBRARIES}
+  ${Boost_FILESYSTEM_LIBRARY})
