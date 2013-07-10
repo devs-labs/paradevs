@@ -25,7 +25,7 @@ ADD_EXECUTABLE(dtss-tests dtss_tests.hpp dtss_tests.cpp)
 SET_TARGET_PROPERTIES(dtss-tests PROPERTIES ${PARADEVS_APP_PROPERTIES})
 
 TARGET_LINK_LIBRARIES(dtss-tests
-  common dtss pdevs
+  common dtss
   ${GLIBMM_LIBRARIES}
   ${LIBXML_LIBRARIES}
   ${GTHREAD_LIBRARIES}

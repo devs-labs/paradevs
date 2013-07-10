@@ -9,11 +9,9 @@ LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
   ${LIBXML_LIBRARY_DIR})
 
-SET(PDEVS_CPP Coordinator.cpp Dynamics.cpp RootCoordinator.cpp
-  Simulator.cpp)
+SET(PDEVS_CPP Coordinator.cpp Dynamics.cpp Simulator.cpp)
 
-SET(PDEVS_HPP Coordinator.hpp Dynamics.hpp RootCoordinator.hpp
-  Simulator.hpp)
+SET(PDEVS_HPP Coordinator.hpp Dynamics.hpp Simulator.hpp)
 
 ADD_LIBRARY(pdevs SHARED ${PDEVS_CPP};${PDEVS_HPP})
 

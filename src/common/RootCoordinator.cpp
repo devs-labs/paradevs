@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.hpp
+ * @file RootCoordinator.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,30 +24,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PDEVS_ROOT_COORDINATOR
-#define PDEVS_ROOT_COORDINATOR 1
+#include <common/RootCoordinator.hpp>
 
-#include <common/Builder.hpp>
-#include <pdevs/Coordinator.hpp>
+namespace paradevs { namespace common {
 
-namespace paradevs { namespace pdevs {
+RootCoordinator::RootCoordinator(const common::Time& t_start,
+                                 const common::Time& t_max,
+                                 const common::Builder& builder) :
+    _root(dynamic_cast < common::Coordinator* >(builder.build())),
+    _t_max(t_max), _tn(t_start)
+{ }
 
-class RootCoordinator
+RootCoordinator::~RootCoordinator()
+{ delete _root; }
+
+void RootCoordinator::run()
 {
-public :
-    RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+    _tn = _root->start(_tn);
+    while (_tn <= _t_max) {
+        _root->output(_tn);
+        _tn = _root->transition(_tn);
+    }
+}
 
-    void run();
-
-private :
-    common::Coordinator* _root;
-    common::Time         _t_max;
-
-    common::Time         _tn;
-};
-
-} } // namespace paradevs pdevs
-
-#endif
+} } // namespace paradevs common

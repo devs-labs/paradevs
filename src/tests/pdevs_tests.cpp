@@ -26,10 +26,10 @@
 
 #include <tests/pdevs_tests.hpp>
 
+#include <common/RootCoordinator.hpp>
 #include <common/Trace.hpp>
 
 #include <pdevs/Coordinator.hpp>
-#include <pdevs/RootCoordinator.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -248,7 +248,7 @@ common::Model* FlatBuilder::build() const
 TEST_CASE("pdevs/only_one", "run")
 {
     paradevs::pdevs::OnlyOneBuilder builder;
-    paradevs::pdevs::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator rc(0, 10, builder);
 
     paradevs::common::Trace::trace().clear();
     rc.run();
@@ -278,7 +278,7 @@ TEST_CASE("pdevs/only_one", "run")
 TEST_CASE("pdevs/flat", "run")
 {
     paradevs::pdevs::FlatBuilder builder;
-    paradevs::pdevs::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator rc(0, 10, builder);
 
     paradevs::common::Trace::trace().clear();
     rc.run();
@@ -363,7 +363,7 @@ TEST_CASE("pdevs/flat", "run")
 TEST_CASE("pdevs/hierachical", "run")
 {
     paradevs::pdevs::HierachicalBuilder builder;
-    paradevs::pdevs::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator rc(0, 10, builder);
 
     paradevs::common::Trace::trace().clear();
     rc.run();

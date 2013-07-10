@@ -26,10 +26,10 @@
 
 #include <tests/dtss_tests.hpp>
 
+#include <common/RootCoordinator.hpp>
 #include <common/Trace.hpp>
 
 #include <dtss/Coordinator.hpp>
-#include <pdevs/RootCoordinator.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -124,7 +124,7 @@ common::Model* TwoBuilder::build() const
 TEST_CASE("dtss/only_one", "run")
 {
     paradevs::dtss::OnlyOneBuilder builder;
-    paradevs::pdevs::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator rc(0, 10, builder);
 
     paradevs::common::Trace::trace().clear();
     rc.run();
@@ -145,7 +145,7 @@ TEST_CASE("dtss/only_one", "run")
 TEST_CASE("dtss/two", "run")
 {
     paradevs::dtss::TwoBuilder builder;
-    paradevs::pdevs::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator rc(0, 10, builder);
 
     paradevs::common::Trace::trace().clear();
     rc.run();
