@@ -27,10 +27,9 @@
 #ifndef PDEVS_COORDINATOR
 #define PDEVS_COORDINATOR 1
 
-#include <pdevs/EventTable.hpp>
-
 #include <common/Bag.hpp>
 #include <common/Coordinator.hpp>
+#include <common/EventTable.hpp>
 #include <common/Links.hpp>
 #include <common/ExternalEvent.hpp>
 #include <common/Node.hpp>
@@ -63,7 +62,7 @@ public:
 private:
     common::Links      _link_list;
     common::Models     _child_list;
-    pdevs::EventTable  _event_table;
+    common::EventTable _event_table;
 };
 
 } } // namespace paradevs pdevs
