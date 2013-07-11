@@ -45,6 +45,7 @@ Simulator::~Simulator()
 common::Time Simulator::start(common::Time t)
 {
     _dynamics->start(t);
+    _tl = t;
     _tn = t;
     return _tn;
 }
@@ -62,8 +63,8 @@ void Simulator::output(common::Time t)
                  ++it) {
                 it->set_model(this);
             }
-            dynamic_cast < Coordinator* >(get_parent())->dispatch_events(bag,
-                                                                         t);
+            dynamic_cast < common::Coordinator* >(get_parent())->dispatch_events(bag,
+                                                                                 t);
         }
     }
 }
@@ -74,9 +75,11 @@ void Simulator::post_message(common::Time /* t */,
 
 common::Time Simulator::transition(common::Time t)
 {
+
     assert(t == _tn);
 
     _dynamics->transition(get_bag(), t);
+    _tl = t;
     _tn = t + _time_step;
     clear_bag();
     return _tn;

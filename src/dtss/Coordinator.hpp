@@ -29,40 +29,152 @@
 
 #include <common/Bag.hpp>
 #include <common/Coordinator.hpp>
-#include <common/EventTable.hpp>
-#include <common/Links.hpp>
 #include <common/ExternalEvent.hpp>
+#include <common/Links.hpp>
 #include <common/Node.hpp>
+#include <common/Trace.hpp>
 
+#include <dtss/Simulator.hpp>
+
+#include <algorithm>
+#include <cassert>
 #include <iostream>
 
 namespace paradevs { namespace dtss {
 
+template < class Policy >
 class Coordinator : public common::Coordinator
 {
 public:
-    Coordinator(const std::string& name, common::Time time_step);
-    virtual ~Coordinator();
+    Coordinator(const std::string& name, common::Time time_step) :
+        common::Coordinator(name), _time_step(time_step)
+    { }
+    virtual ~Coordinator()
+    {
+        for (unsigned int i = 0; i < _child_list.size(); i++)
+        { delete _child_list[i]; }
+    }
 
 // DEVS methods
-    virtual void output(common::Time /* t */);
-    virtual void post_message(common::Time /* t */,
-                              const common::ExternalEvent& /* message */);
-    virtual common::Time dispatch_events(common::Bag /* bag */,
-                                         common::Time /* t */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Time transition(common::Time /* t */);
-    virtual void observation(std::ostream& file) const;
+    common::Time start(common::Time t)
+    {
+        assert(_child_list.size() > 0);
+
+        for (auto & child : _child_list) {
+            child->start(_tn);
+        }
+        _tl = t;
+        _tn = t;
+        return _tn;
+    }
+
+    common::Time dispatch_events(common::Bag bag, common::Time t)
+    {
+        for (auto & ymsg : bag) {
+            std::pair < common::Links::iterator ,
+                        common::Links::iterator > result_model =
+                _link_list.equal_range(common::Node(ymsg.get_port_name(),
+                                                    ymsg.get_model()));
+
+            for (common::Links::iterator it = result_model.first;
+                 it != result_model.second; ++it) {
+                // event on output port of coupled model
+                if (it->second.get_model() == this) {
+                    common::Bag ymessages;
+
+                    ymessages.push_back(
+                        common::ExternalEvent(it->second.get_port_name(),
+                                              it->second.get_model(),
+                                              ymsg.get_content()));
+                    dynamic_cast < Coordinator* >(get_parent())->dispatch_events(
+                        ymessages, t);
+                } else { // event on input port of internal model
+                    Model* model = dynamic_cast < Model* >(
+                        it->second.get_model());
+                    common::ExternalEvent message(it->second.get_port_name(),
+                                                  model, ymsg.get_content());
+
+                    model->post_message(t, message);
+                }
+            }
+        }
+        return _tn;
+    }
+
+    void observation(std::ostream& file) const
+    {
+        for (unsigned i = 0; i < _child_list.size(); i++) {
+            _child_list[i]->observation(file);
+        }
+    }
+
+    void output(common::Time t)
+    {
+        if (t == _tn) {
+            for (auto & model : _child_list) {
+                model->output(t);
+            }
+        }
+    }
+
+    void post_message(common::Time t,
+                      const common::ExternalEvent& event)
+    {
+        if (t == _tn) {
+            std::pair < common::Links::iterator, common::Links::iterator > result =
+                _link_list.equal_range(common::Node(event.get_port_name(), this));
+
+            for (common::Links::iterator it_r = result.first;
+                 it_r != result.second; ++it_r) {
+                Model* model = dynamic_cast < Model* >((*it_r).second.get_model());
+
+                model->post_message(t,
+                                    common::ExternalEvent(it_r->second.get_port_name(),
+                                                          model, event.get_content()));
+            }
+        } else {
+            _policy(t, event, _tl, _tn);
+        }
+    }
+
+    common::Time transition(common::Time t)
+    {
+        if (t == _tn) {
+            if (not _policy.bag().empty()) {
+                for (common::Bag::const_iterator it = _policy.bag().begin();
+                     it != _policy.bag().end(); ++it) {
+                    post_message(t, *it);
+                }
+            }
+            for (auto & model : _child_list) {
+                model->transition(t);
+            }
+            _tl = t;
+            _tn = t + _time_step;
+        }
+        clear_bag();
+        return _tn;
+    }
 
 // graph methods
-    virtual void add_child(Model* child);
-    virtual void add_link(const common::Node& source,
-                          const common::Node& destination);
+    void add_child(Model* child)
+    {
+        _child_list.push_back(child);
+        child->set_parent(this);
+    }
+
+    void add_link(const common::Node& source,
+                  const common::Node& destination)
+    {
+        _link_list.insert(std::pair < common::Node, common::Node >(source,
+                                                                   destination));
+    }
 
 private:
     common::Links  _link_list;
     common::Models _child_list;
     common::Time   _time_step;
+    Policy         _policy;
 };
 
 } } // namespace paradevs dtss

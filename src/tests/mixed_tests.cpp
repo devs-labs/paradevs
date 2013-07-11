@@ -98,7 +98,7 @@ common::Bag A1::lambda(common::Time t) const
 {
     common::Bag msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", 0.));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)
@@ -170,7 +170,7 @@ common::Bag B1::lambda(common::Time t) const
 {
     common::Bag msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", t));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)
@@ -243,6 +243,36 @@ common::Bag B2::lambda(common::Time t) const
     return msgs;
 }
 
+struct LastBagPolicy
+{
+    const common::Bag& bag() const
+    { return _bag; }
+
+    virtual void operator()(common::Time /* t */, const common::ExternalEvent& event,
+                            common::Time /* tl */, common::Time /* tn */)
+    {
+        _bag.clear();
+        _bag.push_back(event);
+    }
+
+private:
+    common::Bag _bag;
+};
+
+struct IgnorePolicy
+{
+    const common::Bag& bag() const
+    { return _bag; }
+
+    virtual void operator()(common::Time /* t */,
+                            const common::ExternalEvent& /* event */,
+                            common::Time /* tl */, common::Time /* tn */)
+    { }
+
+private:
+    common::Bag _bag;
+};
+
 common::Model* HierachicalBuilder::build() const
 {
     pdevs::Coordinator* root = new pdevs::Coordinator("root");
@@ -258,10 +288,11 @@ common::Model* HierachicalBuilder::build() const
         S1->add_link(common::Node("out", b), common::Node("out", S1));
     }
 
-    dtss::Coordinator* S2 = new dtss::Coordinator("S2", 1);
+    dtss::Coordinator < LastBagPolicy >* S2 =
+        new dtss::Coordinator < LastBagPolicy >("S2", 20);
     {
-        dtss::Simulator* a = new dtss::Simulator(new A2("a2"), 1);
-        dtss::Simulator* b = new dtss::Simulator(new B2("b2"), 1);
+        dtss::Simulator* a = new dtss::Simulator(new A2("a2"), 20);
+        dtss::Simulator* b = new dtss::Simulator(new B2("b2"), 20);
 
         S2->add_child(a);
         S2->add_child(b);
@@ -279,7 +310,7 @@ common::Model* HierachicalBuilder::build() const
 TEST_CASE("mixed/hierachical", "run")
 {
     paradevs::HierachicalBuilder builder;
-    paradevs::common::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator rc(0, 100, builder);
 
     paradevs::common::Trace::trace().clear();
     rc.run();
@@ -300,7 +331,7 @@ TEST_CASE("mixed/hierachical", "run")
     REQUIRE(paradevs::common::Trace::trace().elements().
             filter_model_name("a1").
             filter_type(paradevs::common::DELTA_EXT).size() == 0);
-    for (unsigned int t = 0; t <= 10; ++t) {
+    for (double t = 0; t <= 100; ++t) {
         REQUIRE(paradevs::common::Trace::trace().elements().
                 filter_model_name("a1").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
@@ -312,7 +343,7 @@ TEST_CASE("mixed/hierachical", "run")
                 filter_type(paradevs::common::TA).size() == 1);
     }
 
-    for (unsigned int t = 0; t <= 10; ++t) {
+    for (double t = 0; t <= 100; ++t) {
         REQUIRE(paradevs::common::Trace::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
@@ -327,7 +358,7 @@ TEST_CASE("mixed/hierachical", "run")
                 filter_type(paradevs::common::DELTA_EXT).size() == 1);
     }
 
-    for (unsigned int t = 0; t <= 10; ++t) {
+    for (unsigned int t = 0; t <= 100; t += 20) {
         REQUIRE(paradevs::common::Trace::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
@@ -336,7 +367,7 @@ TEST_CASE("mixed/hierachical", "run")
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
     }
 
-    for (unsigned int t = 0; t <= 10; ++t) {
+    for (unsigned int t = 0; t <= 100; t += 20) {
         REQUIRE(paradevs::common::Trace::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);

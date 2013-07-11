@@ -83,12 +83,19 @@ void Coordinator::output(common::Time t)
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::OUTPUT)
-                           << ": BEFORE";
+                           << ": BEFORE => "
+                           << "tl = " << _tl << " ; tn = " << _tn
+                           << " ; scheduler = " << _event_table.to_string();
     common::Trace::trace().flush();
 
     assert(t == _tn);
 
     common::Models IMM = _event_table.get_current_models(t);
+
+    common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                   common::OUTPUT)
+                           << ": IMM = " << IMM.to_string();
+    common::Trace::trace().flush();
 
     for (auto & model : IMM) {
         model->output(t);
@@ -96,7 +103,9 @@ void Coordinator::output(common::Time t)
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::OUTPUT)
-                           << ": AFTER";
+                           << ": AFTER => "
+                           << "tl = " << _tl << " ; tn = " << _tn
+                           << " ; scheduler = " << _event_table.to_string();
     common::Trace::trace().flush();
 
 }

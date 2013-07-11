@@ -66,7 +66,7 @@ std::string ExternalEvent::to_string() const
     std::ostringstream ss;
 
     ss << "( " << _port_name << " , " << (_model?_model->get_name():"<>")
-       << ")";
+       << " , " << _content << ")";
     return ss.str();
 }
 

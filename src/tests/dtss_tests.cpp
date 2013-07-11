@@ -56,7 +56,7 @@ common::Bag A::lambda(common::Time t) const
 {
     common::Bag msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", 0.));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)
@@ -88,7 +88,7 @@ common::Bag B::lambda(common::Time t) const
 {
     common::Bag msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", 0.));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)
@@ -98,9 +98,25 @@ common::Bag B::lambda(common::Time t) const
     return msgs;
 }
 
+struct Policy
+{
+    const common::Bag& bag() const
+    { return _bag; }
+
+    virtual void operator()(common::Time /* t */, const common::ExternalEvent& event,
+                            common::Time /* tl */, common::Time /* tn */)
+    {
+        _bag.clear();
+        _bag.push_back(event);
+    }
+
+private:
+    common::Bag _bag;
+};
+
 common::Model* OnlyOneBuilder::build() const
 {
-    dtss::Coordinator* root = new dtss::Coordinator("root", 1);
+    dtss::Coordinator < Policy >* root = new dtss::Coordinator < Policy >("root", 1);
     dtss::Simulator* a = new dtss::Simulator(new A("a"), 1);
 
     root->add_child(a);
@@ -109,7 +125,7 @@ common::Model* OnlyOneBuilder::build() const
 
 common::Model* TwoBuilder::build() const
 {
-    dtss::Coordinator* root = new dtss::Coordinator("root", 1);
+    dtss::Coordinator < Policy >* root = new dtss::Coordinator < Policy >("root", 1);
     dtss::Simulator* a = new dtss::Simulator(new A("a"), 1);
     dtss::Simulator* b = new dtss::Simulator(new B("b"), 1);
 
