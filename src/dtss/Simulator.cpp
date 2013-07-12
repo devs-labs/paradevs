@@ -24,65 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <common/Trace.hpp>
-
-#include <dtss/Coordinator.hpp>
 #include <dtss/Simulator.hpp>
 
-#include <cassert>
-#include <stdexcept>
-
 namespace paradevs { namespace dtss {
-
-Simulator::Simulator(Dynamics* dynamics, common::Time time_step) :
-    common::Simulator(dynamics->get_name()), _dynamics(dynamics),
-    _time_step(time_step)
-{ }
-
-Simulator::~Simulator()
-{ delete _dynamics; }
-
-common::Time Simulator::start(common::Time t)
-{
-    _dynamics->start(t);
-    _tl = t;
-    _tn = t;
-    return _tn;
-}
-
-void Simulator::observation(std::ostream &file) const
-{ _dynamics->observation(file); }
-
-void Simulator::output(common::Time t)
-{
-    if(t == _tn) {
-        common::Bag bag = _dynamics->lambda(t);
-
-        if (not bag.empty()) {
-            for (common::Bag::iterator it = bag.begin(); it != bag.end();
-                 ++it) {
-                it->set_model(this);
-            }
-            dynamic_cast < common::Coordinator* >(get_parent())->dispatch_events(bag,
-                                                                                 t);
-        }
-    }
-}
-
-void Simulator::post_message(common::Time /* t */,
-                             const common::ExternalEvent& event)
-{ add_event(event); }
-
-common::Time Simulator::transition(common::Time t)
-{
-
-    assert(t == _tn);
-
-    _dynamics->transition(get_bag(), t);
-    _tl = t;
-    _tn = t + _time_step;
-    clear_bag();
-    return _tn;
-}
 
 } } // namespace paradevs dtss

@@ -28,6 +28,7 @@
 #define COMMON_EXTERNAL_EVENT 1
 
 #include <common/Model.hpp>
+#include <common/Node.hpp>
 
 #include <string>
 #include <vector>
@@ -35,12 +36,13 @@
 namespace paradevs { namespace common {
 
 class Model;
+class Node;
 
 class ExternalEvent
 {
 public:
     ExternalEvent(const std::string& port_name, double content);
-    ExternalEvent(const std::string& port_name, Model* model, double content);
+    ExternalEvent(const Node& node, double content);
     ExternalEvent();
     virtual ~ExternalEvent();
 

@@ -49,10 +49,12 @@ public:
     Coordinator(const std::string& name, common::Time time_step) :
         common::Coordinator(name), _time_step(time_step)
     { }
+
     virtual ~Coordinator()
     {
-        for (unsigned int i = 0; i < _child_list.size(); i++)
-        { delete _child_list[i]; }
+        for (auto & child : _child_list) {
+            delete child;
+        }
     }
 
 // DEVS methods
@@ -71,10 +73,8 @@ public:
     common::Time dispatch_events(common::Bag bag, common::Time t)
     {
         for (auto & ymsg : bag) {
-            std::pair < common::Links::iterator ,
-                        common::Links::iterator > result_model =
-                _link_list.equal_range(common::Node(ymsg.get_port_name(),
-                                                    ymsg.get_model()));
+            common::Links::Result result_model =
+                _link_list.find(ymsg.get_model(), ymsg.get_port_name());
 
             for (common::Links::iterator it = result_model.first;
                  it != result_model.second; ++it) {
@@ -83,18 +83,13 @@ public:
                     common::Bag ymessages;
 
                     ymessages.push_back(
-                        common::ExternalEvent(it->second.get_port_name(),
-                                              it->second.get_model(),
-                                              ymsg.get_content()));
-                    dynamic_cast < Coordinator* >(get_parent())->dispatch_events(
-                        ymessages, t);
+                        common::ExternalEvent(it->second, ymsg.get_content()));
+                    dynamic_cast < common::Coordinator* >(get_parent())
+                        ->dispatch_events(ymessages, t);
                 } else { // event on input port of internal model
-                    Model* model = dynamic_cast < Model* >(
-                        it->second.get_model());
-                    common::ExternalEvent message(it->second.get_port_name(),
-                                                  model, ymsg.get_content());
-
-                    model->post_message(t, message);
+                    it->second.get_model()->post_event(
+                        t, common::ExternalEvent(it->second,
+                                                 ymsg.get_content()));
                 }
             }
         }
@@ -103,8 +98,8 @@ public:
 
     void observation(std::ostream& file) const
     {
-        for (unsigned i = 0; i < _child_list.size(); i++) {
-            _child_list[i]->observation(file);
+        for (auto & child : _child_list) {
+            child->observation(file);
         }
     }
 
@@ -117,20 +112,18 @@ public:
         }
     }
 
-    void post_message(common::Time t,
-                      const common::ExternalEvent& event)
+    void post_event(common::Time t,
+                    const common::ExternalEvent& event)
     {
         if (t == _tn) {
-            std::pair < common::Links::iterator, common::Links::iterator > result =
-                _link_list.equal_range(common::Node(event.get_port_name(), this));
+            common::Links::Result result =
+                _link_list.find(this, event.get_port_name());
 
             for (common::Links::iterator it_r = result.first;
                  it_r != result.second; ++it_r) {
-                Model* model = dynamic_cast < Model* >((*it_r).second.get_model());
-
-                model->post_message(t,
-                                    common::ExternalEvent(it_r->second.get_port_name(),
-                                                          model, event.get_content()));
+                it_r->second.get_model()->post_event(
+                    t, common::ExternalEvent(it_r->second,
+                                             event.get_content()));
             }
         } else {
             _policy(t, event, _tl, _tn);
@@ -140,11 +133,8 @@ public:
     common::Time transition(common::Time t)
     {
         if (t == _tn) {
-            if (not _policy.bag().empty()) {
-                for (common::Bag::const_iterator it = _policy.bag().begin();
-                     it != _policy.bag().end(); ++it) {
-                    post_message(t, *it);
-                }
+            for (auto & event : _policy.bag()) {
+                post_event(t, event);
             }
             for (auto & model : _child_list) {
                 model->transition(t);
@@ -163,11 +153,10 @@ public:
         child->set_parent(this);
     }
 
-    void add_link(const common::Node& source,
-                  const common::Node& destination)
+    void add_link(Model* out_model, const std::string& out_port_name,
+                  Model* in_model, const std::string& in_port_name)
     {
-        _link_list.insert(std::pair < common::Node, common::Node >(source,
-                                                                   destination));
+        _link_list.add(out_model, out_port_name, in_model, in_port_name);
     }
 
 private:

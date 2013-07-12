@@ -38,10 +38,19 @@ class Node;
 class Links : public std::multimap < Node, Node >
 {
 public:
+
+    typedef std::pair < common::Links::iterator,
+                        common::Links::iterator > Result;
+
     Links()
     { }
     virtual ~Links()
     { }
+
+    void add(Model* out_model, const std::string& out_port_name,
+             Model* in_model, const std::string& in_port_name);
+
+    Result find(Model* out_model, const std::string& out_port_name);
 
     std::string to_string() const;
 };

@@ -103,8 +103,10 @@ struct Policy
     const common::Bag& bag() const
     { return _bag; }
 
-    virtual void operator()(common::Time /* t */, const common::ExternalEvent& event,
-                            common::Time /* tl */, common::Time /* tn */)
+    virtual void operator()(common::Time /* t */,
+                            const common::ExternalEvent& event,
+                            common::Time /* tl */,
+                            common::Time /* tn */)
     {
         _bag.clear();
         _bag.push_back(event);
@@ -116,8 +118,9 @@ private:
 
 common::Model* OnlyOneBuilder::build() const
 {
-    dtss::Coordinator < Policy >* root = new dtss::Coordinator < Policy >("root", 1);
-    dtss::Simulator* a = new dtss::Simulator(new A("a"), 1);
+    dtss::Coordinator < Policy >* root =
+        new dtss::Coordinator < Policy >("root", 1);
+    dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
 
     root->add_child(a);
     return root;
@@ -125,13 +128,14 @@ common::Model* OnlyOneBuilder::build() const
 
 common::Model* TwoBuilder::build() const
 {
-    dtss::Coordinator < Policy >* root = new dtss::Coordinator < Policy >("root", 1);
-    dtss::Simulator* a = new dtss::Simulator(new A("a"), 1);
-    dtss::Simulator* b = new dtss::Simulator(new B("b"), 1);
+    dtss::Coordinator < Policy >* root =
+        new dtss::Coordinator < Policy >("root", 1);
+    dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
+    dtss::Simulator < B >* b = new dtss::Simulator < B >("b", 1);
 
     root->add_child(a);
     root->add_child(b);
-    root->add_link(common::Node("out", a), common::Node("in", b));
+    root->add_link(a, "out", b, "in");
     return root;
 }
 

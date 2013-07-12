@@ -30,6 +30,18 @@
 
 namespace paradevs { namespace common {
 
+void Links::add(Model* out_model, const std::string& out_port_name,
+                Model* in_model, const std::string& in_port_name)
+{
+    insert(std::pair < Node, Node >(Node(out_model, out_port_name),
+                                    Node(in_model, in_port_name)));
+}
+
+Links::Result Links::find(Model* out_model, const std::string& out_port_name)
+{
+    return equal_range(common::Node(out_model, out_port_name));
+}
+
 std::string Links::to_string() const
 {
     std::stringstream ss;

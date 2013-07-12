@@ -41,7 +41,7 @@ std::string TraceElements::to_string() const
         {
         case NONE: ss << "none"; break;
         case I_MESSAGE: ss << "i_message"; break;
-        case POST_MESSAGE:  ss << "post_message"; break;
+        case POST_EVENT:  ss << "post_event"; break;
         case S_MESSAGE: ss << "s_message"; break;
         case Y_MESSAGE: ss << "y_message"; break;
         case DELTA_INT: ss << "delta_int"; break;

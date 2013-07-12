@@ -42,8 +42,8 @@ public :
 
     virtual void observation(std::ostream& file) const =0;
     virtual void output(common::Time t) =0;
-    virtual void post_message(common::Time t,
-                              const common::ExternalEvent& event) = 0;
+    virtual void post_event(common::Time t,
+                            const common::ExternalEvent& event) = 0;
     virtual common::Time start(common::Time t) =0;
     virtual common::Time transition(common::Time t) =0;
 };

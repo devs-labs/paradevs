@@ -97,7 +97,7 @@ common::Bag A::lambda(common::Time t) const
 {
     common::Bag msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", 0.));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)
@@ -172,7 +172,7 @@ common::Bag B::lambda(common::Time t) const
 {
     common::Bag msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0, true));
+    msgs.push_back(common::ExternalEvent("out", 0.));
 
     common::Trace::trace() << common::TraceElement(get_name(), t,
                                                    common::LAMBDA)
@@ -191,35 +191,35 @@ common::Model* HierachicalBuilder::build() const
 
     pdevs::Coordinator* S1 = new pdevs::Coordinator("S1");
     {
-        pdevs::Simulator* a = new pdevs::Simulator(new A("a1"));
-        pdevs::Simulator* b = new pdevs::Simulator(new B("b1"));
+        pdevs::Simulator < A >* a = new pdevs::Simulator < A >("a1");
+        pdevs::Simulator < B >* b = new pdevs::Simulator < B >("b1");
 
         S1->add_child(a);
         S1->add_child(b);
-        S1->add_link(common::Node("out", a), common::Node("in", b));
-        S1->add_link(common::Node("out", b), common::Node("out", S1));
+        S1->add_link(a, "out", b, "in");
+        S1->add_link(b, "out", S1, "out");
     }
 
     pdevs::Coordinator* S2 = new pdevs::Coordinator("S2");
     {
-        pdevs::Simulator* a = new pdevs::Simulator(new A("a2"));
-        pdevs::Simulator* b = new pdevs::Simulator(new B("b2"));
+        pdevs::Simulator < A >* a = new pdevs::Simulator < A >("a2");
+        pdevs::Simulator < B >* b = new pdevs::Simulator < B >("b2");
 
         S2->add_child(a);
         S2->add_child(b);
-        S2->add_link(common::Node("out", a), common::Node("in", b));
-        S2->add_link(common::Node("in", S2), common::Node("in", a));
+        S2->add_link(a, "out", b, "in");
+        S2->add_link(S2, "in", a, "in");
     }
     root->add_child(S1);
     root->add_child(S2);
-    root->add_link(common::Node("out", S1), common::Node("in", S2));
+    root->add_link(S1, "out", S2, "in");
     return root;
 }
 
 common::Model* OnlyOneBuilder::build() const
 {
     pdevs::Coordinator* root = new pdevs::Coordinator("root");
-    pdevs::Simulator* a = new pdevs::Simulator(new A("a"));
+    pdevs::Simulator < A >* a = new pdevs::Simulator < A >("a");
 
     root->add_child(a);
     return root;
@@ -228,18 +228,18 @@ common::Model* OnlyOneBuilder::build() const
 common::Model* FlatBuilder::build() const
 {
     pdevs::Coordinator* root = new pdevs::Coordinator("root");
-    pdevs::Simulator* a1 = new pdevs::Simulator(new A("a1"));
-    pdevs::Simulator* b1 = new pdevs::Simulator(new B("b1"));
-    pdevs::Simulator* a2 = new pdevs::Simulator(new A("a2"));
-    pdevs::Simulator* b2 = new pdevs::Simulator(new B("b2"));
+    pdevs::Simulator < A >* a1 = new pdevs::Simulator < A >("a1");
+    pdevs::Simulator < B >* b1 = new pdevs::Simulator < B >("b1");
+    pdevs::Simulator < A >* a2 = new pdevs::Simulator < A >("a2");
+    pdevs::Simulator < B >* b2 = new pdevs::Simulator < B >("b2");
 
     root->add_child(a1);
     root->add_child(b1);
     root->add_child(a2);
     root->add_child(b2);
-    root->add_link(common::Node("out", a1), common::Node("in", b1));
-    root->add_link(common::Node("out", b1), common::Node("in", a2));
-    root->add_link(common::Node("out", a2), common::Node("in", b2));
+    root->add_link(a1, "out", b1, "in");
+    root->add_link(b1, "out", a2, "in");
+    root->add_link(a2, "out", b2, "in");
     return root;
 }
 

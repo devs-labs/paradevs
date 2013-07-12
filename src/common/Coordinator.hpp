@@ -48,8 +48,8 @@ public :
 
 // DEVS methods
     virtual void output(common::Time t) =0;
-    virtual void post_message(common::Time t,
-                              const common::ExternalEvent& event) =0;
+    virtual void post_event(common::Time t,
+                            const common::ExternalEvent& event) =0;
     virtual common::Time dispatch_events(common::Bag bag,
                                          common::Time t) =0;
     virtual common::Time start(common::Time t) =0;

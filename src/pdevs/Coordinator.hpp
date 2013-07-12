@@ -46,8 +46,8 @@ public:
 
 // DEVS methods
     virtual void output(common::Time /* t */);
-    virtual void post_message(common::Time /* t */,
-                              const common::ExternalEvent& /* message */);
+    virtual void post_event(common::Time /* t */,
+                            const common::ExternalEvent& /* event */);
     virtual common::Time dispatch_events(common::Bag /* bag */,
                                          common::Time /* t */);
     virtual common::Time start(common::Time /* t */);
@@ -56,10 +56,13 @@ public:
 
 // graph methods
     virtual void add_child(Model* child);
-    virtual void add_link(const common::Node& source,
-                          const common::Node& destination);
+    virtual void add_link(Model* out_model, const std::string& out_port_name,
+                          Model* in_model, const std::string& in_port_name);
 
 private:
+    void add_models_with_inputs(common::Models& receivers);
+    void update_event_table(common::Time t);
+
     common::Links      _link_list;
     common::Models     _child_list;
     common::EventTable _event_table;

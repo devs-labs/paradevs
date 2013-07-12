@@ -27,32 +27,72 @@
 #ifndef DTSS_SIMULATOR
 #define DTSS_SIMULATOR 1
 
-#include <common/Links.hpp>
-#include <common/Node.hpp>
+#include <common/Coordinator.hpp>
 #include <common/Simulator.hpp>
 
-#include <dtss/Dynamics.hpp>
+#include <cassert>
 
 namespace paradevs { namespace dtss {
 
+template < class Dynamics >
 class Simulator : public common::Simulator
 {
 public :
-    Simulator(Dynamics* dynamics, common::Time time_step);
-    virtual ~Simulator();
+    Simulator(const std::string& name, common::Time time_step) :
+        common::Simulator(name), _dynamics(name), _time_step(time_step)
+    { }
 
-    virtual void observation(std::ostream& file) const;
-    virtual void output(common::Time /* t */);
-    virtual void post_message(common::Time /* t */,
-                              const common::ExternalEvent& /* message */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Time transition(common::Time /* t */);
+    ~Simulator()
+    {  }
 
-    virtual Dynamics* get_dynamics() const
-    { return _dynamics; }
+    common::Time start(common::Time t)
+    {
+        _dynamics.start(t);
+        _tl = t;
+        _tn = t;
+        return _tn;
+    }
+
+    void observation(std::ostream &file) const
+    {
+        _dynamics.observation(file);
+    }
+
+    void output(common::Time t)
+    {
+        if(t == _tn) {
+            common::Bag bag = _dynamics.lambda(t);
+
+            if (not bag.empty()) {
+                for (auto & event : bag) {
+                    event.set_model(this);
+                }
+                dynamic_cast < common::Coordinator* >(get_parent())
+                    ->dispatch_events(bag, t);
+            }
+        }
+    }
+
+    void post_event(common::Time /* t */,
+                    const common::ExternalEvent& event)
+    {
+        add_event(event);
+    }
+
+    common::Time transition(common::Time t)
+    {
+
+        assert(t == _tn);
+
+        _dynamics.transition(get_bag(), t);
+        _tl = t;
+        _tn = t + _time_step;
+        clear_bag();
+        return _tn;
+    }
 
 private :
-    Dynamics*    _dynamics;
+    Dynamics     _dynamics;
     common::Time _time_step;
 };
 

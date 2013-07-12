@@ -38,8 +38,8 @@ class Model;
 class Node
 {
 public :
-    Node(const std::string& port_name, Model* model);
-    Node(const Node & other);
+    Node(Model* model, const std::string& port_name);
+    Node(const Node& other);
     virtual ~Node();
 
     Model* get_model() const;
@@ -49,8 +49,8 @@ public :
     virtual bool operator==(const Node& other) const;
 
 private :
-    std::string _port_name;
     Model*      _model;
+    std::string _port_name;
 };
 
 } } // namespace paradevs common

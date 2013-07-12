@@ -25,7 +25,6 @@
  */
 
 #include <common/ExternalEvent.hpp>
-#include <common/Node.hpp>
 
 #include <sstream>
 
@@ -35,9 +34,9 @@ ExternalEvent::ExternalEvent(const std::string& port_name, double content) :
     _port_name(port_name), _model(0), _content(content)
 { }
 
-ExternalEvent::ExternalEvent(const std::string& port_name, Model* model,
-                             double content) :
-    _port_name(port_name), _model(model), _content(content)
+ExternalEvent::ExternalEvent(const Node& node, double content) :
+    _port_name(node.get_port_name()), _model(node.get_model()),
+    _content(content)
 { }
 
 ExternalEvent::ExternalEvent()

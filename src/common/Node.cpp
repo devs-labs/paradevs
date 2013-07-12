@@ -28,12 +28,12 @@
 
 namespace paradevs { namespace common {
 
-Node::Node(const std::string& port_name, Model* model)
-    : _port_name(port_name), _model(model)
+Node::Node(Model* model, const std::string& port_name)
+    : _model(model), _port_name(port_name)
 { }
 
 Node::Node(const Node& other)
-    : _port_name(other._port_name), _model(other._model)
+    : _model(other._model), _port_name(other._port_name)
 { }
 
 Node::~Node()
