@@ -29,6 +29,7 @@
 
 #include <common/Coordinator.hpp>
 #include <common/Simulator.hpp>
+#include <common/Trace.hpp>
 
 #include <cassert>
 
@@ -47,9 +48,22 @@ public :
 
     common::Time start(common::Time t)
     {
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::I_MESSAGE)
+                               << ": BEFORE => "
+                               << "tl = " << _tl << " ; tn = " << _tn;
+        common::Trace::trace().flush();
+
         _dynamics.start(t);
         _tl = t;
         _tn = t;
+
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::I_MESSAGE)
+                               << ": AFTER => "
+                               << "tl = " << _tl << " ; tn = " << _tn;
+        common::Trace::trace().flush();
+
         return _tn;
     }
 
@@ -60,6 +74,11 @@ public :
 
     void output(common::Time t)
     {
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::OUTPUT)
+                               << ": BEFORE";
+        common::Trace::trace().flush();
+
         if(t == _tn) {
             common::Bag bag = _dynamics.lambda(t);
 
@@ -71,16 +90,40 @@ public :
                     ->dispatch_events(bag, t);
             }
         }
+
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::OUTPUT)
+                               << ": AFTER";
+        common::Trace::trace().flush();
+
     }
 
-    void post_event(common::Time /* t */,
+    void post_event(common::Time t,
                     const common::ExternalEvent& event)
     {
+
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::POST_EVENT)
+                               << ": BEFORE => " << event.to_string();
+        common::Trace::trace().flush();
+
         add_event(event);
+
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::POST_EVENT)
+                               << ": AFTER => " << event.to_string();
+        common::Trace::trace().flush();
+
     }
 
     common::Time transition(common::Time t)
     {
+
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::S_MESSAGE)
+                               << ": BEFORE => "
+                               << "tl = " << _tl << " ; tn = " << _tn;
+        common::Trace::trace().flush();
 
         assert(t == _tn);
 
@@ -88,6 +131,13 @@ public :
         _tl = t;
         _tn = t + _time_step;
         clear_bag();
+
+        common::Trace::trace() << common::TraceElement(get_name(), t,
+                                                       common::S_MESSAGE)
+                               << ": AFTER => "
+                               << "tl = " << _tl << " ; tn = " << _tn;
+        common::Trace::trace().flush();
+
         return _tn;
     }
 

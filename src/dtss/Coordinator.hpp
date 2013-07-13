@@ -27,16 +27,8 @@
 #ifndef DTSS_COORDINATOR
 #define DTSS_COORDINATOR 1
 
-#include <common/Bag.hpp>
 #include <common/Coordinator.hpp>
-#include <common/ExternalEvent.hpp>
-#include <common/Links.hpp>
-#include <common/Node.hpp>
-#include <common/Trace.hpp>
 
-#include <dtss/Simulator.hpp>
-
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 

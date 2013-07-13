@@ -173,19 +173,6 @@ public :
         return _tn;
     }
 
-    // Simulator(Dynamics* dynamics);
-    // virtual ~Simulator();
-
-    // virtual void observation(std::ostream& file) const;
-    // virtual void output(common::Time /* t */);
-    // virtual void post_event(common::Time /* t */,
-    //                         const common::ExternalEvent& /* event */);
-    // virtual common::Time start(common::Time /* t */);
-    // virtual common::Time transition(common::Time /* t */);
-
-    // virtual Dynamics* get_dynamics() const
-    // { return _dynamics; }
-
 private :
     Dynamics _dynamics;
 };

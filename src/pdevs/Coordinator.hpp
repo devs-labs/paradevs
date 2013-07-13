@@ -27,13 +27,8 @@
 #ifndef PDEVS_COORDINATOR
 #define PDEVS_COORDINATOR 1
 
-#include <common/Bag.hpp>
 #include <common/Coordinator.hpp>
 #include <common/EventTable.hpp>
-#include <common/Links.hpp>
-#include <common/ExternalEvent.hpp>
-#include <common/Node.hpp>
-#include <common/Trace.hpp>
 
 #include <cassert>
 #include <iostream>
