@@ -1,5 +1,5 @@
 /**
- * @file Builder.hpp
+ * @file GraphManager.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,22 +24,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_BUILDER
-#define COMMON_BUILDER 1
+#include <pdevs/GraphManager.hpp>
 
-#include <common/Model.hpp>
+namespace paradevs { namespace pdevs {
 
-namespace paradevs { namespace common {
+GraphManager::GraphManager(common::Coordinator* coordinator) :
+    _coordinator(coordinator)
+{ }
 
-class Builder
+GraphManager::~GraphManager()
 {
-public :
-    Builder();
-    virtual ~Builder();
+    for (auto & child : _child_list) {
+        delete child;
+    }
+}
 
-    virtual Model* build() const =0;
-};
+void GraphManager::add_child(common::Model* child)
+{
+    _child_list.push_back(child);
+    child->set_parent(_coordinator);
+}
 
-} } // namespace paradevs common
+void GraphManager::add_link(common::Model* out_model, const std::string& out_port_name,
+                            common::Model* in_model, const std::string& in_port_name)
+{
+    _link_list.add(out_model, out_port_name, in_model, in_port_name);
+}
 
-#endif
+} } // namespace paradevs pdevs

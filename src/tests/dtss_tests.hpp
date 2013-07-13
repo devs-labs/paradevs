@@ -24,9 +24,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <common/Builder.hpp>
 #include <dtss/Dynamics.hpp>
-#include <dtss/Simulator.hpp>
 
 namespace paradevs { namespace dtss {
 
@@ -54,28 +52,6 @@ public:
     virtual void transition(const common::Bag& /* x */, common::Time /* t */);
     virtual common::Time start(common::Time /* t */);
     virtual common::Bag lambda(common::Time /* t */) const;
-};
-
-class OnlyOneBuilder : public common::Builder
-{
-public:
-    OnlyOneBuilder()
-    { }
-    virtual ~OnlyOneBuilder()
-    { }
-
-    virtual common::Model* build() const;
-};
-
-class TwoBuilder : public common::Builder
-{
-public:
-    TwoBuilder()
-    { }
-    virtual ~TwoBuilder()
-    { }
-
-    virtual common::Model* build() const;
 };
 
 } } // namespace paradevs dtss

@@ -9,10 +9,10 @@ LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
   ${LIBXML_LIBRARY_DIR})
 
-SET(COMMON_CPP Bag.cpp Builder.cpp EventTable.cpp ExternalEvent.cpp
+SET(COMMON_CPP Bag.cpp EventTable.cpp ExternalEvent.cpp
   InternalEvent.cpp Links.cpp Model.cpp Node.cpp RootCoordinator.cpp Trace.cpp)
 
-SET(COMMON_HPP Bag.hpp Builder.hpp EventTable.hpp ExternalEvent.hpp
+SET(COMMON_HPP Bag.hpp EventTable.hpp ExternalEvent.hpp
   InternalEvent.hpp Links.hpp Node.hpp RootCoordinator.hpp Time.hpp Trace.cpp)
 
 ADD_LIBRARY(common SHARED ${COMMON_CPP};${COMMON_HPP})

@@ -24,9 +24,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <common/Builder.hpp>
 #include <pdevs/Dynamics.hpp>
-#include <pdevs/Simulator.hpp>
 
 namespace paradevs { namespace pdevs {
 
@@ -76,39 +74,6 @@ private:
     enum Phase { WAIT, SEND };
 
     Phase _phase;
-};
-
-class HierachicalBuilder : public common::Builder
-{
-public:
-    HierachicalBuilder()
-    { }
-    virtual ~HierachicalBuilder()
-    { }
-
-    virtual common::Model* build() const;
-};
-
-class OnlyOneBuilder : public common::Builder
-{
-public:
-    OnlyOneBuilder()
-    { }
-    virtual ~OnlyOneBuilder()
-    { }
-
-    virtual common::Model* build() const;
-};
-
-class FlatBuilder : public common::Builder
-{
-public:
-    FlatBuilder()
-    { }
-    virtual ~FlatBuilder()
-    { }
-
-    virtual common::Model* build() const;
 };
 
 } } // namespace paradevs pdevs

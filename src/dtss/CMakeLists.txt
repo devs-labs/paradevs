@@ -9,9 +9,9 @@ LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
   ${LIBXML_LIBRARY_DIR})
 
-SET(DTSS_CPP Coordinator.cpp Dynamics.cpp Simulator.cpp)
+SET(DTSS_CPP Coordinator.cpp Dynamics.cpp GraphManager.cpp Simulator.cpp)
 
-SET(DTSS_HPP Coordinator.hpp Dynamics.hpp Simulator.hpp)
+SET(DTSS_HPP Coordinator.hpp Dynamics.hpp GraphManager.hpp Simulator.hpp)
 
 ADD_LIBRARY(dtss SHARED ${DTSS_CPP};${DTSS_HPP})
 

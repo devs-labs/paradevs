@@ -1,5 +1,5 @@
 /**
- * @file RootCoordinator.cpp
+ * @file GraphManager.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,8 +24,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <common/RootCoordinator.hpp>
+#ifndef DTSS_GRAPH_MANANGER
+#define DTSS_GRAPH_MANANGER 1
 
-namespace paradevs { namespace common {
+#include <common/Coordinator.hpp>
+#include <common/Links.hpp>
+#include <common/Model.hpp>
 
-} } // namespace paradevs common
+namespace paradevs { namespace dtss {
+
+class GraphManager
+{
+public:
+    GraphManager(common::Coordinator* coordinator);
+    virtual ~GraphManager();
+
+    virtual void add_child(common::Model* child);
+    virtual void add_link(common::Model* out_model, const std::string& out_port_name,
+                          common::Model* in_model, const std::string& in_port_name);
+    const common::Models& children() const
+    { return _child_list; }
+    const common::Links& links() const
+    { return _link_list; }
+
+private:
+    common::Links        _link_list;
+    common::Models       _child_list;
+    common::Coordinator* _coordinator;
+};
+
+} } // namespace paradevs dtss
+
+#endif

@@ -30,6 +30,7 @@
 #include <common/Trace.hpp>
 
 #include <dtss/Coordinator.hpp>
+#include <dtss/GraphManager.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -116,35 +117,48 @@ private:
     common::Bag _bag;
 };
 
-common::Model* OnlyOneBuilder::build() const
+class OnlyOneGraphManager : public dtss::GraphManager
 {
-    dtss::Coordinator < Policy >* root =
-        new dtss::Coordinator < Policy >("root", 1);
-    dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
+public:
+    OnlyOneGraphManager(common::Coordinator* coordinator) :
+        dtss::GraphManager(coordinator)
+    {
+        dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
 
-    root->add_child(a);
-    return root;
-}
+        add_child(a);
+    }
 
-common::Model* TwoBuilder::build() const
+    virtual ~OnlyOneGraphManager()
+    { }
+};
+
+class TwoGraphManager : public dtss::GraphManager
 {
-    dtss::Coordinator < Policy >* root =
-        new dtss::Coordinator < Policy >("root", 1);
-    dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
-    dtss::Simulator < B >* b = new dtss::Simulator < B >("b", 1);
+public:
+    TwoGraphManager(common::Coordinator* coordinator) :
+        dtss::GraphManager(coordinator)
+    {
+        dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
+        dtss::Simulator < B >* b = new dtss::Simulator < B >("b", 1);
 
-    root->add_child(a);
-    root->add_child(b);
-    root->add_link(a, "out", b, "in");
-    return root;
-}
+        add_child(a);
+        add_child(b);
+        add_link(a, "out", b, "in");
+    }
+
+    virtual ~TwoGraphManager()
+    { }
+};
 
 } } // namespace paradevs dtss
 
 TEST_CASE("dtss/only_one", "run")
 {
-    paradevs::dtss::OnlyOneBuilder builder;
-    paradevs::common::RootCoordinator rc(0, 10, builder);
+
+    paradevs::common::RootCoordinator <
+        paradevs::dtss::Coordinator < paradevs::dtss::Policy,
+                                      paradevs::dtss::OnlyOneGraphManager >
+        > rc(0, 10, "root", paradevs::dtss::Parameters(1));
 
     paradevs::common::Trace::trace().clear();
     rc.run();
@@ -164,8 +178,10 @@ TEST_CASE("dtss/only_one", "run")
 
 TEST_CASE("dtss/two", "run")
 {
-    paradevs::dtss::TwoBuilder builder;
-    paradevs::common::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator <
+        paradevs::dtss::Coordinator < paradevs::dtss::Policy,
+                                      paradevs::dtss::TwoGraphManager >
+        > rc(0, 10, "root", paradevs::dtss::Parameters(1));
 
     paradevs::common::Trace::trace().clear();
     rc.run();

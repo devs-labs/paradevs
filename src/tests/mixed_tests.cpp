@@ -30,7 +30,12 @@
 #include <common/Trace.hpp>
 
 #include <dtss/Coordinator.hpp>
+#include <dtss/GraphManager.hpp>
+#include <dtss/Simulator.hpp>
+
 #include <pdevs/Coordinator.hpp>
+#include <pdevs/GraphManager.hpp>
+#include <pdevs/Simulator.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -274,44 +279,73 @@ private:
     common::Bag _bag;
 };
 
-common::Model* HierachicalBuilder::build() const
+class S1GraphManager : public pdevs::GraphManager
 {
-    pdevs::Coordinator* root = new pdevs::Coordinator("root");
-
-    pdevs::Coordinator* S1 = new pdevs::Coordinator("S1");
+public:
+    S1GraphManager(common::Coordinator* coordinator) :
+        pdevs::GraphManager(coordinator)
     {
         pdevs::Simulator < A1 >* a = new pdevs::Simulator < A1 >("a1");
         pdevs::Simulator < B1 >* b = new pdevs::Simulator < B1 >("b1");
 
-        S1->add_child(a);
-        S1->add_child(b);
-        S1->add_link(a, "out", b, "in");
-        S1->add_link(b, "out", S1, "out");
+        add_child(a);
+        add_child(b);
+        add_link(a, "out", b, "in");
+        add_link(b, "out", coordinator, "out");
     }
 
-    dtss::Coordinator < LastBagPolicy >* S2 =
-        new dtss::Coordinator < LastBagPolicy >("S2", 20);
+    virtual ~S1GraphManager()
+    { }
+};
+
+class S2GraphManager : public dtss::GraphManager
+{
+public:
+    S2GraphManager(common::Coordinator* coordinator) :
+        dtss::GraphManager(coordinator)
     {
         dtss::Simulator < A2 >* a = new dtss::Simulator < A2 >("a2", 20);
         dtss::Simulator < B2 >* b = new dtss::Simulator < B2 >("b2", 20);
 
-        S2->add_child(a);
-        S2->add_child(b);
-        S2->add_link(a, "out", b, "in");
-        S2->add_link(S2, "in", a, "in");
+        add_child(a);
+        add_child(b);
+        add_link(a, "out", b, "in");
+        add_link(coordinator, "in", a, "in");
     }
-    root->add_child(S1);
-    root->add_child(S2);
-    root->add_link(S1, "out", S2, "in");
-    return root;
-}
+
+    virtual ~S2GraphManager()
+    { }
+};
+
+class RootGraphManager : public pdevs::GraphManager
+{
+public:
+    RootGraphManager(common::Coordinator* coordinator) :
+        pdevs::GraphManager(coordinator)
+    {
+        pdevs::Coordinator < S1GraphManager >* S1 =
+            new pdevs::Coordinator < S1GraphManager >(
+                "S1", paradevs::pdevs::Parameters());
+        dtss::Coordinator < LastBagPolicy, S2GraphManager >* S2 =
+            new dtss::Coordinator < LastBagPolicy, S2GraphManager >(
+                "S2", paradevs::dtss::Parameters(20));
+
+        add_child(S1);
+        add_child(S2);
+        add_link(S1, "out", S2, "in");
+    }
+
+    virtual ~RootGraphManager()
+    { }
+};
 
 } // namespace paradevs
 
 TEST_CASE("mixed/hierachical", "run")
 {
-    paradevs::HierachicalBuilder builder;
-    paradevs::common::RootCoordinator rc(0, 100, builder);
+    paradevs::common::RootCoordinator <
+        paradevs::pdevs::Coordinator < paradevs::RootGraphManager >
+        > rc(0, 100, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace::trace().clear();
     rc.run();

@@ -27,25 +27,39 @@
 #ifndef COMMON_ROOT_COORDINATOR
 #define COMMON_ROOT_COORDINATOR 1
 
-#include <common/Builder.hpp>
-#include <common/Coordinator.hpp>
+#include <common/Time.hpp>
+
+#include <string>
 
 namespace paradevs { namespace common {
 
+template < class Coordinator >
 class RootCoordinator
 {
 public :
     RootCoordinator(const common::Time& t_start, const common::Time& t_max,
-                    const common::Builder& builder);
-    virtual ~RootCoordinator();
+                    const std::string& root_name,
+                    const typename Coordinator::parameters_type& parameters) :
+        _root(root_name, parameters), _t_max(t_max), _tn(t_start)
+    { }
 
-    void run();
+    virtual ~RootCoordinator()
+    { }
+
+    void run()
+    {
+        _tn = _root.start(_tn);
+        while (_tn <= _t_max) {
+            _root.output(_tn);
+            _tn = _root.transition(_tn);
+        }
+    }
 
 private :
-    common::Coordinator* _root;
-    common::Time         _t_max;
+    Coordinator  _root;
+    common::Time _t_max;
 
-    common::Time         _tn;
+    common::Time _tn;
 };
 
 } } // namespace paradevs common

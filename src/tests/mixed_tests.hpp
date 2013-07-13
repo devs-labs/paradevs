@@ -24,13 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <common/Builder.hpp>
-
 #include <dtss/Dynamics.hpp>
-#include <dtss/Simulator.hpp>
-
 #include <pdevs/Dynamics.hpp>
-#include <pdevs/Simulator.hpp>
 
 namespace paradevs {
 
@@ -104,17 +99,6 @@ public:
     virtual void transition(const common::Bag& /* x */, common::Time /* t */);
     virtual common::Time start(common::Time /* t */);
     virtual common::Bag lambda(common::Time /* t */) const;
-};
-
-class HierachicalBuilder : public common::Builder
-{
-public:
-    HierachicalBuilder()
-    { }
-    virtual ~HierachicalBuilder()
-    { }
-
-    virtual common::Model* build() const;
 };
 
 } // namespace paradevs

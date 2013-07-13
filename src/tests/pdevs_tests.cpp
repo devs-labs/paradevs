@@ -30,6 +30,8 @@
 #include <common/Trace.hpp>
 
 #include <pdevs/Coordinator.hpp>
+#include <pdevs/GraphManager.hpp>
+#include <pdevs/Simulator.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -185,70 +187,110 @@ common::Bag B::lambda(common::Time t) const
 void B::observation(std::ostream& /* file */) const
 { }
 
-common::Model* HierachicalBuilder::build() const
+class S1GraphManager : public pdevs::GraphManager
 {
-    pdevs::Coordinator* root = new pdevs::Coordinator("root");
-
-    pdevs::Coordinator* S1 = new pdevs::Coordinator("S1");
+public:
+    S1GraphManager(common::Coordinator* coordinator) :
+        pdevs::GraphManager(coordinator)
     {
         pdevs::Simulator < A >* a = new pdevs::Simulator < A >("a1");
         pdevs::Simulator < B >* b = new pdevs::Simulator < B >("b1");
 
-        S1->add_child(a);
-        S1->add_child(b);
-        S1->add_link(a, "out", b, "in");
-        S1->add_link(b, "out", S1, "out");
+        add_child(a);
+        add_child(b);
+        add_link(a, "out", b, "in");
+        add_link(b, "out", coordinator, "out");
     }
 
-    pdevs::Coordinator* S2 = new pdevs::Coordinator("S2");
+    virtual ~S1GraphManager()
+    { }
+};
+
+class S2GraphManager : public pdevs::GraphManager
+{
+public:
+    S2GraphManager(common::Coordinator* coordinator) :
+        pdevs::GraphManager(coordinator)
     {
         pdevs::Simulator < A >* a = new pdevs::Simulator < A >("a2");
         pdevs::Simulator < B >* b = new pdevs::Simulator < B >("b2");
 
-        S2->add_child(a);
-        S2->add_child(b);
-        S2->add_link(a, "out", b, "in");
-        S2->add_link(S2, "in", a, "in");
+        add_child(a);
+        add_child(b);
+        add_link(a, "out", b, "in");
+        add_link(coordinator, "in", a, "in");
     }
-    root->add_child(S1);
-    root->add_child(S2);
-    root->add_link(S1, "out", S2, "in");
-    return root;
-}
 
-common::Model* OnlyOneBuilder::build() const
+    virtual ~S2GraphManager()
+    { }
+};
+
+class RootGraphManager : public pdevs::GraphManager
 {
-    pdevs::Coordinator* root = new pdevs::Coordinator("root");
-    pdevs::Simulator < A >* a = new pdevs::Simulator < A >("a");
+public:
+    RootGraphManager(common::Coordinator* coordinator) :
+        pdevs::GraphManager(coordinator)
+    {
+        Coordinator < S1GraphManager >* S1 =
+            new Coordinator < S1GraphManager >("S1", Parameters());
+        Coordinator < S2GraphManager >* S2 =
+            new Coordinator < S2GraphManager >("S2", Parameters());
 
-    root->add_child(a);
-    return root;
-}
+        add_child(S1);
+        add_child(S2);
+        add_link(S1, "out", S2, "in");
+    }
 
-common::Model* FlatBuilder::build() const
+    virtual ~RootGraphManager()
+    { }
+};
+
+class OnlyOneGraphManager : public pdevs::GraphManager
 {
-    pdevs::Coordinator* root = new pdevs::Coordinator("root");
-    pdevs::Simulator < A >* a1 = new pdevs::Simulator < A >("a1");
-    pdevs::Simulator < B >* b1 = new pdevs::Simulator < B >("b1");
-    pdevs::Simulator < A >* a2 = new pdevs::Simulator < A >("a2");
-    pdevs::Simulator < B >* b2 = new pdevs::Simulator < B >("b2");
+public:
+    OnlyOneGraphManager(common::Coordinator* coordinator) :
+        pdevs::GraphManager(coordinator)
+    {
+        pdevs::Simulator < A >* a = new pdevs::Simulator < A >("a");
 
-    root->add_child(a1);
-    root->add_child(b1);
-    root->add_child(a2);
-    root->add_child(b2);
-    root->add_link(a1, "out", b1, "in");
-    root->add_link(b1, "out", a2, "in");
-    root->add_link(a2, "out", b2, "in");
-    return root;
-}
+        add_child(a);
+    }
+
+    virtual ~OnlyOneGraphManager()
+    { }
+};
+
+class FlatGraphManager : public pdevs::GraphManager
+{
+public:
+    FlatGraphManager(common::Coordinator* coordinator) :
+        pdevs::GraphManager(coordinator)
+    {
+        pdevs::Simulator < A >* a1 = new pdevs::Simulator < A >("a1");
+        pdevs::Simulator < B >* b1 = new pdevs::Simulator < B >("b1");
+        pdevs::Simulator < A >* a2 = new pdevs::Simulator < A >("a2");
+        pdevs::Simulator < B >* b2 = new pdevs::Simulator < B >("b2");
+
+        add_child(a1);
+        add_child(b1);
+        add_child(a2);
+        add_child(b2);
+        add_link(a1, "out", b1, "in");
+        add_link(b1, "out", a2, "in");
+        add_link(a2, "out", b2, "in");
+    }
+
+    virtual ~FlatGraphManager()
+    { }
+};
 
 } } // namespace paradevs pdevs
 
 TEST_CASE("pdevs/only_one", "run")
 {
-    paradevs::pdevs::OnlyOneBuilder builder;
-    paradevs::common::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator <
+        paradevs::pdevs::Coordinator < paradevs::pdevs::OnlyOneGraphManager >
+        > rc(0, 10, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace::trace().clear();
     rc.run();
@@ -277,8 +319,9 @@ TEST_CASE("pdevs/only_one", "run")
 
 TEST_CASE("pdevs/flat", "run")
 {
-    paradevs::pdevs::FlatBuilder builder;
-    paradevs::common::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator <
+        paradevs::pdevs::Coordinator < paradevs::pdevs::FlatGraphManager >
+        > rc(0, 10, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace::trace().clear();
     rc.run();
@@ -362,8 +405,9 @@ TEST_CASE("pdevs/flat", "run")
 
 TEST_CASE("pdevs/hierachical", "run")
 {
-    paradevs::pdevs::HierachicalBuilder builder;
-    paradevs::common::RootCoordinator rc(0, 10, builder);
+    paradevs::common::RootCoordinator <
+        paradevs::pdevs::Coordinator < paradevs::pdevs::RootGraphManager >
+        > rc(0, 10, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace::trace().clear();
     rc.run();

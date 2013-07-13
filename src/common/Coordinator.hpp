@@ -47,6 +47,7 @@ public :
     { }
 
 // DEVS methods
+    virtual void observation(std::ostream& file) const =0;
     virtual void output(common::Time t) =0;
     virtual void post_event(common::Time t,
                             const common::ExternalEvent& event) =0;

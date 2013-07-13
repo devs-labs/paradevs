@@ -37,7 +37,7 @@ void Links::add(Model* out_model, const std::string& out_port_name,
                                     Node(in_model, in_port_name)));
 }
 
-Links::Result Links::find(Model* out_model, const std::string& out_port_name)
+Links::Result Links::find(Model* out_model, const std::string& out_port_name) const
 {
     return equal_range(common::Node(out_model, out_port_name));
 }
