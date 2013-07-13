@@ -40,12 +40,16 @@ public:
     virtual ~GraphManager();
 
     virtual void add_child(common::Model* child);
-    virtual void add_link(common::Model* out_model, const std::string& out_port_name,
-                          common::Model* in_model, const std::string& in_port_name);
+    virtual void add_link(common::Model* out_model,
+                          const std::string& out_port_name,
+                          common::Model* in_model,
+                          const std::string& in_port_name);
     const common::Models& children() const
     { return _child_list; }
-    const common::Links& links() const
-    { return _link_list; }
+
+    void dispatch_events(common::Bag bag, common::Time t);
+
+    void post_event(common::Time t, const common::ExternalEvent& event);
 
 private:
     common::Links        _link_list;

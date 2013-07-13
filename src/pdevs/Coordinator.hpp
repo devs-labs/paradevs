@@ -187,15 +187,7 @@ public:
         common::Trace::trace().flush();
 
         add_event(event);
-
-        common::Links::Result result =
-            _graph_manager.links().find(this, event.get_port_name());
-
-        for (common::Links::const_iterator it_r = result.first;
-             it_r != result.second; ++it_r) {
-            it_r->second.get_model()->post_event(
-                t, common::ExternalEvent(it_r->second, event.get_content()));
-        }
+        _graph_manager.post_event(t, event);
         update_event_table(t);
         _tn = _event_table.get_current_time();
 
@@ -219,27 +211,7 @@ public:
                                << " ; bag = " << bag.to_string();
         common::Trace::trace().flush();
 
-        for (auto & ymsg : bag) {
-            common::Links::Result result_model =
-                _graph_manager.links().find(ymsg.get_model(), ymsg.get_port_name());
-
-            for (common::Links::const_iterator it = result_model.first;
-                 it != result_model.second; ++it) {
-                // event on output port of coupled model
-                if (it->second.get_model() == this) {
-                    common::Bag ymessages;
-
-                    ymessages.push_back(
-                        common::ExternalEvent(it->second, ymsg.get_content()));
-                    dynamic_cast < common::Coordinator* >(get_parent())->dispatch_events(
-                        ymessages, t);
-                } else { // event on input port of internal model
-                    it->second.get_model()->post_event(
-                        t, common::ExternalEvent(it->second,
-                                                 ymsg.get_content()));
-                }
-            }
-        }
+        _graph_manager.dispatch_events(bag, t);
 
         common::Trace::trace() << common::TraceElement(get_name(), t,
                                                        common::Y_MESSAGE)
