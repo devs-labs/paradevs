@@ -42,11 +42,7 @@ public:
     { }
 
     virtual ~GraphManager()
-    {
-        for (auto & child : _child_list) {
-            delete child;
-        }
-    }
+    { }
 
     void add_child(common::Model < Time >* child)
     {

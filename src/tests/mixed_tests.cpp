@@ -305,64 +305,61 @@ class S1GraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     S1GraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
+        pdevs::GraphManager < MyTime >(coordinator), a("a1"), b("b1")
     {
-        pdevs::Simulator < MyTime, A1 >* a =
-            new pdevs::Simulator < MyTime, A1 >("a1");
-        pdevs::Simulator < MyTime, B1 >* b =
-            new pdevs::Simulator < MyTime, B1 >("b1");
-
-        add_child(a);
-        add_child(b);
-        add_link(a, "out", b, "in");
-        add_link(b, "out", coordinator, "out");
+        add_child(&a);
+        add_child(&b);
+        add_link(&a, "out", &b, "in");
+        add_link(&b, "out", coordinator, "out");
     }
 
     virtual ~S1GraphManager()
     { }
+
+private:
+    pdevs::Simulator < MyTime, A1 > a;
+    pdevs::Simulator < MyTime, B1 > b;
 };
 
 class S2GraphManager : public dtss::GraphManager < MyTime >
 {
 public:
     S2GraphManager(common::Coordinator < MyTime >* coordinator) :
-        dtss::GraphManager < MyTime >(coordinator)
+        dtss::GraphManager < MyTime >(coordinator), a("a2", 20), b("b2", 20)
     {
-        dtss::Simulator < MyTime, A2 >* a =
-            new dtss::Simulator < MyTime, A2 >("a2", 20);
-        dtss::Simulator < MyTime, B2 >* b =
-            new dtss::Simulator < MyTime, B2 >("b2", 20);
-
-        add_child(a);
-        add_child(b);
-        add_link(a, "out", b, "in");
-        add_link(coordinator, "in", a, "in");
+        add_child(&a);
+        add_child(&b);
+        add_link(&a, "out", &b, "in");
+        add_link(coordinator, "in", &a, "in");
     }
 
     virtual ~S2GraphManager()
     { }
+
+private:
+    dtss::Simulator < MyTime, A2 > a;
+    dtss::Simulator < MyTime, B2 > b;
 };
 
 class RootGraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     RootGraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
+        pdevs::GraphManager < MyTime >(coordinator),
+        S1("S1", paradevs::pdevs::Parameters()),
+        S2("S2", paradevs::dtss::Parameters < MyTime >(20))
     {
-        pdevs::Coordinator < MyTime, S1GraphManager >* S1 =
-            new pdevs::Coordinator < MyTime, S1GraphManager >(
-                "S1", paradevs::pdevs::Parameters());
-        dtss::Coordinator < MyTime, LastBagPolicy, S2GraphManager >* S2 =
-            new dtss::Coordinator < MyTime, LastBagPolicy, S2GraphManager >(
-                "S2", paradevs::dtss::Parameters < MyTime >(20));
-
-        add_child(S1);
-        add_child(S2);
-        add_link(S1, "out", S2, "in");
+        add_child(&S1);
+        add_child(&S2);
+        add_link(&S1, "out", &S2, "in");
     }
 
     virtual ~RootGraphManager()
     { }
+
+private:
+    pdevs::Coordinator < MyTime, S1GraphManager > S1;
+    dtss::Coordinator < MyTime, LastBagPolicy, S2GraphManager > S2;
 };
 
 } // namespace paradevs

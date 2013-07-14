@@ -128,36 +128,35 @@ class OnlyOneGraphManager : public dtss::GraphManager < MyTime >
 {
 public:
     OnlyOneGraphManager(common::Coordinator < MyTime >* coordinator) :
-        dtss::GraphManager < MyTime >(coordinator)
+        dtss::GraphManager < MyTime >(coordinator), a("a", 1)
     {
-        dtss::Simulator < MyTime, A >* a =
-            new dtss::Simulator < MyTime, A >("a", 1);
-
-        add_child(a);
+        add_child(&a);
     }
 
     virtual ~OnlyOneGraphManager()
     { }
+
+private:
+    dtss::Simulator < MyTime, A > a;
 };
 
 class TwoGraphManager : public dtss::GraphManager < MyTime >
 {
 public:
     TwoGraphManager(common::Coordinator < MyTime >* coordinator) :
-        dtss::GraphManager < MyTime >(coordinator)
+        dtss::GraphManager < MyTime >(coordinator), a("a", 1), b("b", 1)
     {
-        dtss::Simulator < MyTime, A >* a =
-            new dtss::Simulator < MyTime, A >("a", 1);
-        dtss::Simulator < MyTime, B >* b =
-            new dtss::Simulator < MyTime, B >("b", 1);
-
-        add_child(a);
-        add_child(b);
-        add_link(a, "out", b, "in");
+        add_child(&a);
+        add_child(&b);
+        add_link(&a, "out", &b, "in");
     }
 
     virtual ~TwoGraphManager()
     { }
+
+private:
+    dtss::Simulator < MyTime, A > a;
+    dtss::Simulator < MyTime, B > b;
 };
 
 } } // namespace paradevs dtss

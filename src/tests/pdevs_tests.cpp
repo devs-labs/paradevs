@@ -205,106 +205,103 @@ class S1GraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     S1GraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
+        pdevs::GraphManager < MyTime >(coordinator), a("a1"), b("b1")
     {
-        pdevs::Simulator < MyTime, A >* a =
-            new pdevs::Simulator < MyTime, A >("a1");
-        pdevs::Simulator < MyTime, B >* b =
-            new pdevs::Simulator < MyTime, B >("b1");
-
-        add_child(a);
-        add_child(b);
-        add_link(a, "out", b, "in");
-        add_link(b, "out", coordinator, "out");
+        add_child(&a);
+        add_child(&b);
+        add_link(&a, "out", &b, "in");
+        add_link(&b, "out", coordinator, "out");
     }
 
     virtual ~S1GraphManager()
     { }
+
+private:
+    pdevs::Simulator < MyTime, A > a;
+    pdevs::Simulator < MyTime, B > b;
 };
 
 class S2GraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     S2GraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
+        pdevs::GraphManager < MyTime >(coordinator), a("a2"), b("b2")
     {
-        pdevs::Simulator < MyTime, A >* a =
-            new pdevs::Simulator < MyTime, A >("a2");
-        pdevs::Simulator < MyTime, B >* b =
-            new pdevs::Simulator < MyTime, B >("b2");
-
-        add_child(a);
-        add_child(b);
-        add_link(a, "out", b, "in");
-        add_link(coordinator, "in", a, "in");
+        add_child(&a);
+        add_child(&b);
+        add_link(&a, "out", &b, "in");
+        add_link(coordinator, "in", &a, "in");
     }
 
     virtual ~S2GraphManager()
     { }
+
+private:
+    pdevs::Simulator < MyTime, A > a;
+    pdevs::Simulator < MyTime, B > b;
 };
 
 class RootGraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     RootGraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
+        pdevs::GraphManager < MyTime >(coordinator),
+        S1("S1", Parameters()),
+        S2("S2", Parameters())
     {
-        Coordinator < MyTime, S1GraphManager >* S1 =
-            new Coordinator < MyTime, S1GraphManager >("S1", Parameters());
-        Coordinator < MyTime, S2GraphManager >* S2 =
-            new Coordinator < MyTime, S2GraphManager >("S2", Parameters());
-
-        add_child(S1);
-        add_child(S2);
-        add_link(S1, "out", S2, "in");
+        add_child(&S1);
+        add_child(&S2);
+        add_link(&S1, "out", &S2, "in");
     }
 
     virtual ~RootGraphManager()
     { }
+
+private:
+    Coordinator < MyTime, S1GraphManager > S1;
+    Coordinator < MyTime, S2GraphManager > S2;
 };
 
 class OnlyOneGraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     OnlyOneGraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
+        pdevs::GraphManager < MyTime >(coordinator), a("a")
     {
-        pdevs::Simulator < MyTime, A >* a =
-            new pdevs::Simulator < MyTime, A >("a");
-
-        add_child(a);
+        add_child(&a);
     }
 
     virtual ~OnlyOneGraphManager()
     { }
+
+private:
+    pdevs::Simulator < MyTime, A > a;
 };
 
 class FlatGraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     FlatGraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
+        pdevs::GraphManager < MyTime >(coordinator),
+        a1("a1"), b1("b1"), a2("a2"), b2("b2")
     {
-        pdevs::Simulator < MyTime, A >* a1 =
-            new pdevs::Simulator < MyTime, A >("a1");
-        pdevs::Simulator < MyTime, B >* b1 =
-            new pdevs::Simulator < MyTime, B >("b1");
-        pdevs::Simulator < MyTime, A >* a2 =
-            new pdevs::Simulator < MyTime, A >("a2");
-        pdevs::Simulator < MyTime, B >* b2 =
-            new pdevs::Simulator < MyTime, B >("b2");
-
-        add_child(a1);
-        add_child(b1);
-        add_child(a2);
-        add_child(b2);
-        add_link(a1, "out", b1, "in");
-        add_link(b1, "out", a2, "in");
-        add_link(a2, "out", b2, "in");
+        add_child(&a1);
+        add_child(&b1);
+        add_child(&a2);
+        add_child(&b2);
+        add_link(&a1, "out", &b1, "in");
+        add_link(&b1, "out", &a2, "in");
+        add_link(&a2, "out", &b2, "in");
     }
 
     virtual ~FlatGraphManager()
     { }
+
+private:
+    pdevs::Simulator < MyTime, A > a1;
+    pdevs::Simulator < MyTime, B > b1;
+    pdevs::Simulator < MyTime, A > a2;
+    pdevs::Simulator < MyTime, B > b2;
 };
 
 } } // namespace paradevs pdevs
@@ -394,7 +391,8 @@ TEST_CASE("pdevs/flat", "run")
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
-        REQUIRE(paradevs::common::Trace < paradevs::pdevs::MyTime >::trace().elements().
+        REQUIRE(paradevs::common::Trace <
+                    paradevs::pdevs::MyTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
         REQUIRE(paradevs::common::Trace <
