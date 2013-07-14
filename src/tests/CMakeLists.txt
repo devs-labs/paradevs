@@ -10,33 +10,33 @@ LINK_DIRECTORIES(
   ${LIBXML_LIBRARY_DIR})
 
 # pdevs tests
-ADD_EXECUTABLE(pdevs-tests pdevs_tests.hpp pdevs_tests.cpp)
+ADD_EXECUTABLE(pdevs-tests ${COMMON_HPP} ${PDEVS_HPP} pdevs_tests.hpp
+  pdevs_tests.cpp)
 SET_TARGET_PROPERTIES(pdevs-tests PROPERTIES ${PARADEVS_APP_PROPERTIES})
 
 TARGET_LINK_LIBRARIES(pdevs-tests
-  common pdevs
   ${GLIBMM_LIBRARIES}
   ${LIBXML_LIBRARIES}
   ${GTHREAD_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY})
 
 # dtss tests
-ADD_EXECUTABLE(dtss-tests dtss_tests.hpp dtss_tests.cpp)
+ADD_EXECUTABLE(dtss-tests ${COMMON_HPP} ${DTSS_HPP} dtss_tests.hpp
+  dtss_tests.cpp)
 SET_TARGET_PROPERTIES(dtss-tests PROPERTIES ${PARADEVS_APP_PROPERTIES})
 
 TARGET_LINK_LIBRARIES(dtss-tests
-  common dtss
   ${GLIBMM_LIBRARIES}
   ${LIBXML_LIBRARIES}
   ${GTHREAD_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY})
 
 # mixed tests
-ADD_EXECUTABLE(mixed-tests mixed_tests.hpp mixed_tests.cpp)
+ADD_EXECUTABLE(mixed-tests ${COMMON_HPP} ${DTSS_HPP} ${PDEVS_HPP}
+  mixed_tests.hpp mixed_tests.cpp)
 SET_TARGET_PROPERTIES(mixed-tests PROPERTIES ${PARADEVS_APP_PROPERTIES})
 
 TARGET_LINK_LIBRARIES(mixed-tests
-  common dtss pdevs
   ${GLIBMM_LIBRARIES}
   ${LIBXML_LIBRARIES}
   ${GTHREAD_LIBRARIES}

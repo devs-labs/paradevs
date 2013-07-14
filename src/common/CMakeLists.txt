@@ -9,26 +9,7 @@ LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
   ${LIBXML_LIBRARY_DIR})
 
-SET(COMMON_CPP Bag.cpp EventTable.cpp ExternalEvent.cpp
-  InternalEvent.cpp Links.cpp Model.cpp Node.cpp RootCoordinator.cpp Trace.cpp)
-
 SET(COMMON_HPP Bag.hpp EventTable.hpp ExternalEvent.hpp
-  InternalEvent.hpp Links.hpp Node.hpp RootCoordinator.hpp Time.hpp Trace.cpp)
-
-ADD_LIBRARY(common SHARED ${COMMON_CPP};${COMMON_HPP})
-
-SET_TARGET_PROPERTIES(common PROPERTIES ${PARADEVS_LIBRARY_PROPERTIES})
-SET_TARGET_PROPERTIES(common PROPERTIES OUTPUT_NAME
-  "paradevs-common-${PARADEVS_VERSION_SHORT}")
-
-TARGET_LINK_LIBRARIES(common
-  ${GLIBMM_LIBRARIES}
-  ${LIBXML_LIBRARIES}
-  ${GTHREAD_LIBRARIES})
-
-INSTALL(TARGETS common
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+  InternalEvent.hpp Links.hpp Node.hpp RootCoordinator.hpp Time.hpp Trace.hpp)
 
 INSTALL(FILES ${COMMON_HPP} DESTINATION ${PARADEVS_INCLUDE_DIRS}/common)
