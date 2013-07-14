@@ -26,47 +26,6 @@
 
 #include <common/ExternalEvent.hpp>
 
-#include <sstream>
-
 namespace paradevs { namespace common {
-
-ExternalEvent::ExternalEvent(const std::string& port_name, double content) :
-    _port_name(port_name), _model(0), _content(content)
-{ }
-
-ExternalEvent::ExternalEvent(const Node& node, double content) :
-    _port_name(node.get_port_name()), _model(node.get_model()),
-    _content(content)
-{ }
-
-ExternalEvent::ExternalEvent()
-{ }
-
-ExternalEvent::~ExternalEvent()
-{ }
-
-const std::string& ExternalEvent::get_port_name() const
-{ return _port_name; }
-
-double ExternalEvent::get_content() const
-{ return _content; }
-
-void ExternalEvent::set_content(double content)
-{ _content = content; }
-
-Model* ExternalEvent::get_model() const
-{ return _model; }
-
-void ExternalEvent::set_model(Model* model)
-{ _model = model; }
-
-std::string ExternalEvent::to_string() const
-{
-    std::ostringstream ss;
-
-    ss << "( " << _port_name << " , " << (_model?_model->get_name():"<>")
-       << " , " << _content << ")";
-    return ss.str();
-}
 
 } } // namespace paradevs common

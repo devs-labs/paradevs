@@ -24,27 +24,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <common/Time.hpp>
+
 #include <dtss/Dynamics.hpp>
+
 #include <pdevs/Dynamics.hpp>
 
 namespace paradevs {
 
-class A1 : public paradevs::pdevs::Dynamics
+template < typename T >
+struct Limits
+{
+    static constexpr T negative_infinity =
+        -std::numeric_limits < T >::infinity();
+    static constexpr T positive_infinity =
+        std::numeric_limits < T >::infinity();
+    static constexpr T null = 0;
+};
+
+typedef paradevs::common::Time < double, Limits < double > > MyTime;
+
+class A1 : public paradevs::pdevs::Dynamics < MyTime >
 {
 public:
-    A1(const std::string& name) : paradevs::pdevs::Dynamics(name)
+    A1(const std::string& name) : paradevs::pdevs::Dynamics < MyTime >(name)
     { }
     virtual ~A1()
     { }
 
-    virtual void dint(common::Time /* t */);
-    virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Bag& /* msgs */);
-    virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Bag& /* msgs */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Time ta(common::Time /* t */) const;
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void dint(typename MyTime::type /* t */);
+    virtual void dext(typename MyTime::type /* t */,
+                      typename MyTime::type /* e */,
+                      const common::Bag < MyTime >& /* msgs */);
+    virtual void dconf(typename MyTime::type /* t */,
+                       typename MyTime::type /* e */,
+                       const common::Bag < MyTime >& /* msgs */);
+    virtual typename MyTime::type start(typename MyTime::type /* t */);
+    virtual typename MyTime::type ta(typename MyTime::type /* t */) const;
+    virtual common::Bag < MyTime > lambda(typename MyTime::type /* t */) const;
 
 private:
     enum Phase { WAIT, SEND };
@@ -52,22 +69,24 @@ private:
     Phase _phase;
 };
 
-class B1 : public paradevs::pdevs::Dynamics
+class B1 : public paradevs::pdevs::Dynamics < MyTime >
 {
 public:
-    B1(const std::string& name) : paradevs::pdevs::Dynamics(name)
+    B1(const std::string& name) : paradevs::pdevs::Dynamics < MyTime >(name)
     { }
     virtual ~B1()
     { }
 
-    virtual void dint(common::Time /* t */);
-    virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Bag& /* msgs */);
-    virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Bag& /* msgs */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Time ta(common::Time /* t */) const;
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void dint(typename MyTime::type /* t */);
+    virtual void dext(typename MyTime::type /* t */,
+                      typename MyTime::type /* e */,
+                      const common::Bag < MyTime >& /* msgs */);
+    virtual void dconf(typename MyTime::type /* t */,
+                       typename MyTime::type /* e */,
+                       const common::Bag < MyTime >& /* msgs */);
+    virtual typename MyTime::type start(typename MyTime::type /* t */);
+    virtual typename MyTime::type ta(typename MyTime::type /* t */) const;
+    virtual common::Bag < MyTime > lambda(typename MyTime::type /* t */) const;
 
 private:
     enum Phase { WAIT, SEND };
@@ -75,30 +94,32 @@ private:
     Phase _phase;
 };
 
-class A2 : public paradevs::dtss::Dynamics
+class A2 : public paradevs::dtss::Dynamics < MyTime >
 {
 public:
-    A2(const std::string& name) : paradevs::dtss::Dynamics(name)
+    A2(const std::string& name) : paradevs::dtss::Dynamics < MyTime >(name)
     { }
     virtual ~A2()
     { }
 
-    virtual void transition(const common::Bag& /* x */, common::Time /* t */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void transition(const common::Bag < MyTime >& /* x */,
+                            typename MyTime::type /* t */);
+    virtual typename MyTime::type start(typename MyTime::type /* t */);
+    virtual common::Bag < MyTime > lambda(typename MyTime::type /* t */) const;
 };
 
-class B2 : public paradevs::dtss::Dynamics
+class B2 : public paradevs::dtss::Dynamics < MyTime >
 {
 public:
-    B2(const std::string& name) : paradevs::dtss::Dynamics(name)
+    B2(const std::string& name) : paradevs::dtss::Dynamics < MyTime >(name)
     { }
     virtual ~B2()
     { }
 
-    virtual void transition(const common::Bag& /* x */, common::Time /* t */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void transition(const common::Bag < MyTime >& /* x */,
+                            typename MyTime::type /* t */);
+    virtual typename MyTime::type start(typename MyTime::type /* t */);
+    virtual common::Bag < MyTime > lambda(typename MyTime::type /* t */) const;
 };
 
 } // namespace paradevs

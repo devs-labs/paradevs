@@ -28,14 +28,5 @@
 
 namespace paradevs { namespace pdevs {
 
-Dynamics::Dynamics(const std::string& name) : _name(name)
-{ }
-
-Dynamics::~Dynamics()
-{ }
-
-common::Bag Dynamics::lambda(common::Time /* time */) const
-{ return common::Bag(); }
-
 } } // namespace paradevs pdevs
 

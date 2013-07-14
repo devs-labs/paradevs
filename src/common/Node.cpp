@@ -28,35 +28,4 @@
 
 namespace paradevs { namespace common {
 
-Node::Node(Model* model, const std::string& port_name)
-    : _model(model), _port_name(port_name)
-{ }
-
-Node::Node(const Node& other)
-    : _model(other._model), _port_name(other._port_name)
-{ }
-
-Node::~Node()
-{ }
-
-bool Node::operator<(const Node& o) const
-{
-    if (o._model == _model) {
-        return o._port_name < _port_name;
-    } else {
-        return o._model < _model;
-    }
-}
-
-bool Node::operator==(const Node& o) const
-{
-    return (o._port_name == _port_name and o._model == _model);
-}
-
-const std::string& Node::get_port_name() const
-{ return _port_name; }
-
-Model* Node::get_model() const
-{ return _model; }
-
 } } // namespace paradevs common

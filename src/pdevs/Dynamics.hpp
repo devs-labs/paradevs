@@ -29,33 +29,44 @@
 
 #include <common/Bag.hpp>
 #include <common/ExternalEvent.hpp>
-#include <common/Time.hpp>
 
-#include <limits>
 #include <string>
 #include <vector>
 
 namespace paradevs { namespace pdevs {
 
+template < class Time >
 class Dynamics
 {
 public:
-    Dynamics(const std::string& name);
-    virtual ~Dynamics();
+    Dynamics(const std::string& name) : _name(name)
+    { }
 
-    virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Bag& /* bag */)
+    virtual ~Dynamics()
     { }
-    virtual void dint(common::Time /* t */)
+
+    virtual void dconf(typename Time::type /* t */,
+                       typename Time::type /* e */,
+                       const common::Bag < Time >& /* bag */)
     { }
-    virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Bag& /* bag */)
+
+    virtual void dint(typename Time::type /* t */)
     { }
-    virtual common::Time start(common::Time /* time */)
-    { return std::numeric_limits < double >::max(); }
-    virtual common::Time ta(common::Time /* time */) const
-    { return std::numeric_limits < double >::max(); }
-    virtual common::Bag lambda(common::Time /* time */) const;
+
+    virtual void dext(typename Time::type /* t */,
+                      typename Time::type /* e */,
+                      const common::Bag < Time >& /* bag */)
+    { }
+
+    virtual typename Time::type start(typename Time::type /* time */)
+    { return Time::infinity; }
+
+    virtual typename Time::type ta(typename Time::type /* time */) const
+    { return Time::infinity; }
+
+    virtual common::Bag < Time > lambda(typename Time::type /* time */) const
+    { return common::Bag < Time >(); }
+
     virtual void observation(std::ostream& /* file */) const
     { }
 

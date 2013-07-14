@@ -29,14 +29,17 @@
 
 #include <common/ExternalEvent.hpp>
 
+#include <sstream>
 #include <string>
 #include <vector>
 
 namespace paradevs { namespace common {
 
+template < class Time >
 class ExternalEvent;
 
-class Bag : public std::vector < ExternalEvent >
+template < class Time >
+class Bag : public std::vector < ExternalEvent < Time > >
 {
 public:
     Bag()
@@ -44,7 +47,18 @@ public:
     virtual ~Bag()
     { }
 
-    std::string to_string() const;
+    std::string to_string() const
+    {
+        std::ostringstream ss;
+
+        ss << "{ ";
+        for (typename Bag < Time >::const_iterator it = Bag < Time >::begin();
+             it != Bag < Time >::end(); ++it) {
+            ss << it->to_string() << " ";
+        }
+        ss << "}";
+        return ss.str();
+    }
 };
 
 } } // namespace paradevs common

@@ -30,29 +30,59 @@
 #include <common/Node.hpp>
 
 #include <map>
+#include <sstream>
 
 namespace paradevs { namespace common {
 
+template < class Time >
 class Node;
 
-class Links : public std::multimap < Node, Node >
+template < class Time >
+class Links : public std::multimap < Node < Time >, Node < Time > >
 {
 public:
 
-    typedef std::pair < common::Links::const_iterator,
-                        common::Links::const_iterator > Result;
+    typedef std::pair < typename Links < Time >::const_iterator,
+                        typename Links < Time >::const_iterator > Result;
 
     Links()
     { }
     virtual ~Links()
     { }
 
-    void add(Model* out_model, const std::string& out_port_name,
-             Model* in_model, const std::string& in_port_name);
+    void add(Model < Time >* out_model, const std::string& out_port_name,
+             Model < Time >* in_model, const std::string& in_port_name)
+    {
+        std::multimap < Node < Time >, Node < Time > >::insert(
+            std::pair < Node < Time >, Node <Time > >(
+                Node < Time >(out_model, out_port_name),
+                Node < Time >(in_model, in_port_name)));
+    }
 
-    Result find(Model* out_model, const std::string& out_port_name) const;
+    Links::Result find(Model < Time >* out_model,
+                       const std::string& out_port_name) const
+    {
+        return std::multimap < Node < Time >, Node < Time > >::equal_range(
+            common::Node < Time >(out_model, out_port_name));
+    }
 
-    std::string to_string() const;
+    std::string to_string() const
+    {
+        std::stringstream ss;
+
+        ss << "Graph = { ";
+        for (typename Node < Time >::const_iterator it = Node < Time >::begin();
+             it != Node < Time >::end(); ++it) {
+            ss << "(" << it->first.get_model()->get_name() << ":"
+               << it->first.get_port_name()
+               << " -> "
+               << it->second.get_model()->get_name() << ":"
+               << it->second.get_port_name()
+               << ") ";
+        }
+        ss << "}";
+        return ss.str();
+    }
 };
 
 } } // namespace paradevs common

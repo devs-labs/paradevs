@@ -33,30 +33,84 @@
 
 namespace paradevs { namespace dtss {
 
+template < class Time >
 class GraphManager
 {
 public:
-    GraphManager(common::Coordinator* coordinator);
-    virtual ~GraphManager();
+    GraphManager(common::Coordinator < Time >* coordinator) :
+        _coordinator(coordinator)
+    { }
 
-    virtual void add_child(common::Model* child);
+    virtual ~GraphManager()
+    {
+        for (auto & child : _child_list) {
+            delete child;
+        }
+    }
 
-    virtual void add_link(common::Model* out_model,
-                          const std::string& out_port_name,
-                          common::Model* in_model,
-                          const std::string& in_port_name);
+    void add_child(common::Model < Time >* child)
+    {
+        _child_list.push_back(child);
+        child->set_parent(_coordinator);
+    }
 
-    const common::Models& children() const
+    void add_link(common::Model < Time >* out_model,
+                  const std::string& out_port_name,
+                  common::Model < Time >* in_model,
+                  const std::string& in_port_name)
+    {
+        _link_list.add(out_model, out_port_name, in_model, in_port_name);
+    }
+
+    const common::Models < Time >& children() const
     { return _child_list; }
 
-    void dispatch_events(common::Bag bag, common::Time t);
+    void dispatch_events(common::Bag < Time > bag, typename Time::type t)
+    {
+        for (auto & ymsg : bag) {
+            typename common::Links < Time >::Result result_model =
+                _link_list.find(ymsg.get_model(),
+                                ymsg.get_port_name());
 
-    void post_event(common::Time t, const common::ExternalEvent& event);
+            for (typename common::Links < Time >::const_iterator it =
+                     result_model.first; it != result_model.second; ++it) {
+                // event on output port of coupled model
+                if (it->second.get_model() == _coordinator) {
+                    common::Bag < Time > ymessages;
+
+                    ymessages.push_back(
+                        common::ExternalEvent < Time >(it->second,
+                                                       ymsg.get_content()));
+                    dynamic_cast < common::Coordinator < Time >* >(
+                        _coordinator->get_parent())->dispatch_events(ymessages,
+                                                                     t);
+                } else { // event on input port of internal model
+                    it->second.get_model()->post_event(
+                        t, common::ExternalEvent < Time >(it->second,
+                                                 ymsg.get_content()));
+                }
+            }
+        }
+    }
+
+    void post_event(typename Time::type t,
+                    const common::ExternalEvent < Time >& event)
+    {
+        typename common::Links < Time >::Result result =
+            _link_list.find(_coordinator, event.get_port_name());
+
+        for (typename common::Links < Time >::const_iterator it_r =
+                 result.first; it_r != result.second; ++it_r) {
+            it_r->second.get_model()->post_event(
+                t, common::ExternalEvent < Time >(it_r->second,
+                                         event.get_content()));
+        }
+    }
 
 private:
-    common::Links        _link_list;
-    common::Models       _child_list;
-    common::Coordinator* _coordinator;
+    common::Links < Time >        _link_list;
+    common::Models < Time >       _child_list;
+    common::Coordinator < Time >* _coordinator;
 };
 
 } } // namespace paradevs dtss

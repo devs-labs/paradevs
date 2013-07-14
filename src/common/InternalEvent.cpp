@@ -28,16 +28,4 @@
 
 namespace paradevs { namespace common {
 
-InternalEvent::InternalEvent(const common::Time& time, common::Model* model)
- : _time(time), _model(model)
-{ }
-
-InternalEvent::~InternalEvent()
-{ }
-
-bool InternalEvent::operator<(InternalEvent const &e) const
-{
-    return e._time < _time;
-}
-
 } } // namespace paradevs common

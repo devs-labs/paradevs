@@ -29,9 +29,13 @@
 
 #include <common/InternalEvent.hpp>
 
+#include <algorithm>
+#include <sstream>
+
 namespace paradevs { namespace common {
 
-class EventTable : protected std::vector < InternalEvent >
+template < class Time >
+class EventTable : protected std::vector < InternalEvent < Time > >
 {
 public:
     EventTable()
@@ -39,21 +43,73 @@ public:
     virtual ~EventTable()
     { }
 
-    Model* get_current_model();
+    Model < Time >* get_current_model()
+    {
+        return EventTable < Time >::back().get_model();
+    }
 
-    Models get_current_models(Time time) const;
+    Models < Time > get_current_models(typename Time::type time) const
+    {
+        Models < Time > models;
+        bool found = true;
 
-    Time get_current_time() const
-    { return back().get_time(); }
+        for (typename EventTable < Time >::const_reverse_iterator it =
+                 EventTable < Time >::rbegin();
+             found and it != EventTable < Time >::rend(); ++it) {
+            if (it->get_time() == time) {
+                models.push_back(it->get_model());
+            } else {
+                found = false;
+            }
+        }
+        return models;
+    }
 
-    void init(Time time, Model* model);
-    void put(Time time, Model* model);
+    typename Time::type get_current_time() const
+    { return EventTable < Time >::back().get_time(); }
 
-    std::string to_string() const;
+    void init(typename Time::type time, Model < Time >* model)
+    {
+        EventTable < Time >::push_back(InternalEvent < Time >(time, model));
+        std::sort(EventTable < Time >::begin(), EventTable < Time >::end());
+    }
+
+    void put(typename Time::type time, Model < Time >* model)
+    {
+        remove(model);
+        EventTable < Time >::push_back(InternalEvent < Time >(time, model));
+        std::sort(EventTable < Time >::begin(), EventTable < Time >::end());
+    }
+
+    std::string to_string() const
+    {
+        std::stringstream ss;
+
+        ss << "EventTable = { ";
+        for (typename EventTable < Time >::const_iterator it =
+                 EventTable < Time >::begin();
+             it != EventTable < Time >::end(); ++it) {
+            ss << "(" << it->get_time() << " -> " << it->get_model()->get_name()
+               << ") ";
+        }
+        ss << "}";
+        return ss.str();
+    }
 
 private:
-    void remove(Model* model);
+    void remove(Model < Time >* model)
+    {
+        typename EventTable < Time >::iterator jt =
+            EventTable < Time >::begin();
 
+        while (jt != EventTable < Time >::end()) {
+            if (jt->get_model() == model) {
+                jt = EventTable < Time >::erase(jt);
+            } else {
+                ++jt;
+            }
+        }
+    }
 };
 
 } } // namespace paradevs common

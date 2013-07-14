@@ -27,25 +27,25 @@
 #ifndef COMMON_SIMULATOR
 #define COMMON_SIMULATOR 1
 
-#include <common/Links.hpp>
-#include <common/Node.hpp>
+#include <common/Model.hpp>
 
 namespace paradevs { namespace common {
 
-class Simulator : public Model
+template < class Time >
+class Simulator : public Model < Time >
 {
 public :
-    Simulator(const std::string& name) : Model(name)
+    Simulator(const std::string& name) : Model < Time >(name)
     { }
     virtual ~Simulator()
     { }
 
     virtual void observation(std::ostream& file) const =0;
-    virtual void output(common::Time t) =0;
-    virtual void post_event(common::Time t,
-                            const common::ExternalEvent& event) = 0;
-    virtual common::Time start(common::Time t) =0;
-    virtual common::Time transition(common::Time t) =0;
+    virtual void output(typename Time::type t) =0;
+    virtual void post_event(typename Time::type t,
+                            const common::ExternalEvent < Time >& event) = 0;
+    virtual typename Time::type start(typename Time::type t) =0;
+    virtual typename Time::type transition(typename Time::type t) =0;
 };
 
 } } // namespace paradevs common

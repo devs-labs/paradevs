@@ -24,26 +24,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <common/Time.hpp>
+
 #include <pdevs/Dynamics.hpp>
+
+#include <limits>
 
 namespace paradevs { namespace pdevs {
 
-class A : public Dynamics
+template < typename T >
+struct Limits
+{
+    static constexpr T negative_infinity =
+        -std::numeric_limits < T >::infinity();
+    static constexpr T positive_infinity =
+        std::numeric_limits < T >::infinity();
+    static constexpr T null = 0;
+};
+
+typedef paradevs::common::Time < double, Limits < double > > MyTime;
+
+class A : public Dynamics < MyTime >
 {
 public:
-    A(const std::string& name) : Dynamics(name)
+    A(const std::string& name) : Dynamics < MyTime >(name)
     { }
     virtual ~A()
     { }
 
-    virtual void dint(common::Time /* t */);
-    virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Bag& /* msgs */);
-    virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Bag& /* msgs */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Time ta(common::Time /* t */) const;
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void dint(typename MyTime::type /* t */);
+    virtual void dext(typename MyTime::type /* t */,
+                      typename MyTime::type /* e */,
+                      const common::Bag < MyTime >& /* msgs */);
+    virtual void dconf(typename MyTime::type /* t */,
+                       typename MyTime::type /* e */,
+                       const common::Bag < MyTime >& /* msgs */);
+    virtual typename MyTime::type start(typename MyTime::type /* t */);
+    virtual typename MyTime::type ta(typename MyTime::type /* t */) const;
+    virtual common::Bag < MyTime > lambda(typename MyTime::type /* t */) const;
     virtual void observation(std::ostream& /* file */) const;
 
 private:
@@ -52,22 +70,24 @@ private:
     Phase _phase;
 };
 
-class B : public Dynamics
+class B : public Dynamics < MyTime >
 {
 public:
-    B(const std::string& name) : Dynamics(name)
+    B(const std::string& name) : Dynamics < MyTime >(name)
     { }
     virtual ~B()
     { }
 
-    virtual void dint(common::Time /* t */);
-    virtual void dext(common::Time /* t */, common::Time /* e */,
-                      const common::Bag& /* msgs */);
-    virtual void dconf(common::Time /* t */, common::Time /* e */,
-                       const common::Bag& /* msgs */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Time ta(common::Time /* t */) const;
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void dint(typename MyTime::type /* t */);
+    virtual void dext(typename MyTime::type /* t */,
+                      typename MyTime::type /* e */,
+                      const common::Bag < MyTime >& /* msgs */);
+    virtual void dconf(typename MyTime::type /* t */,
+                       typename MyTime::type /* e */,
+                       const common::Bag < MyTime >& /* msgs */);
+    virtual typename MyTime::type start(typename MyTime::type /* t */);
+    virtual typename MyTime::type ta(typename MyTime::type /* t */) const;
+    virtual common::Bag < MyTime > lambda(typename MyTime::type /* t */) const;
     virtual void observation(std::ostream& /* file */) const;
 
 private:

@@ -30,35 +30,64 @@
 #include <common/Model.hpp>
 #include <common/Node.hpp>
 
+#include <sstream>
 #include <string>
 #include <vector>
 
 namespace paradevs { namespace common {
 
-class Model;
+template < class Time >
 class Node;
+template < class Time >
+class Model;
 
+template < class Time >
 class ExternalEvent
 {
 public:
-    ExternalEvent(const std::string& port_name, double content);
-    ExternalEvent(const Node& node, double content);
-    ExternalEvent();
-    virtual ~ExternalEvent();
+    ExternalEvent(const std::string& port_name, double content) :
+        _port_name(port_name), _model(0), _content(content)
+    { }
 
-    double get_content() const;
-    Model* get_model() const;
-    const std::string& get_port_name() const;
+    ExternalEvent(const Node < Time >& node, double content) :
+        _port_name(node.get_port_name()), _model(node.get_model()),
+        _content(content)
+    { }
 
-    void set_content(double content);
-    void set_model(Model* model);
+    ExternalEvent()
+    { }
 
-    std::string to_string() const;
+    virtual ~ExternalEvent()
+    { }
+
+    double get_content() const
+    { return _content; }
+
+    const std::string& get_port_name() const
+    { return _port_name; }
+
+    void set_content(double content)
+    { _content = content; }
+
+    Model < Time >* get_model() const
+    { return _model; }
+
+    void set_model(Model < Time >* model)
+    { _model = model; }
+
+    std::string to_string() const
+    {
+        std::ostringstream ss;
+
+        ss << "( " << _port_name << " , " << (_model?_model->get_name():"<>")
+           << " , " << _content << ")";
+        return ss.str();
+    }
 
 private :
-    std::string _port_name;
-    Model*      _model;
-    double      _content;
+    std::string     _port_name;
+    Model < Time >* _model;
+    double          _content;
 };
 
 } } // namespace paradevs common

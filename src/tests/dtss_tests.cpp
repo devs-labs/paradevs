@@ -38,93 +38,100 @@
 
 namespace paradevs { namespace dtss {
 
-void A::transition(const common::Bag& /* x */, common::Time t)
+void A::transition(const common::Bag < MyTime >& /* x */, MyTime::type t)
 {
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::DELTA_INT);
-    common::Trace::trace().flush();
+    common::Trace < MyTime >::trace()
+        << common::TraceElement < MyTime >(get_name(), t,
+                                           common::DELTA_INT);
+    common::Trace < MyTime >::trace().flush();
 }
 
-common::Time A::start(common::Time t)
+MyTime::type A::start(MyTime::type t)
 {
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::START);
-    common::Trace::trace().flush();
+    common::Trace < MyTime >::trace()
+        << common::TraceElement < MyTime >(get_name(), t,
+                                           common::START);
+    common::Trace < MyTime >::trace().flush();
 
     return 0;
 }
 
-common::Bag A::lambda(common::Time t) const
+common::Bag < MyTime > A::lambda(MyTime::type t) const
 {
-    common::Bag msgs;
+    common::Bag < MyTime > msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0.));
+    msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
 
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::LAMBDA)
-                           << "messages = " << msgs.to_string();
-    common::Trace::trace().flush();
+    common::Trace < MyTime >::trace()
+        << common::TraceElement < MyTime >(get_name(), t,
+                                           common::LAMBDA)
+        << "messages = " << msgs.to_string();
+    common::Trace < MyTime >::trace().flush();
 
     return msgs;
 }
 
-void B::transition(const common::Bag& x, common::Time t)
+void B::transition(const common::Bag < MyTime >& x, MyTime::type t)
 {
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::DELTA_INT)
-                           << "x = " << x.to_string();
-    common::Trace::trace().flush();
+    common::Trace < MyTime >::trace()
+        << common::TraceElement < MyTime >(get_name(), t,
+                                           common::DELTA_INT)
+        << "x = " << x.to_string();
+    common::Trace < MyTime >::trace().flush();
 }
 
-common::Time B::start(common::Time t)
+MyTime::type B::start(MyTime::type t)
 {
 
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::START);
-    common::Trace::trace().flush();
+    common::Trace < MyTime >::trace()
+        << common::TraceElement < MyTime >(get_name(), t,
+                                           common::START);
+    common::Trace < MyTime >::trace().flush();
 
     return 0;
 }
 
-common::Bag B::lambda(common::Time t) const
+common::Bag < MyTime > B::lambda(MyTime::type t) const
 {
-    common::Bag msgs;
+    common::Bag < MyTime > msgs;
 
-    msgs.push_back(common::ExternalEvent("out", 0.));
+    msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
 
-    common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                   common::LAMBDA)
-                           << "messages = " << msgs.to_string();
-    common::Trace::trace().flush();
+    common::Trace < MyTime >::trace()
+        << common::TraceElement < MyTime >(get_name(), t,
+                                           common::LAMBDA)
+        << "messages = " << msgs.to_string();
+    common::Trace < MyTime >::trace().flush();
 
     return msgs;
 }
 
 struct Policy
 {
-    const common::Bag& bag() const
+    const common::Bag < MyTime >& bag() const
     { return _bag; }
 
-    virtual void operator()(common::Time /* t */,
-                            const common::ExternalEvent& event,
-                            common::Time /* tl */,
-                            common::Time /* tn */)
+    virtual void operator()(MyTime::type /* t */,
+                            const common::ExternalEvent < MyTime >& event,
+                            MyTime::type /* tl */,
+                            MyTime::type /* tn */)
     {
         _bag.clear();
         _bag.push_back(event);
     }
 
 private:
-    common::Bag _bag;
+    common::Bag < MyTime > _bag;
 };
 
-class OnlyOneGraphManager : public dtss::GraphManager
+class OnlyOneGraphManager : public dtss::GraphManager < MyTime >
 {
 public:
-    OnlyOneGraphManager(common::Coordinator* coordinator) :
-        dtss::GraphManager(coordinator)
+    OnlyOneGraphManager(common::Coordinator < MyTime >* coordinator) :
+        dtss::GraphManager < MyTime >(coordinator)
     {
-        dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
+        dtss::Simulator < MyTime, A >* a =
+            new dtss::Simulator < MyTime, A >("a", 1);
 
         add_child(a);
     }
@@ -133,14 +140,16 @@ public:
     { }
 };
 
-class TwoGraphManager : public dtss::GraphManager
+class TwoGraphManager : public dtss::GraphManager < MyTime >
 {
 public:
-    TwoGraphManager(common::Coordinator* coordinator) :
-        dtss::GraphManager(coordinator)
+    TwoGraphManager(common::Coordinator < MyTime >* coordinator) :
+        dtss::GraphManager < MyTime >(coordinator)
     {
-        dtss::Simulator < A >* a = new dtss::Simulator < A >("a", 1);
-        dtss::Simulator < B >* b = new dtss::Simulator < B >("b", 1);
+        dtss::Simulator < MyTime, A >* a =
+            new dtss::Simulator < MyTime, A >("a", 1);
+        dtss::Simulator < MyTime, B >* b =
+            new dtss::Simulator < MyTime, B >("b", 1);
 
         add_child(a);
         add_child(b);
@@ -157,21 +166,26 @@ TEST_CASE("dtss/only_one", "run")
 {
 
     paradevs::common::RootCoordinator <
-        paradevs::dtss::Coordinator < paradevs::dtss::Policy,
-                                      paradevs::dtss::OnlyOneGraphManager >
-        > rc(0, 10, "root", paradevs::dtss::Parameters(1));
+        paradevs::dtss::MyTime, paradevs::dtss::Coordinator <
+            paradevs::dtss::MyTime, paradevs::dtss::Policy,
+            paradevs::dtss::OnlyOneGraphManager >
+        > rc(0, 10, "root",
+             paradevs::dtss::Parameters < paradevs::dtss::MyTime >(1));
 
-    paradevs::common::Trace::trace().clear();
+    paradevs::common::Trace < paradevs::dtss::MyTime >::trace().clear();
     rc.run();
 
-    REQUIRE(paradevs::common::Trace::trace().elements().
+    REQUIRE(paradevs::common::Trace <
+                paradevs::dtss::MyTime >::trace().elements().
             filter_model_name("a").
             filter_type(paradevs::common::START).size() == 1);
-    for (unsigned int t = 0; t <= 10; ++t) {
-        REQUIRE(paradevs::common::Trace::trace().elements().
+    for (double t = 0; t <= 10; ++t) {
+        REQUIRE(paradevs::common::Trace <
+                    paradevs::dtss::MyTime >::trace().elements().
                 filter_model_name("a").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
-        REQUIRE(paradevs::common::Trace::trace().elements().
+        REQUIRE(paradevs::common::Trace <
+                    paradevs::dtss::MyTime >::trace().elements().
                 filter_model_name("a").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
     }
@@ -180,33 +194,41 @@ TEST_CASE("dtss/only_one", "run")
 TEST_CASE("dtss/two", "run")
 {
     paradevs::common::RootCoordinator <
-        paradevs::dtss::Coordinator < paradevs::dtss::Policy,
-                                      paradevs::dtss::TwoGraphManager >
-        > rc(0, 10, "root", paradevs::dtss::Parameters(1));
+        paradevs::dtss::MyTime, paradevs::dtss::Coordinator <
+            paradevs::dtss::MyTime, paradevs::dtss::Policy,
+            paradevs::dtss::TwoGraphManager >
+        > rc(0, 10, "root",
+             paradevs::dtss::Parameters < paradevs::dtss::MyTime >(1));
 
-    paradevs::common::Trace::trace().clear();
+    paradevs::common::Trace < paradevs::dtss::MyTime >::trace().clear();
     rc.run();
 
-    REQUIRE(paradevs::common::Trace::trace().elements().
+    REQUIRE(paradevs::common::Trace <
+                paradevs::dtss::MyTime >::trace().elements().
             filter_model_name("a").
             filter_type(paradevs::common::START).size() == 1);
     for (unsigned int t = 0; t <= 10; ++t) {
-        REQUIRE(paradevs::common::Trace::trace().elements().
+        REQUIRE(paradevs::common::Trace <
+                    paradevs::dtss::MyTime >::trace().elements().
                 filter_model_name("a").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
-        REQUIRE(paradevs::common::Trace::trace().elements().
+        REQUIRE(paradevs::common::Trace <
+                    paradevs::dtss::MyTime >::trace().elements().
                 filter_model_name("a").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
     }
 
-    REQUIRE(paradevs::common::Trace::trace().elements().
+    REQUIRE(paradevs::common::Trace <
+                paradevs::dtss::MyTime >::trace().elements().
             filter_model_name("b").
             filter_type(paradevs::common::START).size() == 1);
     for (unsigned int t = 0; t <= 10; ++t) {
-        REQUIRE(paradevs::common::Trace::trace().elements().
+        REQUIRE(paradevs::common::Trace <
+                    paradevs::dtss::MyTime >::trace().elements().
                 filter_model_name("b").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
-        REQUIRE(paradevs::common::Trace::trace().elements().
+        REQUIRE(paradevs::common::Trace <
+                    paradevs::dtss::MyTime >::trace().elements().
                 filter_model_name("b").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
     }

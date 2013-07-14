@@ -29,7 +29,14 @@
 
 namespace paradevs { namespace common {
 
-typedef double Time;
+template < typename Type, typename Limits >
+struct Time
+{
+    static constexpr Type negative_infinity = Limits::negative_infinity;
+    static constexpr Type infinity = Limits::positive_infinity;
+    static constexpr Type null = Limits::null;
+    typedef Type type;
+};
 
 } } // namespace paradevs common
 

@@ -34,45 +34,48 @@
 
 namespace paradevs { namespace dtss {
 
+template < class Time >
 class Parameters
 {
 public:
-    Parameters(paradevs::common::Time time_step) : _time_step(time_step)
+    Parameters(typename Time::type time_step) : _time_step(time_step)
     { }
 
-    paradevs::common::Time _time_step;
+    typename Time::type _time_step;
 };
 
-template < class Policy, class GraphManager >
-class Coordinator : public common::Coordinator
+template < class Time, class Policy, class GraphManager >
+class Coordinator : public common::Coordinator < Time >
 {
 public:
-    typedef Parameters parameters_type;
+    typedef Parameters < Time > parameters_type;
 
-    Coordinator(const std::string& name, const Parameters& parameters) :
-        common::Coordinator(name), _graph_manager(this),
+    Coordinator(const std::string& name,
+                const Parameters < Time >& parameters) :
+        common::Coordinator < Time >(name), _graph_manager(this),
         _time_step(parameters._time_step)
     { }
 
     virtual ~Coordinator()
     { }
 
-    common::Time start(common::Time t)
+    typename Time::type start(typename Time::type t)
     {
         assert(_graph_manager.children().size() > 0);
 
         for (auto & child : _graph_manager.children()) {
-            child->start(_tn);
+            child->start(Coordinator < Time, Policy, GraphManager >::_tn);
         }
-        _tl = t;
-        _tn = t;
-        return _tn;
+        Coordinator < Time, Policy, GraphManager >::_tl = t;
+        Coordinator < Time, Policy, GraphManager >::_tn = t;
+        return Coordinator < Time, Policy, GraphManager >::_tn;
     }
 
-    common::Time dispatch_events(common::Bag bag, common::Time t)
+    typename Time::type dispatch_events(common::Bag < Time > bag,
+                                        typename Time::type t)
     {
         _graph_manager.dispatch_events(bag, t);
-        return _tn;
+        return Coordinator < Time, Policy, GraphManager >::_tn;
     }
 
     void observation(std::ostream& file) const
@@ -82,45 +85,46 @@ public:
         }
     }
 
-    void output(common::Time t)
+    void output(typename Time::type t)
     {
-        if (t == _tn) {
+        if (t == Coordinator < Time, Policy, GraphManager >::_tn) {
             for (auto & model : _graph_manager.children()) {
                 model->output(t);
             }
         }
     }
 
-    void post_event(common::Time t,
-                    const common::ExternalEvent& event)
+    void post_event(typename Time::type t,
+                    const common::ExternalEvent < Time >& event)
     {
-        if (t == _tn) {
+        if (t == Coordinator < Time, Policy, GraphManager >::_tn) {
             _graph_manager.post_event(t, event);
         } else {
-            _policy(t, event, _tl, _tn);
+            _policy(t, event, Coordinator < Time, Policy, GraphManager >::_tl,
+                    Coordinator < Time, Policy, GraphManager >::_tn);
         }
     }
 
-    common::Time transition(common::Time t)
+    typename Time::type transition(typename Time::type t)
     {
-        if (t == _tn) {
+        if (t == Coordinator < Time, Policy, GraphManager >::_tn) {
             for (auto & event : _policy.bag()) {
                 post_event(t, event);
             }
             for (auto & model : _graph_manager.children()) {
                 model->transition(t);
             }
-            _tl = t;
-            _tn = t + _time_step;
+            Coordinator < Time, Policy, GraphManager >::_tl = t;
+            Coordinator < Time, Policy, GraphManager >::_tn = t + _time_step;
         }
-        clear_bag();
-        return _tn;
+        Coordinator < Time, Policy, GraphManager >::clear_bag();
+        return Coordinator < Time, Policy, GraphManager >::_tn;
     }
 
 private:
-    GraphManager   _graph_manager;
-    common::Time   _time_step;
-    Policy         _policy;
+    GraphManager        _graph_manager;
+    typename Time::type _time_step;
+    Policy              _policy;
 };
 
 } } // namespace paradevs dtss

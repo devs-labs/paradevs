@@ -29,7 +29,6 @@
 
 #include <common/Bag.hpp>
 #include <common/ExternalEvent.hpp>
-#include <common/Time.hpp>
 
 #include <limits>
 #include <string>
@@ -37,17 +36,26 @@
 
 namespace paradevs { namespace dtss {
 
+template < class Time >
 class Dynamics
 {
 public:
-    Dynamics(const std::string& name);
-    virtual ~Dynamics();
-
-    virtual void transition(const common::Bag& /* x */, common::Time /* t */)
+    Dynamics(const std::string& name) : _name(name)
     { }
-    virtual common::Time start(common::Time /* time */)
-    { return std::numeric_limits < double >::max(); }
-    virtual common::Bag lambda(common::Time /* time */) const;
+
+    virtual ~Dynamics()
+    { }
+
+    virtual void transition(const common::Bag < Time >& /* x */,
+                            typename Time::type /* t */)
+    { }
+
+    virtual typename Time::type start(typename Time::type/* time */)
+    { return Time::infinity; }
+
+    common::Bag < Time > lambda(typename Time::type /* time */) const
+    { return common::Bag < Time >(); }
+
     virtual void observation(std::ostream& /* file */) const
     { }
 

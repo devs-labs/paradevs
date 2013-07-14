@@ -35,36 +35,43 @@
 
 namespace paradevs { namespace dtss {
 
-template < class Dynamics >
-class Simulator : public common::Simulator
+template < class Time, class Dynamics >
+class Simulator : public common::Simulator < Time >
 {
-public :
-    Simulator(const std::string& name, common::Time time_step) :
-        common::Simulator(name), _dynamics(name), _time_step(time_step)
+public:
+    Simulator(const std::string& name, typename Time::type time_step) :
+        common::Simulator < Time >(name), _dynamics(name),
+        _time_step(time_step)
     { }
 
     ~Simulator()
     {  }
 
-    common::Time start(common::Time t)
+    typename Time::type start(typename Time::type t)
     {
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::I_MESSAGE)
-                               << ": BEFORE => "
-                               << "tl = " << _tl << " ; tn = " << _tn;
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::I_MESSAGE)
+            << ": BEFORE => "
+            << "tl = " << Simulator < Time, Dynamics >::_tl
+            << " ; tn = " << Simulator < Time, Dynamics >::_tn;
+        common::Trace < Time >::trace().flush();
 
         _dynamics.start(t);
-        _tl = t;
-        _tn = t;
+        Simulator < Time, Dynamics >::_tl = t;
+        Simulator < Time, Dynamics >::_tn = t;
 
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::I_MESSAGE)
-                               << ": AFTER => "
-                               << "tl = " << _tl << " ; tn = " << _tn;
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::I_MESSAGE)
+            << ": AFTER => "
+            << "tl = " << Simulator < Time, Dynamics >::_tl
+            << " ; tn = " << Simulator < Time, Dynamics >::_tn;
+        common::Trace < Time >::trace().flush();
 
-        return _tn;
+        return Simulator < Time, Dynamics >::_tn;
     }
 
     void observation(std::ostream &file) const
@@ -72,78 +79,93 @@ public :
         _dynamics.observation(file);
     }
 
-    void output(common::Time t)
+    void output(typename Time::type t)
     {
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::OUTPUT)
-                               << ": BEFORE";
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::OUTPUT)
+            << ": BEFORE";
+        common::Trace < Time >::trace().flush();
 
-        if(t == _tn) {
-            common::Bag bag = _dynamics.lambda(t);
+        if (t == Simulator < Time, Dynamics >::_tn) {
+            common::Bag < Time > bag = _dynamics.lambda(t);
 
             if (not bag.empty()) {
                 for (auto & event : bag) {
                     event.set_model(this);
                 }
-                dynamic_cast < common::Coordinator* >(get_parent())
+                dynamic_cast < common::Coordinator < Time >* >(
+                    Simulator < Time, Dynamics >::get_parent())
                     ->dispatch_events(bag, t);
             }
         }
 
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::OUTPUT)
-                               << ": AFTER";
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::OUTPUT)
+            << ": AFTER";
+        common::Trace < Time >::trace().flush();
 
     }
 
-    void post_event(common::Time t,
-                    const common::ExternalEvent& event)
+    void post_event(typename Time::type t,
+                    const common::ExternalEvent < Time >& event)
     {
 
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::POST_EVENT)
-                               << ": BEFORE => " << event.to_string();
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::POST_EVENT)
+            << ": BEFORE => " << event.to_string();
+        common::Trace < Time >::trace().flush();
 
-        add_event(event);
+        Simulator < Time, Dynamics >::add_event(event);
 
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::POST_EVENT)
-                               << ": AFTER => " << event.to_string();
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::POST_EVENT)
+            << ": AFTER => " << event.to_string();
+        common::Trace < Time >::trace().flush();
 
     }
 
-    common::Time transition(common::Time t)
+    typename Time::type transition(typename Time::type t)
     {
 
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::S_MESSAGE)
-                               << ": BEFORE => "
-                               << "tl = " << _tl << " ; tn = " << _tn;
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::S_MESSAGE)
+            << ": BEFORE => "
+            << "tl = " << Simulator < Time, Dynamics >::_tl
+            << " ; tn = " << Simulator < Time, Dynamics >::_tn;
+        common::Trace < Time >::trace().flush();
 
-        assert(t == _tn);
+        // assert(t == Simulator < Time, Dynamics >::_tn);
 
-        _dynamics.transition(get_bag(), t);
-        _tl = t;
-        _tn = t + _time_step;
-        clear_bag();
+        _dynamics.transition(Simulator < Time, Dynamics >::get_bag(), t);
+        Simulator < Time, Dynamics >::_tl = t;
+        Simulator < Time, Dynamics >::_tn = t + _time_step;
+        Simulator < Time, Dynamics >::clear_bag();
 
-        common::Trace::trace() << common::TraceElement(get_name(), t,
-                                                       common::S_MESSAGE)
-                               << ": AFTER => "
-                               << "tl = " << _tl << " ; tn = " << _tn;
-        common::Trace::trace().flush();
+        common::Trace < Time >::trace()
+            << common::TraceElement < Time >(
+                Simulator < Time, Dynamics >::get_name(), t,
+                common::S_MESSAGE)
+            << ": AFTER => "
+            << "tl = " << Simulator < Time, Dynamics >::_tl
+            << " ; tn = " << Simulator < Time, Dynamics >::_tn;
+        common::Trace < Time >::trace().flush();
 
-        return _tn;
+        return Simulator < Time, Dynamics >::_tn;
     }
 
 private :
-    Dynamics     _dynamics;
-    common::Time _time_step;
+    Dynamics            _dynamics;
+    typename Time::type _time_step;
 };
 
 } } // namespace paradevs dtss

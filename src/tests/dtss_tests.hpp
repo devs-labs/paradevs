@@ -25,10 +25,23 @@
  */
 
 #include <dtss/Dynamics.hpp>
+#include <common/Time.hpp>
 
 namespace paradevs { namespace dtss {
 
-class A : public Dynamics
+template < typename T >
+struct Limits
+{
+    static constexpr T negative_infinity =
+        -std::numeric_limits < T >::infinity();
+    static constexpr T positive_infinity =
+        std::numeric_limits < T >::infinity();
+    static constexpr T null = 0;
+};
+
+typedef paradevs::common::Time < double, Limits < double > > MyTime;
+
+class A : public Dynamics < MyTime >
 {
 public:
     A(const std::string& name) : Dynamics(name)
@@ -36,12 +49,13 @@ public:
     virtual ~A()
     { }
 
-    virtual void transition(const common::Bag& /* x */, common::Time /* t */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void transition(const common::Bag < MyTime >& /* x */,
+                            MyTime::type /* t */);
+    virtual MyTime::type start(MyTime::type /* t */);
+    virtual common::Bag < MyTime > lambda(MyTime::type /* t */) const;
 };
 
-class B : public Dynamics
+class B : public Dynamics < MyTime >
 {
 public:
     B(const std::string& name) : Dynamics(name)
@@ -49,9 +63,10 @@ public:
     virtual ~B()
     { }
 
-    virtual void transition(const common::Bag& /* x */, common::Time /* t */);
-    virtual common::Time start(common::Time /* t */);
-    virtual common::Bag lambda(common::Time /* t */) const;
+    virtual void transition(const common::Bag < MyTime >& /* x */,
+                            MyTime::type /* t */);
+    virtual MyTime::type start(MyTime::type /* t */);
+    virtual common::Bag < MyTime > lambda(MyTime::type /* t */) const;
 };
 
 } } // namespace paradevs dtss

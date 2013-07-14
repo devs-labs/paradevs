@@ -28,27 +28,34 @@
 #define COMMON_INTERNAL_EVENT 1
 
 #include <common/Model.hpp>
-#include <common/Time.hpp>
 
 namespace paradevs { namespace common {
 
+template < class Time >
 class InternalEvent
 {
 public:
-    InternalEvent(const common::Time& time, common::Model* model);
-    virtual ~InternalEvent();
+    InternalEvent(const typename Time::type& time, Model < Time >* model)
+        : _time(time), _model(model)
+    { }
 
-    common::Model* get_model() const
+    virtual ~InternalEvent()
+    { }
+
+    Model < Time >* get_model() const
     { return _model; }
 
-    common::Time get_time() const
+    typename Time::type get_time() const
     { return _time; }
 
-    bool operator<(InternalEvent const& e) const;
+    bool operator<(InternalEvent const &e) const
+    {
+        return e._time < _time;
+    }
 
 private:
-    common::Time   _time;
-    common::Model* _model;
+    typename Time::type _time;
+    Model < Time >*     _model;
 };
 
 } } // namespace paradevs common

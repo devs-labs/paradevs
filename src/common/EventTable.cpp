@@ -26,68 +26,6 @@
 
 #include <common/EventTable.hpp>
 
-#include <algorithm>
-#include <sstream>
-
 namespace paradevs { namespace common {
-
-Model* EventTable::get_current_model()
-{
-    return back().get_model();
-}
-
-Models EventTable::get_current_models(Time time) const
-{
-    common::Models models;
-    bool found = true;
-
-    for (const_reverse_iterator it = rbegin(); found and it != rend(); ++it) {
-        if (it->get_time() == time) {
-            models.push_back(it->get_model());
-        } else {
-            found = false;
-        }
-    }
-    return models;
-}
-
-void EventTable::init(common::Time time, Model* model)
-{
-    push_back(InternalEvent(time, model));
-    std::sort(begin(), end());
-}
-
-void EventTable::put(common::Time time, Model* model)
-{
-    remove(model);
-    push_back(InternalEvent(time, model));
-    std::sort(begin(), end());
-}
-
-void EventTable::remove(Model* model)
-{
-    iterator jt = begin();
-
-    while (jt != end()) {
-        if (jt->get_model() == model) {
-            jt = erase(jt);
-        } else {
-            ++jt;
-        }
-    }
-}
-
-std::string EventTable::to_string() const
-{
-    std::stringstream ss;
-
-    ss << "EventTable = { ";
-    for (const_iterator it = begin(); it != end(); ++it) {
-        ss << "(" << it->get_time() << " -> " << it->get_model()->get_name()
-           << ") ";
-    }
-    ss << "}";
-    return ss.str();
-}
 
 } } // namespace paradevs common

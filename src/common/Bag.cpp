@@ -26,20 +26,6 @@
 
 #include <common/Bag.hpp>
 
-#include <sstream>
-
 namespace paradevs { namespace common {
-
-std::string Bag::to_string() const
-{
-    std::ostringstream ss;
-
-    ss << "{ ";
-    for (const_iterator it = begin(); it != end(); ++it) {
-        ss << it->to_string() << " ";
-    }
-    ss << "}";
-    return ss.str();
-}
 
 } } // namespace paradevs common

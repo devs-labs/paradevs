@@ -29,54 +29,95 @@
 
 #include <common/Bag.hpp>
 #include <common/ExternalEvent.hpp>
-#include <common/Time.hpp>
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 namespace paradevs { namespace common {
 
-class Bag;
+template < class Time >
 class ExternalEvent;
 
+template < class Time >
+class Bag;
+
+template < class Time >
 class Model
 {
 public:
-    Model(const std::string& name);
-    virtual ~Model();
+    Model(const std::string& name) :
+        _tl(0), _tn(0), _parent(0), _name(name), _inputs(0)
+    { }
+
+    virtual ~Model()
+    {
+        if (_inputs) {
+            delete _inputs;
+        }
+    }
+
+    void add_event(const common::ExternalEvent < Time >& message)
+    {
+        if (_inputs == 0) {
+            _inputs = new Bag < Time >;
+        }
+        _inputs->push_back(message);
+    }
+
+    const common::Bag < Time >& get_bag()
+    {
+        if (_inputs == 0) {
+            _inputs = new Bag < Time>;
+        }
+        return *_inputs;
+    }
+
+    void clear_bag()
+    {
+        if (_inputs) {
+            delete _inputs;
+            _inputs = 0;
+        }
+    }
+
+    unsigned int event_number() const
+    {
+        if (_inputs) {
+            return _inputs->size();
+        } else {
+            return 0;
+        }
+    }
 
     virtual void observation(std::ostream& file) const =0;
-    virtual void output(common::Time t) =0;
-    virtual void post_event(common::Time t,
-                            const common::ExternalEvent& event) = 0;
-    virtual common::Time start(common::Time t) =0;
-    virtual common::Time transition(common::Time t) =0;
+    virtual void output(typename Time::type t) =0;
+    virtual void post_event(typename Time::type t,
+                            const common::ExternalEvent < Time >& event) = 0;
+    virtual typename Time::type start(typename Time::type t) =0;
+    virtual typename Time::type transition(typename Time::type t) =0;
 
     virtual const std::string& get_name() const
     { return _name; }
 
-    Model* get_parent() const
+    Model < Time >* get_parent() const
     { return _parent; }
 
-    void set_parent(Model* parent)
+    void set_parent(Model < Time >* parent)
     { _parent = parent; }
 
-    void add_event(const common::ExternalEvent& event);
-    void clear_bag();
-    const common::Bag& get_bag();
-    unsigned int event_number() const;
-
 protected:
-    Time        _tl;
-    Time        _tn;
+    typename Time::type _tl;
+    typename Time::type _tn;
 
 private :
-    Model*      _parent;
-    std::string _name;
-    Bag*        _inputs;
+    Model < Time >*     _parent;
+    std::string         _name;
+    Bag < Time >*       _inputs;
 };
 
-class Models : public std::vector < Model* >
+template < class Time >
+class Models : public std::vector < Model < Time >* >
 {
 public:
     Models()
@@ -84,7 +125,18 @@ public:
     virtual ~Models()
     { }
 
-    std::string to_string() const;
+    std::string to_string() const
+    {
+        std::ostringstream ss;
+
+        ss << "{ ";
+        for (typename Models < Time >::const_iterator it =
+                 Models < Time >::begin(); it != Models < Time >::end(); ++it) {
+            ss << (*it)->get_name() << " ";
+        }
+        ss << "}";
+        return ss.str();
+    }
 };
 
 } } // namespace paradevs common
