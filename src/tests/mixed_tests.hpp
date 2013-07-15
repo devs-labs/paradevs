@@ -553,20 +553,20 @@ public:
     Linear2GraphManager(common::Coordinator < MyTime >* coordinator) :
         pdevs::GraphManager < MyTime >(coordinator)
     {
-        for (unsigned int i = 1; i <= 100; ++i) {
+        for (unsigned int i = 1; i <= 50; ++i) {
             std::ostringstream ss;
 
             ss << "a" << i;
             _models.push_back(new pdevs::Simulator < MyTime, Beep >(ss.str()));
         }
-        for (unsigned int i = 0; i < 100; ++i) {
+        for (unsigned int i = 0; i < 50; ++i) {
             add_child(_models[i]);
         }
-        for (unsigned int i = 0; i < 99; ++i) {
+        for (unsigned int i = 0; i < 49; ++i) {
             add_link(_models[i], "out", _models[i + 1], "in");
         }
         add_link(coordinator, "in", _models[0], "in");
-        add_link(_models[99], "out", coordinator, "out");
+        add_link(_models[49], "out", coordinator, "out");
     }
 
     virtual ~Linear2GraphManager()

@@ -104,8 +104,27 @@ int main()
 
     srand(108364);
 
-    run_flat_with_heap < 200 >();
-    run_flat_with_vector < 200 >();
+    run_flat_with_heap < 10 >();
+    run_flat_with_heap < 20 >();
+    run_flat_with_heap < 30 >();
+    run_flat_with_heap < 40 >();
+    run_flat_with_heap < 50 >();
+    run_flat_with_heap < 60 >();
+    run_flat_with_heap < 70 >();
+    run_flat_with_heap < 80 >();
+    run_flat_with_heap < 90 >();
+    run_flat_with_heap < 100 >();
+
+    run_flat_with_vector < 10 >();
+    run_flat_with_vector < 20 >();
+    run_flat_with_vector < 30 >();
+    run_flat_with_vector < 40 >();
+    run_flat_with_vector < 50 >();
+    run_flat_with_vector < 60 >();
+    run_flat_with_vector < 70 >();
+    run_flat_with_vector < 80 >();
+    run_flat_with_vector < 90 >();
+    run_flat_with_vector < 100 >();
 
     double t2 = t.elapsed();
 
