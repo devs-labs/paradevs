@@ -45,16 +45,16 @@ public:
 
     Model < Time >* get_current_model()
     {
-        return VectorScheduler < Time >::back().get_model();
+        return VectorScheduler < Time >::front().get_model();
     }
 
     Models < Time > get_current_models(typename Time::type time) const
     {
         Models < Time > models;
 
-        for (typename VectorScheduler < Time >::const_reverse_iterator it =
-                 VectorScheduler < Time >::rbegin();
-             it != VectorScheduler < Time >::rend() and it->get_time() == time;
+        for (typename VectorScheduler < Time >::const_iterator it =
+                 VectorScheduler < Time >::begin();
+             it != VectorScheduler < Time >::end() and it->get_time() == time;
              ++it) {
             models.push_back(it->get_model());
         }
@@ -62,7 +62,7 @@ public:
     }
 
     typename Time::type get_current_time() const
-    { return VectorScheduler < Time >::back().get_time(); }
+    { return VectorScheduler < Time >::front().get_time(); }
 
     void init(typename Time::type time, Model < Time >* model)
     {
