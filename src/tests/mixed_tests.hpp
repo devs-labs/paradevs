@@ -326,6 +326,98 @@ public:
     }
 };
 
+class Beep : public paradevs::pdevs::Dynamics < MyTime >
+{
+public:
+    Beep(const std::string& name) : paradevs::pdevs::Dynamics < MyTime >(name)
+    { }
+    virtual ~Beep()
+    { }
+
+    void dint(typename MyTime::type t)
+    {
+
+        common::Trace < MyTime >::trace() <<
+            common::TraceElement < MyTime >(get_name(), t,
+                                            common::DELTA_INT);
+        common::Trace < MyTime >::trace().flush();
+
+        if (_phase == SEND) {
+            _phase = WAIT;
+        }
+    }
+
+    void dext(typename MyTime::type t, typename MyTime::type /* e */,
+              const common::Bag < MyTime >& msgs)
+    {
+
+        common::Trace < MyTime >::trace()
+            << common::TraceElement < MyTime >(get_name(), t,
+                                               common::DELTA_EXT)
+            << "messages = " << msgs.to_string();
+        common::Trace < MyTime >::trace().flush();
+
+        _phase = SEND;
+    }
+
+    void dconf(typename MyTime::type t, typename MyTime::type /* e */,
+               const common::Bag < MyTime >& msgs)
+    {
+
+        common::Trace < MyTime >::trace()
+            << common::TraceElement < MyTime >(get_name(), t,
+                                               common::DELTA_CONF)
+            << "messages = " << msgs.to_string();
+        common::Trace < MyTime >::trace().flush();
+
+    }
+
+    typename MyTime::type start(typename MyTime::type t)
+    {
+        common::Trace < MyTime >::trace()
+            << common::TraceElement < MyTime >(get_name(), t,
+                                               common::START);
+        common::Trace < MyTime >::trace().flush();
+
+        _phase = WAIT;
+        return 0;
+    }
+
+    typename MyTime::type ta(typename MyTime::type t) const
+    {
+        common::Trace < MyTime >::trace()
+            << common::TraceElement < MyTime >(get_name(), t,
+                                               common::TA);
+        common::Trace < MyTime >::trace().flush();
+
+        if (_phase == WAIT) {
+            return (rand() % 100) / 10.;
+        } else {
+            return 0;
+        }
+    }
+
+    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    {
+        common::Bag < MyTime > msgs;
+
+        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+
+        common::Trace < MyTime >::trace()
+            << common::TraceElement < MyTime >(get_name(), t,
+                                               common::LAMBDA)
+            << "messages = " << msgs.to_string();
+        common::Trace < MyTime >::trace().flush();
+
+        return msgs;
+    }
+
+private:
+    enum Phase { WAIT, SEND };
+
+    Phase _phase;
+};
+
 struct LastBagPolicy
 {
     const common::Bag < MyTime >& bag() const
@@ -423,35 +515,36 @@ private:
     dtss::Coordinator < MyTime, LastBagPolicy, S2GraphManager > S2;
 };
 
+template < int size >
 class LinearGraphManager : public pdevs::GraphManager < MyTime >
 {
 public:
     LinearGraphManager(common::Coordinator < MyTime >* coordinator) :
         pdevs::GraphManager < MyTime >(coordinator)
     {
-        for (unsigned int i = 1; i <= 200; ++i) {
+        for (unsigned int i = 1; i <= size; ++i) {
             std::ostringstream ss;
 
             ss << "a" << i;
-            _models.push_back(new pdevs::Simulator < MyTime, A1 >(ss.str()));
+            _models.push_back(new pdevs::Simulator < MyTime, Beep >(ss.str()));
         }
-        for (unsigned int i = 0; i < 200; ++i) {
+        for (unsigned int i = 0; i < size; ++i) {
             add_child(_models[i]);
         }
-        for (unsigned int i = 0; i < 199; ++i) {
+        for (unsigned int i = 0; i < size - 1; ++i) {
             add_link(_models[i], "out", _models[i + 1], "in");
         }
     }
 
     virtual ~LinearGraphManager()
     {
-        for (unsigned int i = 0; i < 200; ++i) {
+        for (unsigned int i = 0; i < size; ++i) {
             delete _models[i];
         }
     }
 
 private:
-    std::vector < pdevs::Simulator < MyTime, A1 >* > _models;
+    std::vector < pdevs::Simulator < MyTime, Beep >* > _models;
 };
 
 class Linear2GraphManager : public pdevs::GraphManager < MyTime >
@@ -464,7 +557,7 @@ public:
             std::ostringstream ss;
 
             ss << "a" << i;
-            _models.push_back(new pdevs::Simulator < MyTime, A1 >(ss.str()));
+            _models.push_back(new pdevs::Simulator < MyTime, Beep >(ss.str()));
         }
         for (unsigned int i = 0; i < 100; ++i) {
             add_child(_models[i]);
@@ -484,7 +577,7 @@ public:
     }
 
 private:
-    std::vector < pdevs::Simulator < MyTime, A1 >* > _models;
+    std::vector < pdevs::Simulator < MyTime, Beep >* > _models;
 };
 
 class Root2GraphManager : public pdevs::GraphManager < MyTime >
