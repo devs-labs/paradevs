@@ -24,33 +24,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/timer.hpp>
+
 #include <common/RootCoordinator.hpp>
 #include <common/scheduler/VectorScheduler.hpp>
 #include <common/scheduler/HeapScheduler.hpp>
 
 #include <tests/mixed_tests.hpp>
 
-void run_with_heap()
+void run_flat_with_heap()
 {
     paradevs::common::RootCoordinator <
         paradevs::MyTime, paradevs::pdevs::Coordinator <
             paradevs::MyTime,
             paradevs::common::scheduler::HeapScheduler < paradevs::MyTime >,
-            paradevs::RootGraphManager >
-        > rc(0, 10000, "root", paradevs::pdevs::Parameters());
+            paradevs::LinearGraphManager >
+        > rc(0, 500, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace < paradevs::MyTime >::trace().clear();
     rc.run();
 }
 
-void run_with_vector()
+void run_flat_with_vector()
 {
     paradevs::common::RootCoordinator <
         paradevs::MyTime, paradevs::pdevs::Coordinator <
             paradevs::MyTime,
             paradevs::common::scheduler::VectorScheduler < paradevs::MyTime >,
-            paradevs::RootGraphManager >
-        > rc(0, 10000, "root", paradevs::pdevs::Parameters());
+            paradevs::LinearGraphManager >
+        > rc(0, 500, "root", paradevs::pdevs::Parameters());
+
+    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    rc.run();
+}
+
+void run_hierarchic_with_heap()
+{
+    paradevs::common::RootCoordinator <
+        paradevs::MyTime, paradevs::pdevs::Coordinator <
+            paradevs::MyTime,
+            paradevs::common::scheduler::VectorScheduler < paradevs::MyTime >,
+            paradevs::Root2GraphManager >
+        > rc(0, 500, "root", paradevs::pdevs::Parameters());
+
+    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    rc.run();
+}
+
+void run_hierarchic_with_vector()
+{
+    paradevs::common::RootCoordinator <
+        paradevs::MyTime, paradevs::pdevs::Coordinator <
+            paradevs::MyTime,
+            paradevs::common::scheduler::VectorScheduler < paradevs::MyTime >,
+            paradevs::Root3GraphManager >
+        > rc(0, 500, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace < paradevs::MyTime >::trace().clear();
     rc.run();
@@ -58,11 +86,31 @@ void run_with_vector()
 
 int main()
 {
-    std::cout << "run_with_heap ..." << std::endl;
-    run_with_heap();
-    std::cout << "... OK" << std::endl;
-    std::cout << "run_with_vector ..." << std::endl;
-    run_with_vector();
-    std::cout << "... OK" << std::endl;
+    boost::timer t;
+
+    std::cout << "run_flat_with_heap ..." << std::endl;
+    run_flat_with_heap();
+
+    double t1 = t.elapsed();
+
+    std::cout << "... OK -> " << t1 << std::endl;
+    std::cout << "run_flat_with_vector ..." << std::endl;
+    run_flat_with_vector();
+
+    double t2 = t.elapsed();
+
+    std::cout << "... OK -> "  << (t2 - t1) << std::endl;
+    std::cout << "run_hierarchic_with_heap ..." << std::endl;
+    run_hierarchic_with_heap();
+
+    double t3 = t.elapsed();
+
+    std::cout << "... OK -> " << (t3 - t2) << std::endl;
+    std::cout << "run_hierarchic_with_vector ..." << std::endl;
+    run_hierarchic_with_vector();
+
+    double t4 = t.elapsed();
+
+    std::cout << "... OK -> "  << (t4 - t3) << std::endl;
     return 0;
 }

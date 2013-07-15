@@ -423,4 +423,122 @@ private:
     dtss::Coordinator < MyTime, LastBagPolicy, S2GraphManager > S2;
 };
 
+class LinearGraphManager : public pdevs::GraphManager < MyTime >
+{
+public:
+    LinearGraphManager(common::Coordinator < MyTime >* coordinator) :
+        pdevs::GraphManager < MyTime >(coordinator)
+    {
+        for (unsigned int i = 1; i <= 200; ++i) {
+            std::ostringstream ss;
+
+            ss << "a" << i;
+            _models.push_back(new pdevs::Simulator < MyTime, A1 >(ss.str()));
+        }
+        for (unsigned int i = 0; i < 200; ++i) {
+            add_child(_models[i]);
+        }
+        for (unsigned int i = 0; i < 199; ++i) {
+            add_link(_models[i], "out", _models[i + 1], "in");
+        }
+    }
+
+    virtual ~LinearGraphManager()
+    {
+        for (unsigned int i = 0; i < 200; ++i) {
+            delete _models[i];
+        }
+    }
+
+private:
+    std::vector < pdevs::Simulator < MyTime, A1 >* > _models;
+};
+
+class Linear2GraphManager : public pdevs::GraphManager < MyTime >
+{
+public:
+    Linear2GraphManager(common::Coordinator < MyTime >* coordinator) :
+        pdevs::GraphManager < MyTime >(coordinator)
+    {
+        for (unsigned int i = 1; i <= 100; ++i) {
+            std::ostringstream ss;
+
+            ss << "a" << i;
+            _models.push_back(new pdevs::Simulator < MyTime, A1 >(ss.str()));
+        }
+        for (unsigned int i = 0; i < 100; ++i) {
+            add_child(_models[i]);
+        }
+        for (unsigned int i = 0; i < 99; ++i) {
+            add_link(_models[i], "out", _models[i + 1], "in");
+        }
+        add_link(coordinator, "in", _models[0], "in");
+        add_link(_models[99], "out", coordinator, "out");
+    }
+
+    virtual ~Linear2GraphManager()
+    {
+        for (unsigned int i = 0; i < 50; ++i) {
+            delete _models[i];
+        }
+    }
+
+private:
+    std::vector < pdevs::Simulator < MyTime, A1 >* > _models;
+};
+
+class Root2GraphManager : public pdevs::GraphManager < MyTime >
+{
+public:
+    Root2GraphManager(common::Coordinator < MyTime >* coordinator) :
+        pdevs::GraphManager < MyTime >(coordinator),
+        S1("S1", paradevs::pdevs::Parameters()),
+        S2("S2", paradevs::pdevs::Parameters())
+    {
+        add_child(&S1);
+        add_child(&S2);
+        add_link(&S1, "out", &S2, "in");
+    }
+
+    virtual ~Root2GraphManager()
+    { }
+
+private:
+    pdevs::Coordinator < MyTime,
+                         paradevs::common::scheduler::HeapScheduler <
+                             MyTime >,
+                         Linear2GraphManager > S1;
+    pdevs::Coordinator < MyTime,
+                         paradevs::common::scheduler::HeapScheduler <
+                             MyTime >,
+                         Linear2GraphManager > S2;
+};
+
+class Root3GraphManager : public pdevs::GraphManager < MyTime >
+{
+public:
+    Root3GraphManager(common::Coordinator < MyTime >* coordinator) :
+        pdevs::GraphManager < MyTime >(coordinator),
+        S1("S1", paradevs::pdevs::Parameters()),
+        S2("S2", paradevs::pdevs::Parameters())
+    {
+        add_child(&S1);
+        add_child(&S2);
+        add_link(&S1, "out", &S2, "in");
+    }
+
+    virtual ~Root3GraphManager()
+    { }
+
+private:
+    pdevs::Coordinator < MyTime,
+                         paradevs::common::scheduler::VectorScheduler <
+                             MyTime >,
+                         Linear2GraphManager > S1;
+    pdevs::Coordinator < MyTime,
+                         paradevs::common::scheduler::VectorScheduler <
+                             MyTime >,
+                         Linear2GraphManager > S2;
+};
+
 } // namespace paradevs
