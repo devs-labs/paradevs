@@ -27,6 +27,7 @@
 #include <tests/pdevs_tests.hpp>
 
 #include <common/RootCoordinator.hpp>
+#include <common/scheduler/VectorScheduler.hpp>
 #include <common/Trace.hpp>
 
 #include <pdevs/Coordinator.hpp>
@@ -258,8 +259,10 @@ public:
     { }
 
 private:
-    Coordinator < MyTime, S1GraphManager > S1;
-    Coordinator < MyTime, S2GraphManager > S2;
+    Coordinator < MyTime, paradevs::common::scheduler::VectorScheduler <
+                              MyTime >, S1GraphManager > S1;
+    Coordinator < MyTime, paradevs::common::scheduler::VectorScheduler <
+                              MyTime >, S2GraphManager > S2;
 };
 
 class OnlyOneGraphManager : public pdevs::GraphManager < MyTime >
@@ -310,7 +313,10 @@ TEST_CASE("pdevs/only_one", "run")
 {
     paradevs::common::RootCoordinator <
         paradevs::pdevs::MyTime, paradevs::pdevs::Coordinator <
-            paradevs::pdevs::MyTime, paradevs::pdevs::OnlyOneGraphManager >
+            paradevs::pdevs::MyTime,
+            paradevs::common::scheduler::VectorScheduler <
+                paradevs::pdevs::MyTime >,
+            paradevs::pdevs::OnlyOneGraphManager >
         > rc(0, 10, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace < paradevs::pdevs::MyTime >::trace().clear();
@@ -348,7 +354,10 @@ TEST_CASE("pdevs/flat", "run")
 {
     paradevs::common::RootCoordinator <
         paradevs::pdevs::MyTime, paradevs::pdevs::Coordinator <
-            paradevs::pdevs::MyTime, paradevs::pdevs::FlatGraphManager >
+            paradevs::pdevs::MyTime,
+            paradevs::common::scheduler::VectorScheduler <
+                paradevs::pdevs::MyTime >,
+            paradevs::pdevs::FlatGraphManager >
         > rc(0, 10, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace < paradevs::pdevs::MyTime >::trace().clear();
@@ -456,7 +465,10 @@ TEST_CASE("pdevs/hierachical", "run")
 {
     paradevs::common::RootCoordinator <
         paradevs::pdevs::MyTime, paradevs::pdevs::Coordinator <
-            paradevs::pdevs::MyTime, paradevs::pdevs::RootGraphManager >
+            paradevs::pdevs::MyTime,
+            paradevs::common::scheduler::VectorScheduler <
+                paradevs::pdevs::MyTime >,
+            paradevs::pdevs::RootGraphManager >
         > rc(0, 10, "root", paradevs::pdevs::Parameters());
 
     paradevs::common::Trace < paradevs::pdevs::MyTime >::trace().clear();

@@ -24,7 +24,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <common/RootCoordinator.hpp>
+#include <common/scheduler/VectorScheduler.hpp>
+#include <common/scheduler/HeapScheduler.hpp>
+
+#include <tests/mixed_tests.hpp>
+
+void run_with_heap()
+{
+    paradevs::common::RootCoordinator <
+        paradevs::MyTime, paradevs::pdevs::Coordinator <
+            paradevs::MyTime,
+            paradevs::common::scheduler::HeapScheduler < paradevs::MyTime >,
+            paradevs::RootGraphManager >
+        > rc(0, 10000, "root", paradevs::pdevs::Parameters());
+
+    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    rc.run();
+}
+
+void run_with_vector()
+{
+    paradevs::common::RootCoordinator <
+        paradevs::MyTime, paradevs::pdevs::Coordinator <
+            paradevs::MyTime,
+            paradevs::common::scheduler::VectorScheduler < paradevs::MyTime >,
+            paradevs::RootGraphManager >
+        > rc(0, 10000, "root", paradevs::pdevs::Parameters());
+
+    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    rc.run();
+}
+
 int main()
 {
+    std::cout << "run_with_heap ..." << std::endl;
+    run_with_heap();
+    std::cout << "... OK" << std::endl;
+    std::cout << "run_with_vector ..." << std::endl;
+    run_with_vector();
+    std::cout << "... OK" << std::endl;
     return 0;
 }

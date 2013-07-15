@@ -1,5 +1,5 @@
 /**
- * @file EventTable.hpp
+ * @file VectorScheduler.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,71 +24,71 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_EVENT_TABLE
-#define COMMON_EVENT_TABLE 1
+#ifndef COMMON_SCHEDULER_VECTOR_SCHEDULER_HPP
+#define COMMON_SCHEDULER_VECTOR_SCHEDULER_HPP 1
 
 #include <common/InternalEvent.hpp>
 
 #include <algorithm>
 #include <sstream>
 
-namespace paradevs { namespace common {
+namespace paradevs { namespace common { namespace scheduler {
 
 template < class Time >
-class EventTable : protected std::vector < InternalEvent < Time > >
+class VectorScheduler : protected std::vector < InternalEvent < Time > >
 {
 public:
-    EventTable()
+    VectorScheduler()
     { }
-    virtual ~EventTable()
+    virtual ~VectorScheduler()
     { }
 
     Model < Time >* get_current_model()
     {
-        return EventTable < Time >::back().get_model();
+        return VectorScheduler < Time >::back().get_model();
     }
 
     Models < Time > get_current_models(typename Time::type time) const
     {
         Models < Time > models;
-        bool found = true;
 
-        for (typename EventTable < Time >::const_reverse_iterator it =
-                 EventTable < Time >::rbegin();
-             found and it != EventTable < Time >::rend(); ++it) {
-            if (it->get_time() == time) {
-                models.push_back(it->get_model());
-            } else {
-                found = false;
-            }
+        for (typename VectorScheduler < Time >::const_reverse_iterator it =
+                 VectorScheduler < Time >::rbegin();
+             it != VectorScheduler < Time >::rend() and it->get_time() == time;
+             ++it) {
+            models.push_back(it->get_model());
         }
         return models;
     }
 
     typename Time::type get_current_time() const
-    { return EventTable < Time >::back().get_time(); }
+    { return VectorScheduler < Time >::back().get_time(); }
 
     void init(typename Time::type time, Model < Time >* model)
     {
-        EventTable < Time >::push_back(InternalEvent < Time >(time, model));
-        std::sort(EventTable < Time >::begin(), EventTable < Time >::end());
+        VectorScheduler < Time >::push_back(
+            InternalEvent < Time >(time, model));
+        std::sort(VectorScheduler < Time >::begin(),
+                  VectorScheduler < Time >::end());
     }
 
     void put(typename Time::type time, Model < Time >* model)
     {
         remove(model);
-        EventTable < Time >::push_back(InternalEvent < Time >(time, model));
-        std::sort(EventTable < Time >::begin(), EventTable < Time >::end());
+        VectorScheduler < Time >::push_back(
+            InternalEvent < Time >(time, model));
+        std::sort(VectorScheduler < Time >::begin(),
+                  VectorScheduler < Time >::end());
     }
 
     std::string to_string() const
     {
         std::stringstream ss;
 
-        ss << "EventTable = { ";
-        for (typename EventTable < Time >::const_iterator it =
-                 EventTable < Time >::begin();
-             it != EventTable < Time >::end(); ++it) {
+        ss << "Scheduler = { ";
+        for (typename VectorScheduler < Time >::const_iterator it =
+                 VectorScheduler < Time >::begin();
+             it != VectorScheduler < Time >::end(); ++it) {
             ss << "(" << it->get_time() << " -> " << it->get_model()->get_name()
                << ") ";
         }
@@ -99,12 +99,12 @@ public:
 private:
     void remove(Model < Time >* model)
     {
-        typename EventTable < Time >::iterator jt =
-            EventTable < Time >::begin();
+        typename VectorScheduler < Time >::iterator jt =
+            VectorScheduler < Time >::begin();
 
-        while (jt != EventTable < Time >::end()) {
+        while (jt != VectorScheduler < Time >::end()) {
             if (jt->get_model() == model) {
-                jt = EventTable < Time >::erase(jt);
+                jt = VectorScheduler < Time >::erase(jt);
             } else {
                 ++jt;
             }
@@ -112,6 +112,6 @@ private:
     }
 };
 
-} } // namespace paradevs common
+} } } // namespace paradevs common scheduler
 
 #endif

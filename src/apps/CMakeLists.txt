@@ -10,7 +10,7 @@ LINK_DIRECTORIES(
   ${LIBXML_LIBRARY_DIRS}
   ${Boost_LIBRARY_DIRS})
 
-ADD_EXECUTABLE(paradevs main.cpp)
+ADD_EXECUTABLE(paradevs main.cpp ../tests/mixed_tests.hpp)
 SET_TARGET_PROPERTIES(paradevs PROPERTIES ${PARADEVS_APP_PROPERTIES})
 
 TARGET_LINK_LIBRARIES(paradevs

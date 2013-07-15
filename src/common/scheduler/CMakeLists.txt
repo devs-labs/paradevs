@@ -10,9 +10,7 @@ LINK_DIRECTORIES(
   ${LIBXML_LIBRARY_DIR}
   ${Boost_LIBRARY_DIRS})
 
-SET(COMMON_HPP Bag.hpp ExternalEvent.hpp InternalEvent.hpp Links.hpp Node.hpp
-  RootCoordinator.hpp Scheduler.hpp Time.hpp Trace.hpp)
+SET(COMMON_SCHEDULER_HPP HeapScheduler.hpp VectorScheduler.hpp)
 
-INSTALL(FILES ${COMMON_HPP} DESTINATION ${PARADEVS_INCLUDE_DIRS}/common)
-
-ADD_SUBDIRECTORY(scheduler)
+INSTALL(FILES ${COMMON_SCHEDULER_HPP} DESTINATION
+  ${PARADEVS_INCLUDE_DIRS}/common/scheduler)

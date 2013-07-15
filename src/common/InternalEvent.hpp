@@ -29,7 +29,12 @@
 
 #include <common/Model.hpp>
 
+#include <functional>
+
 namespace paradevs { namespace common {
+
+template < class Time >
+class Model;
 
 template < class Time >
 class InternalEvent
@@ -50,12 +55,27 @@ public:
 
     bool operator<(InternalEvent const &e) const
     {
-        return e._time < _time;
+        return _time < e._time;
+    }
+
+    bool operator==(InternalEvent const &e) const
+    {
+        return _time == e._time;
     }
 
 private:
     typename Time::type _time;
     Model < Time >*     _model;
+};
+
+template < typename Event >
+struct EventCompare
+    : std::binary_function < Event, Event, bool >
+{
+    bool operator()(const Event &left, const Event &right) const
+    {
+        return left.get_time() > right.get_time();
+    }
 };
 
 } } // namespace paradevs common

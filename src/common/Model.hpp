@@ -29,6 +29,9 @@
 
 #include <common/Bag.hpp>
 #include <common/ExternalEvent.hpp>
+#include <common/InternalEvent.hpp>
+
+#include <boost/heap/fibonacci_heap.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -37,7 +40,13 @@
 namespace paradevs { namespace common {
 
 template < class Time >
+struct EventCompare;
+
+template < class Time >
 class ExternalEvent;
+
+template < class Time >
+class InternalEvent;
 
 template < class Time >
 class Bag;
@@ -103,6 +112,26 @@ public:
     Model < Time >* get_parent() const
     { return _parent; }
 
+    typename Time::type get_tl() const
+    { return _tl; }
+
+    typename Time::type get_tn() const
+    { return _tn; }
+
+    void heap_id(typename boost::heap::fibonacci_heap <
+                     InternalEvent < Time >,
+                     boost::heap::compare <
+                         EventCompare < InternalEvent <
+                             Time > > > >::handle_type id)
+    { _heap_id = id; }
+
+    typename boost::heap::fibonacci_heap <
+        InternalEvent < Time >,
+        boost::heap::compare <
+            EventCompare < InternalEvent <
+                               Time > > > >::handle_type heap_id()
+                               { return _heap_id; }
+
     void set_parent(Model < Time >* parent)
     { _parent = parent; }
 
@@ -114,6 +143,11 @@ private :
     Model < Time >*     _parent;
     std::string         _name;
     Bag < Time >*       _inputs;
+    typename boost::heap::fibonacci_heap <
+        InternalEvent < Time >,
+        boost::heap::compare <
+            EventCompare < InternalEvent <
+                               Time > > > >::handle_type _heap_id;
 };
 
 template < class Time >
