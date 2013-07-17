@@ -49,6 +49,8 @@ public:
 
     typename Time::type start(typename Time::type t)
     {
+
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
@@ -57,11 +59,13 @@ public:
             << "tl = " << Simulator < Time, Dynamics >::_tl
             << " ; tn = " << Simulator < Time, Dynamics >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         _dynamics.start(t);
         Simulator < Time, Dynamics >::_tl = t;
         Simulator < Time, Dynamics >::_tn = t;
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
@@ -70,6 +74,7 @@ public:
             << "tl = " << Simulator < Time, Dynamics >::_tl
             << " ; tn = " << Simulator < Time, Dynamics >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         return Simulator < Time, Dynamics >::_tn;
     }
@@ -81,12 +86,15 @@ public:
 
     void output(typename Time::type t)
     {
+
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
                 common::OUTPUT)
             << ": BEFORE";
         common::Trace < Time >::trace().flush();
+#endif
 
         if (t == Simulator < Time, Dynamics >::_tn) {
             common::Bag < Time > bag = _dynamics.lambda(t);
@@ -101,12 +109,14 @@ public:
             }
         }
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
                 common::OUTPUT)
             << ": AFTER";
         common::Trace < Time >::trace().flush();
+#endif
 
     }
 
@@ -114,28 +124,37 @@ public:
                     const common::ExternalEvent < Time >& event)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
                 common::POST_EVENT)
             << ": BEFORE => " << event.to_string();
         common::Trace < Time >::trace().flush();
+#endif
 
         Simulator < Time, Dynamics >::add_event(event);
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
                 common::POST_EVENT)
             << ": AFTER => " << event.to_string();
         common::Trace < Time >::trace().flush();
+#endif
 
     }
 
     typename Time::type transition(typename Time::type t)
     {
 
-        common::Trace < Time >::trace()
+ #ifdef WITH_TRACE
+       common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
                 common::S_MESSAGE)
@@ -143,6 +162,7 @@ public:
             << "tl = " << Simulator < Time, Dynamics >::_tl
             << " ; tn = " << Simulator < Time, Dynamics >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         // assert(t == Simulator < Time, Dynamics >::_tn);
 
@@ -151,6 +171,7 @@ public:
         Simulator < Time, Dynamics >::_tn = t + _time_step;
         Simulator < Time, Dynamics >::clear_bag();
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Simulator < Time, Dynamics >::get_name(), t,
@@ -159,6 +180,7 @@ public:
             << "tl = " << Simulator < Time, Dynamics >::_tl
             << " ; tn = " << Simulator < Time, Dynamics >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         return Simulator < Time, Dynamics >::_tn;
     }

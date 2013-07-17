@@ -58,6 +58,11 @@ public:
         return _time < e._time;
     }
 
+    bool operator>(InternalEvent const &e) const
+    {
+        return _time > e._time;
+    }
+
     bool operator==(InternalEvent const &e) const
     {
         return _time == e._time;
@@ -73,9 +78,7 @@ struct EventCompare
     : std::binary_function < Event, Event, bool >
 {
     bool operator()(const Event &left, const Event &right) const
-    {
-        return left.get_time() > right.get_time();
-    }
+    { return left > right; }
 };
 
 } } // namespace paradevs common

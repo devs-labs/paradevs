@@ -62,6 +62,7 @@ public:
     typename Time::type start(typename Time::type t)
     {
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -70,6 +71,7 @@ public:
             << "tl = " << Coordinator < Time, Policy, GraphManager >::_tl
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         assert(_graph_manager.children().size() > 0);
 
@@ -79,6 +81,7 @@ public:
         Coordinator < Time, Policy, GraphManager >::_tl = t;
         Coordinator < Time, Policy, GraphManager >::_tn = t;
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -87,6 +90,7 @@ public:
             << "tl = " << Coordinator < Time, Policy, GraphManager >::_tl
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         return Coordinator < Time, Policy, GraphManager >::_tn;
     }
@@ -95,6 +99,7 @@ public:
                                         typename Time::type t)
     {
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -104,9 +109,11 @@ public:
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn
             << " ; bag = " << bag.to_string();
         common::Trace < Time >::trace().flush();
+#endif
 
         _graph_manager.dispatch_events(bag, t);
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -115,6 +122,7 @@ public:
             << "tl = " << Coordinator < Time, Policy, GraphManager >::_tl
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         return Coordinator < Time, Policy, GraphManager >::_tn;
     }
@@ -129,6 +137,7 @@ public:
     void output(typename Time::type t)
     {
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -137,6 +146,7 @@ public:
             << "tl = " << Coordinator < Time, Policy, GraphManager >::_tl
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         if (t == Coordinator < Time, Policy, GraphManager >::_tn) {
             for (auto & model : _graph_manager.children()) {
@@ -144,6 +154,7 @@ public:
             }
         }
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -152,6 +163,7 @@ public:
             << "tl = " << Coordinator < Time, Policy, GraphManager >::_tl
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
     }
 
@@ -159,12 +171,14 @@ public:
                     const common::ExternalEvent < Time >& event)
     {
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
                 common::POST_EVENT)
             << ": BEFORE => " << event.to_string();
         common::Trace < Time >::trace().flush();
+#endif
 
         if (t == Coordinator < Time, Policy, GraphManager >::_tn) {
             _graph_manager.post_event(t, event);
@@ -173,18 +187,21 @@ public:
                     Coordinator < Time, Policy, GraphManager >::_tn);
         }
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
                 common::POST_EVENT)
             << ": AFTER => " << event.to_string();
         common::Trace < Time >::trace().flush();
+#endif
 
     }
 
     typename Time::type transition(typename Time::type t)
     {
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -193,6 +210,7 @@ public:
             << "tl = " << Coordinator < Time, Policy, GraphManager >::_tl
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         if (t == Coordinator < Time, Policy, GraphManager >::_tn) {
             for (auto & event : _policy.bag()) {
@@ -206,6 +224,7 @@ public:
         }
         Coordinator < Time, Policy, GraphManager >::clear_bag();
 
+#ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(
                 Coordinator < Time, Policy, GraphManager >::get_name(), t,
@@ -214,6 +233,7 @@ public:
             << "tl = " << Coordinator < Time, Policy, GraphManager >::_tl
             << " ; tn = " << Coordinator < Time, Policy, GraphManager >::_tn;
         common::Trace < Time >::trace().flush();
+#endif
 
         return Coordinator < Time, Policy, GraphManager >::_tn;
     }

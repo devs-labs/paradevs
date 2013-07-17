@@ -31,6 +31,7 @@
 
 #include <boost/heap/fibonacci_heap.hpp>
 
+#include <cmath>
 #include <sstream>
 
 namespace paradevs { namespace common { namespace scheduler {
@@ -88,11 +89,22 @@ public:
                            InternalEvent < Time >(time, model)));
     }
 
-    void put(typename Time::type time, Model < Time >* model)
+    void put_increase(typename Time::type time, Model < Time >* model)
     {
-        HeapScheduler < Time >::erase(model->heap_id());
-        model->heap_id(HeapScheduler < Time >::push(
-                           InternalEvent < Time >(time, model)));
+        if (std::isfinite(time)) {
+            HeapScheduler < Time >::erase(model->heap_id());
+            model->heap_id(HeapScheduler < Time >::push(
+                               InternalEvent < Time >(time, model)));
+        } else {
+            HeapScheduler < Time >::increase(
+                model->heap_id(), InternalEvent < Time >(time, model));
+        }
+    }
+
+    void put_decrease(typename Time::type time, Model < Time >* model)
+    {
+        HeapScheduler < Time >::decrease(
+            model->heap_id(), InternalEvent < Time >(time, model));
     }
 
     std::string to_string() const

@@ -77,7 +77,7 @@ void run_hierarchic_with_heap()
     paradevs::common::RootCoordinator <
         paradevs::MyTime, paradevs::pdevs::Coordinator <
             paradevs::MyTime,
-            paradevs::common::scheduler::VectorScheduler < paradevs::MyTime >,
+            paradevs::common::scheduler::HeapScheduler < paradevs::MyTime >,
             paradevs::Root2GraphManager >
         > rc(0, 100, "root", paradevs::pdevs::Parameters());
 
@@ -114,6 +114,7 @@ int main()
     run_flat_with_heap < 80 >();
     run_flat_with_heap < 90 >();
     run_flat_with_heap < 100 >();
+    run_flat_with_heap < 200 >();
 
     run_flat_with_vector < 10 >();
     run_flat_with_vector < 20 >();
@@ -125,6 +126,7 @@ int main()
     run_flat_with_vector < 80 >();
     run_flat_with_vector < 90 >();
     run_flat_with_vector < 100 >();
+    run_flat_with_vector < 200 >();
 
     double t2 = t.elapsed();
 

@@ -65,10 +65,16 @@ public:
     void dint(typename MyTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace() <<
             common::TraceElement < MyTime >(get_name(), t,
                                             common::DELTA_INT);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -79,11 +85,18 @@ public:
               const common::Bag < MyTime >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         _phase = SEND;
     }
@@ -92,32 +105,49 @@ public:
                const common::Bag < MyTime >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
-
+#endif
     }
 
     typename MyTime::type start(typename MyTime::type t)
     {
-        common::Trace < MyTime >::trace()
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
+   common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::START);
         common::Trace < MyTime >::trace().flush();
-
+#endif
         _phase = WAIT;
         return 0;
     }
 
     typename MyTime::type ta(typename MyTime::type t) const
     {
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::TA);
         common::Trace < MyTime >::trace().flush();
-
+#endif
         if (_phase == WAIT) {
             return 1;
         } else {
@@ -127,15 +157,22 @@ public:
 
     common::Bag < MyTime > lambda(typename MyTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
         common::Bag < MyTime > msgs;
 
         msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         return msgs;
     }
@@ -157,10 +194,16 @@ public:
     void dint(typename MyTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_INT);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -171,11 +214,18 @@ public:
               const common::Bag < MyTime >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         _phase = SEND;
     }
@@ -184,21 +234,34 @@ public:
                const common::Bag < MyTime >& msgs)
     {
 
+#ifndef WITH_TRACE
+   (void)t;
+   (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
     }
 
     typename MyTime::type start(typename MyTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::START);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         _phase = WAIT;
         return std::numeric_limits < double >::max();
@@ -206,10 +269,17 @@ public:
 
     typename MyTime::type ta(typename MyTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::TA);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         if (_phase == WAIT) {
             return std::numeric_limits < double >::max();
@@ -220,15 +290,21 @@ public:
 
     common::Bag < MyTime > lambda(typename MyTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
         common::Bag < MyTime > msgs;
 
         msgs.push_back(common::ExternalEvent < MyTime >("out", t));
 
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         return msgs;
     }
@@ -249,34 +325,56 @@ public:
 
     void transition(const common::Bag < MyTime >& x, typename MyTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)x;
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_INT)
             << "x = " << x.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
+
     }
 
     typename MyTime::type start(typename MyTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::START);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         return 0;
     }
 
     common::Bag < MyTime > lambda(typename MyTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
         common::Bag < MyTime > msgs;
 
         msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         return msgs;
     }
@@ -292,35 +390,56 @@ public:
 
     void transition(const common::Bag < MyTime >& x, typename MyTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)x;
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_INT)
             << "x = " << x.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
+
     }
 
     typename MyTime::type start(typename MyTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::START);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         return 0;
     }
 
     common::Bag < MyTime > lambda(typename MyTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
         common::Bag < MyTime > msgs;
 
         msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         return msgs;
     }
@@ -337,10 +456,16 @@ public:
     void dint(typename MyTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace() <<
             common::TraceElement < MyTime >(get_name(), t,
                                             common::DELTA_INT);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -351,11 +476,18 @@ public:
               const common::Bag < MyTime >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         _phase = SEND;
     }
@@ -364,20 +496,34 @@ public:
                const common::Bag < MyTime >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
     }
 
     typename MyTime::type start(typename MyTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::START);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         _phase = WAIT;
         return 0;
@@ -385,10 +531,17 @@ public:
 
     typename MyTime::type ta(typename MyTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::TA);
         common::Trace < MyTime >::trace().flush();
+#endif
 
         if (_phase == WAIT) {
             return (rand() % 100) / 10.;
@@ -399,15 +552,21 @@ public:
 
     common::Bag < MyTime > lambda(typename MyTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
         common::Bag < MyTime > msgs;
 
         msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
             << common::TraceElement < MyTime >(get_name(), t,
                                                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
+#endif
 
         return msgs;
     }
@@ -553,16 +712,16 @@ public:
     Linear2GraphManager(common::Coordinator < MyTime >* coordinator) :
         pdevs::GraphManager < MyTime >(coordinator)
     {
-        for (unsigned int i = 1; i <= 50; ++i) {
+        for (unsigned int i = 1; i <= 100; ++i) {
             std::ostringstream ss;
 
             ss << "a" << i;
             _models.push_back(new pdevs::Simulator < MyTime, Beep >(ss.str()));
         }
-        for (unsigned int i = 0; i < 50; ++i) {
+        for (unsigned int i = 0; i < 100; ++i) {
             add_child(_models[i]);
         }
-        for (unsigned int i = 0; i < 49; ++i) {
+        for (unsigned int i = 0; i < 99; ++i) {
             add_link(_models[i], "out", _models[i + 1], "in");
         }
         add_link(coordinator, "in", _models[0], "in");
@@ -571,7 +730,7 @@ public:
 
     virtual ~Linear2GraphManager()
     {
-        for (unsigned int i = 0; i < 50; ++i) {
+        for (unsigned int i = 0; i < 100; ++i) {
             delete _models[i];
         }
     }
@@ -617,7 +776,7 @@ public:
     {
         add_child(&S1);
         add_child(&S2);
-        add_link(&S1, "out", &S2, "in");
+        // add_link(&S1, "out", &S2, "in");
     }
 
     virtual ~Root3GraphManager()
