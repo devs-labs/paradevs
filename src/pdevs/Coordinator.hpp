@@ -1,5 +1,5 @@
 /**
- * @file Coordinator.hpp
+ * @file pdevs/Coordinator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -28,6 +28,7 @@
 #define PDEVS_COORDINATOR 1
 
 #include <common/Coordinator.hpp>
+#include <common/Parameters.hpp>
 #include <common/Trace.hpp>
 
 #include <cassert>
@@ -35,21 +36,23 @@
 
 namespace paradevs { namespace pdevs {
 
-class Parameters
-{
-public:
-    Parameters()
-    { }
-};
-
-template < class Time, class Scheduler, class GraphManager >
+template < class Time, class Scheduler, class GraphManager,
+           class Parameters = common::NoParameters,
+           class GraphParameters = common::NoParameters >
 class Coordinator : public common::Coordinator < Time >
 {
+    typedef Coordinator < Time, Scheduler, GraphManager,
+                          Parameters, GraphParameters > type;
+
 public:
     typedef Parameters parameters_type;
+    typedef GraphParameters graph_parameters_type;
 
-    Coordinator(const std::string& name, const Parameters& /* parameters */) :
-        common::Coordinator < Time >(name), _graph_manager(this)
+    Coordinator(const std::string& name,
+                const Parameters& /* parameters */,
+                const GraphParameters& graph_parameters) :
+        common::Coordinator < Time >(name),
+        _graph_manager(this, graph_parameters)
     { }
 
     virtual ~Coordinator()
@@ -60,12 +63,10 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::I_MESSAGE)
-            << ": BEFORE => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn;
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::I_MESSAGE)
+            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
+            << type::_tn;
         common::Trace < Time >::trace().flush();
 #endif
 
@@ -74,25 +75,22 @@ public:
         for (auto & child : _graph_manager.children()) {
             _event_table.init(child->start(
                                   Coordinator < Time, Scheduler,
-                                  GraphManager >::_tn),
-                              child);
+                                  GraphManager, Parameters,
+                                  GraphParameters >::_tn), child);
         }
-        Coordinator < Time, Scheduler, GraphManager >::_tl = t;
-        Coordinator < Time, Scheduler, GraphManager >::_tn =
-            _event_table.get_current_time();
+        type::_tl = t;
+        type::_tn = _event_table.get_current_time();
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::I_MESSAGE)
-            << ": AFTER => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn;
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::I_MESSAGE)
+            << ": AFTER => " << "tl = " << type::_tl
+            << " ; tn = " << type::_tn;
         common::Trace < Time >::trace().flush();
 #endif
 
-        return Coordinator < Time, Scheduler, GraphManager >::_tn;
+        return type::_tn;
     }
 
 /**************************************************
@@ -109,25 +107,21 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::OUTPUT)
-            << ": BEFORE => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn
-            << " ; scheduler = " << _event_table.to_string();
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::OUTPUT)
+            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
+            << type::_tn << " ; scheduler = " << _event_table.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
-        // assert(t == Coordinator < Time, Scheduler, GraphManager >::_tn);
+        assert(t == type::_tn);
 
         common::Models < Time > IMM = _event_table.get_current_models(t);
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::OUTPUT)
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::OUTPUT)
             << ": IMM = " << IMM.to_string();
         common::Trace < Time >::trace().flush();
 #endif
@@ -138,13 +132,10 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::OUTPUT)
-            << ": AFTER => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn
-            << " ; scheduler = " << _event_table.to_string();
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::OUTPUT)
+            << ": AFTER => " << "tl = " << type::_tl << " ; tn = "
+            << type::_tn << " ; scheduler = " << _event_table.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
@@ -166,17 +157,14 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::S_MESSAGE)
-            << ": BEFORE => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn
-            << " ; scheduler = " << _event_table.to_string();
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::S_MESSAGE)
+            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
+            << type::_tn << " ; scheduler = " << _event_table.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
-        // assert(t >= Coordinator < Time, Scheduler, GraphManager >::_tl and t <= Coordinator < Time, Scheduler, GraphManager >::_tn);
+        assert(t >= type::_tl and t <= type::_tn);
 
         common::Models < Time > receivers = _event_table.get_current_models(t);
 
@@ -184,43 +172,31 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::S_MESSAGE)
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::S_MESSAGE)
             << ": receivers = " << receivers.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
         for (auto & model : receivers) {
-            typename Time::type previous_tn  = model->get_tn();
-            typename Time::type tn = model->transition(t);
-
-            if (previous_tn < tn) {
-                _event_table.put_increase(tn, model);
-            } else if (previous_tn > tn) {
-                _event_table.put_decrease(tn, model);
-            }
+            _event_table.put(model->transition(t), model);
         }
 
         update_event_table(t);
-        Coordinator < Time, Scheduler, GraphManager >::_tl = t;
-        Coordinator < Time, Scheduler, GraphManager >::_tn =
-            _event_table.get_current_time();
-        Coordinator < Time, Scheduler, GraphManager >::clear_bag();
+        type::_tl = t;
+        type::_tn = _event_table.get_current_time();
+        type::clear_bag();
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::S_MESSAGE)
-            << ": AFTER => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn
-            << " ; scheduler = " << _event_table.to_string();
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::S_MESSAGE)
+            << ": AFTER => " << "tl = " << type::_tl << " ; tn = "
+            << type::_tn << " ; scheduler = " << _event_table.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
-        return Coordinator < Time, Scheduler, GraphManager >::_tn;
+        return type::_tn;
     }
 
     void post_event(typename Time::type t,
@@ -229,24 +205,21 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::POST_EVENT)
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::POST_EVENT)
             << ": BEFORE => " << event.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
-        Coordinator < Time, Scheduler, GraphManager >::add_event(event);
+        type::add_event(event);
         _graph_manager.post_event(t, event);
         update_event_table(t);
-        Coordinator < Time, Scheduler, GraphManager >::_tn =
-            _event_table.get_current_time();
+        type::_tn = _event_table.get_current_time();
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::POST_EVENT)
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::POST_EVENT)
             << ": AFTER => " << event.to_string();
         common::Trace < Time >::trace().flush();
 #endif
@@ -262,33 +235,28 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::Y_MESSAGE)
-            << ": BEFORE => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn
-            << " ; bag = " << bag.to_string();
+            << common::TraceElement < Time >( type::get_name(), t,
+                                              common::Y_MESSAGE)
+            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
+            << type::_tn << " ; bag = " << bag.to_string()
+            << " ; " << _event_table.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
         _graph_manager.dispatch_events(bag, t);
         update_event_table(t);
-        Coordinator < Time, Scheduler, GraphManager >::_tn =
-            _event_table.get_current_time();
+        type::_tn = _event_table.get_current_time();
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
-            << common::TraceElement < Time >(
-                Coordinator < Time, Scheduler, GraphManager >::get_name(), t,
-                common::Y_MESSAGE)
-            << ": BEFORE => "
-            << "tl = " << Coordinator < Time, Scheduler, GraphManager >::_tl
-            << " ; tn = " << Coordinator < Time, Scheduler, GraphManager >::_tn;
+            << common::TraceElement < Time >(type::get_name(), t,
+                                             common::Y_MESSAGE)
+            << ": AFTER => " << "tl = " << type::_tl << " ; tn = " << type::_tn
+            << " ; " << _event_table.to_string();
         common::Trace < Time >::trace().flush();
 #endif
 
-        return Coordinator < Time, Scheduler, GraphManager >::_tn;
+        return type::_tn;
     }
 
     void observation(std::ostream& file) const
@@ -314,7 +282,7 @@ public:
     {
         for (auto & model : _graph_manager.children()) {
             if (model->event_number() > 0) {
-                _event_table.put_decrease(t, model);
+                _event_table.put(t, model);
             }
         }
     }

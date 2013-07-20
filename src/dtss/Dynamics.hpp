@@ -36,11 +36,12 @@
 
 namespace paradevs { namespace dtss {
 
-template < class Time >
+template < class Time, class Parameters >
 class Dynamics
 {
 public:
-    Dynamics(const std::string& name) : _name(name)
+    Dynamics(const std::string& name, const Parameters& /* parameters */) :
+        _name(name)
     { }
 
     virtual ~Dynamics()

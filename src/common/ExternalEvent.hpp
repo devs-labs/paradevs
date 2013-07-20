@@ -72,6 +72,9 @@ public:
     Model < Time >* get_model() const
     { return _model; }
 
+    bool on_port(const std::string& port_name) const
+    { return _port_name == port_name; }
+
     void set_model(Model < Time >* model)
     { _model = model; }
 

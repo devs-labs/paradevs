@@ -1,5 +1,5 @@
 /**
- * @file mixed_examples.hpp
+ * @file tests/mixed/models.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,23 +24,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <common/RootCoordinator.hpp>
-#include <common/scheduler/VectorScheduler.hpp>
-#include <common/scheduler/HeapScheduler.hpp>
+#ifndef TESTS_MIXED_MODELS_HPP
+#define TESTS_MIXED_MODELS_HPP 1
+
 #include <common/Time.hpp>
 #include <common/Trace.hpp>
 
-#include <dtss/Coordinator.hpp>
 #include <dtss/Dynamics.hpp>
-#include <dtss/GraphManager.hpp>
-#include <dtss/Simulator.hpp>
 
-#include <pdevs/Coordinator.hpp>
 #include <pdevs/Dynamics.hpp>
-#include <pdevs/GraphManager.hpp>
-#include <pdevs/Simulator.hpp>
 
-namespace paradevs {
+namespace paradevs { namespace tests { namespace mixed {
 
 template < typename T >
 struct Limits
@@ -54,10 +48,17 @@ struct Limits
 
 typedef paradevs::common::Time < double, Limits < double > > MyTime;
 
-class A1 : public paradevs::pdevs::Dynamics < MyTime >
+struct NoParameters
+{
+    NoParameters()
+    { }
+};
+
+class A1 : public paradevs::pdevs::Dynamics < MyTime, NoParameters >
 {
 public:
-    A1(const std::string& name) : paradevs::pdevs::Dynamics < MyTime >(name)
+    A1(const std::string& name, const NoParameters& parameters) :
+        paradevs::pdevs::Dynamics < MyTime, NoParameters >(name, parameters)
     { }
     virtual ~A1()
     { }
@@ -183,10 +184,11 @@ private:
     Phase _phase;
 };
 
-class B1 : public paradevs::pdevs::Dynamics < MyTime >
+class B1 : public paradevs::pdevs::Dynamics < MyTime, NoParameters >
 {
 public:
-    B1(const std::string& name) : paradevs::pdevs::Dynamics < MyTime >(name)
+    B1(const std::string& name, const NoParameters& parameters) :
+        paradevs::pdevs::Dynamics < MyTime, NoParameters >(name, parameters)
     { }
     virtual ~B1()
     { }
@@ -315,10 +317,11 @@ private:
     Phase _phase;
 };
 
-class A2 : public paradevs::dtss::Dynamics < MyTime >
+class A2 : public paradevs::dtss::Dynamics < MyTime, NoParameters >
 {
 public:
-    A2(const std::string& name) : paradevs::dtss::Dynamics < MyTime >(name)
+    A2(const std::string& name, const NoParameters& parameters) :
+        paradevs::dtss::Dynamics < MyTime, NoParameters >(name, parameters)
     { }
     virtual ~A2()
     { }
@@ -380,10 +383,11 @@ public:
     }
 };
 
-class B2 : public paradevs::dtss::Dynamics < MyTime >
+class B2 : public paradevs::dtss::Dynamics < MyTime, NoParameters >
 {
 public:
-    B2(const std::string& name) : paradevs::dtss::Dynamics < MyTime >(name)
+    B2(const std::string& name, const NoParameters& parameters) :
+        paradevs::dtss::Dynamics < MyTime, NoParameters >(name, parameters)
     { }
     virtual ~B2()
     { }
@@ -445,10 +449,11 @@ public:
     }
 };
 
-class Beep : public paradevs::pdevs::Dynamics < MyTime >
+class Beep : public paradevs::pdevs::Dynamics < MyTime, NoParameters >
 {
 public:
-    Beep(const std::string& name) : paradevs::pdevs::Dynamics < MyTime >(name)
+    Beep(const std::string& name, const NoParameters& parameters) :
+        paradevs::pdevs::Dynamics < MyTime, NoParameters >(name, parameters)
     { }
     virtual ~Beep()
     { }
@@ -577,220 +582,6 @@ private:
     Phase _phase;
 };
 
-struct LastBagPolicy
-{
-    const common::Bag < MyTime >& bag() const
-    { return _bag; }
+} } } // namespace paradevs tests mixed
 
-    virtual void operator()(typename MyTime::type /* t */,
-                            const common::ExternalEvent < MyTime >& event,
-                            typename MyTime::type /* tl */,
-                            typename MyTime::type /* tn */)
-    {
-        _bag.clear();
-        _bag.push_back(event);
-    }
-
-private:
-    common::Bag < MyTime > _bag;
-};
-
-struct IgnorePolicy
-{
-    const common::Bag < MyTime >& bag() const
-    { return _bag; }
-
-    virtual void operator()(typename MyTime::type /* t */,
-                            const common::ExternalEvent < MyTime >& /* event */,
-                            typename MyTime::type /* tl */,
-                            typename MyTime::type /* tn */)
-    { }
-
-private:
-    common::Bag < MyTime > _bag;
-};
-
-class S1GraphManager : public pdevs::GraphManager < MyTime >
-{
-public:
-    S1GraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator), a("a1"), b("b1")
-    {
-        add_child(&a);
-        add_child(&b);
-        add_link(&a, "out", &b, "in");
-        add_link(&b, "out", coordinator, "out");
-    }
-
-    virtual ~S1GraphManager()
-    { }
-
-private:
-    pdevs::Simulator < MyTime, A1 > a;
-    pdevs::Simulator < MyTime, B1 > b;
-};
-
-class S2GraphManager : public dtss::GraphManager < MyTime >
-{
-public:
-    S2GraphManager(common::Coordinator < MyTime >* coordinator) :
-        dtss::GraphManager < MyTime >(coordinator), a("a2", 20), b("b2", 20)
-    {
-        add_child(&a);
-        add_child(&b);
-        add_link(&a, "out", &b, "in");
-        add_link(coordinator, "in", &a, "in");
-    }
-
-    virtual ~S2GraphManager()
-    { }
-
-private:
-    dtss::Simulator < MyTime, A2 > a;
-    dtss::Simulator < MyTime, B2 > b;
-};
-
-class RootGraphManager : public pdevs::GraphManager < MyTime >
-{
-public:
-    RootGraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator),
-        S1("S1", paradevs::pdevs::Parameters()),
-        S2("S2", paradevs::dtss::Parameters < MyTime >(20))
-    {
-        add_child(&S1);
-        add_child(&S2);
-        add_link(&S1, "out", &S2, "in");
-    }
-
-    virtual ~RootGraphManager()
-    { }
-
-private:
-    pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::HeapScheduler <
-                             MyTime >,
-                         S1GraphManager > S1;
-    dtss::Coordinator < MyTime, LastBagPolicy, S2GraphManager > S2;
-};
-
-template < int size >
-class LinearGraphManager : public pdevs::GraphManager < MyTime >
-{
-public:
-    LinearGraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
-    {
-        for (unsigned int i = 1; i <= size; ++i) {
-            std::ostringstream ss;
-
-            ss << "a" << i;
-            _models.push_back(new pdevs::Simulator < MyTime, Beep >(ss.str()));
-        }
-        for (unsigned int i = 0; i < size; ++i) {
-            add_child(_models[i]);
-        }
-        for (unsigned int i = 0; i < size - 1; ++i) {
-            add_link(_models[i], "out", _models[i + 1], "in");
-        }
-    }
-
-    virtual ~LinearGraphManager()
-    {
-        for (unsigned int i = 0; i < size; ++i) {
-            delete _models[i];
-        }
-    }
-
-private:
-    std::vector < pdevs::Simulator < MyTime, Beep >* > _models;
-};
-
-class Linear2GraphManager : public pdevs::GraphManager < MyTime >
-{
-public:
-    Linear2GraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator)
-    {
-        for (unsigned int i = 1; i <= 100; ++i) {
-            std::ostringstream ss;
-
-            ss << "a" << i;
-            _models.push_back(new pdevs::Simulator < MyTime, Beep >(ss.str()));
-        }
-        for (unsigned int i = 0; i < 100; ++i) {
-            add_child(_models[i]);
-        }
-        for (unsigned int i = 0; i < 99; ++i) {
-            add_link(_models[i], "out", _models[i + 1], "in");
-        }
-        add_link(coordinator, "in", _models[0], "in");
-        add_link(_models[49], "out", coordinator, "out");
-    }
-
-    virtual ~Linear2GraphManager()
-    {
-        for (unsigned int i = 0; i < 100; ++i) {
-            delete _models[i];
-        }
-    }
-
-private:
-    std::vector < pdevs::Simulator < MyTime, Beep >* > _models;
-};
-
-class Root2GraphManager : public pdevs::GraphManager < MyTime >
-{
-public:
-    Root2GraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator),
-        S1("S1", paradevs::pdevs::Parameters()),
-        S2("S2", paradevs::pdevs::Parameters())
-    {
-        add_child(&S1);
-        add_child(&S2);
-        add_link(&S1, "out", &S2, "in");
-    }
-
-    virtual ~Root2GraphManager()
-    { }
-
-private:
-    pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::HeapScheduler <
-                             MyTime >,
-                         Linear2GraphManager > S1;
-    pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::HeapScheduler <
-                             MyTime >,
-                         Linear2GraphManager > S2;
-};
-
-class Root3GraphManager : public pdevs::GraphManager < MyTime >
-{
-public:
-    Root3GraphManager(common::Coordinator < MyTime >* coordinator) :
-        pdevs::GraphManager < MyTime >(coordinator),
-        S1("S1", paradevs::pdevs::Parameters()),
-        S2("S2", paradevs::pdevs::Parameters())
-    {
-        add_child(&S1);
-        add_child(&S2);
-        // add_link(&S1, "out", &S2, "in");
-    }
-
-    virtual ~Root3GraphManager()
-    { }
-
-private:
-    pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::VectorScheduler <
-                             MyTime >,
-                         Linear2GraphManager > S1;
-    pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::VectorScheduler <
-                             MyTime >,
-                         Linear2GraphManager > S2;
-};
-
-} // namespace paradevs
+#endif

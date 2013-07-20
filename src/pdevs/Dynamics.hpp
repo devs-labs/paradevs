@@ -29,17 +29,19 @@
 
 #include <common/Bag.hpp>
 #include <common/ExternalEvent.hpp>
+#include <common/Parameters.hpp>
 
 #include <string>
 #include <vector>
 
 namespace paradevs { namespace pdevs {
 
-template < class Time >
+template < class Time, class Parameters = common::NoParameters >
 class Dynamics
 {
 public:
-    Dynamics(const std::string& name) : _name(name)
+    Dynamics(const std::string& name, const Parameters& /* parameters */) :
+        _name(name)
     { }
 
     virtual ~Dynamics()

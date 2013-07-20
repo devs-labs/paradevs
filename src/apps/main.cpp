@@ -30,7 +30,12 @@
 #include <common/scheduler/VectorScheduler.hpp>
 #include <common/scheduler/HeapScheduler.hpp>
 
-#include <tests/mixed_tests.hpp>
+#include <pdevs/Coordinator.hpp>
+
+#include <tests/mixed/models.hpp>
+#include <tests/mixed/graph_manager.hpp>
+
+using namespace paradevs::tests::mixed;
 
 template < int size >
 void run_flat_with_heap()
@@ -40,13 +45,16 @@ void run_flat_with_heap()
     std::cout << "run_flat_with_heap [" << size << "] ..." << std::endl;
 
     paradevs::common::RootCoordinator <
-        paradevs::MyTime, paradevs::pdevs::Coordinator <
-            paradevs::MyTime,
-            paradevs::common::scheduler::HeapScheduler < paradevs::MyTime >,
-            paradevs::LinearGraphManager < size > >
-        > rc(0, 100, "root", paradevs::pdevs::Parameters());
+        MyTime, paradevs::pdevs::Coordinator <
+            MyTime,
+            paradevs::common::scheduler::HeapScheduler < MyTime >,
+            LinearGraphManager < size >,
+            paradevs::common::NoParameters,
+            paradevs::common::NoParameters >
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
+             paradevs::common::NoParameters());
 
-    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    paradevs::common::Trace < MyTime >::trace().clear();
     rc.run();
 
     std::cout << "... OK -> " << t.elapsed() << std::endl;
@@ -60,13 +68,16 @@ void run_flat_with_vector()
     std::cout << "run_flat_with_vector [" << size << "] ..." << std::endl;
 
     paradevs::common::RootCoordinator <
-        paradevs::MyTime, paradevs::pdevs::Coordinator <
-            paradevs::MyTime,
-            paradevs::common::scheduler::VectorScheduler < paradevs::MyTime >,
-            paradevs::LinearGraphManager < size > >
-        > rc(0, 100, "root", paradevs::pdevs::Parameters());
+        MyTime, paradevs::pdevs::Coordinator <
+            MyTime,
+            paradevs::common::scheduler::VectorScheduler < MyTime >,
+            LinearGraphManager < size >,
+            paradevs::common::NoParameters,
+            paradevs::common::NoParameters >
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
+             paradevs::common::NoParameters());
 
-    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    paradevs::common::Trace < MyTime >::trace().clear();
     rc.run();
 
     std::cout << "... OK -> " << t.elapsed() << std::endl;
@@ -75,26 +86,32 @@ void run_flat_with_vector()
 void run_hierarchic_with_heap()
 {
     paradevs::common::RootCoordinator <
-        paradevs::MyTime, paradevs::pdevs::Coordinator <
-            paradevs::MyTime,
-            paradevs::common::scheduler::HeapScheduler < paradevs::MyTime >,
-            paradevs::Root2GraphManager >
-        > rc(0, 100, "root", paradevs::pdevs::Parameters());
+        MyTime, paradevs::pdevs::Coordinator <
+            MyTime,
+            paradevs::common::scheduler::HeapScheduler < MyTime >,
+            Root2GraphManager,
+            paradevs::common::NoParameters,
+            paradevs::common::NoParameters >
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
+             paradevs::common::NoParameters());
 
-    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    paradevs::common::Trace < MyTime >::trace().clear();
     rc.run();
 }
 
 void run_hierarchic_with_vector()
 {
     paradevs::common::RootCoordinator <
-        paradevs::MyTime, paradevs::pdevs::Coordinator <
-            paradevs::MyTime,
-            paradevs::common::scheduler::VectorScheduler < paradevs::MyTime >,
-            paradevs::Root3GraphManager >
-        > rc(0, 100, "root", paradevs::pdevs::Parameters());
+        MyTime, paradevs::pdevs::Coordinator <
+            MyTime,
+            paradevs::common::scheduler::VectorScheduler < MyTime >,
+            Root3GraphManager,
+            paradevs::common::NoParameters,
+            paradevs::common::NoParameters >
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
+             paradevs::common::NoParameters());
 
-    paradevs::common::Trace < paradevs::MyTime >::trace().clear();
+    paradevs::common::Trace < MyTime >::trace().clear();
     rc.run();
 }
 

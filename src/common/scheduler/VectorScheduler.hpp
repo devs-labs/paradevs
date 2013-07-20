@@ -72,16 +72,7 @@ public:
                   VectorScheduler < Time >::end());
     }
 
-    void put_increase(typename Time::type time, Model < Time >* model)
-    {
-        remove(model);
-        VectorScheduler < Time >::push_back(
-            InternalEvent < Time >(time, model));
-        std::sort(VectorScheduler < Time >::begin(),
-                  VectorScheduler < Time >::end());
-    }
-
-    void put_decrease(typename Time::type time, Model < Time >* model)
+    void put(typename Time::type time, Model < Time >* model)
     {
         remove(model);
         VectorScheduler < Time >::push_back(

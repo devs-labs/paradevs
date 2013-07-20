@@ -11,7 +11,7 @@ LINK_DIRECTORIES(
   ${Boost_LIBRARY_DIRS})
 
 SET(COMMON_HPP Bag.hpp ExternalEvent.hpp InternalEvent.hpp Links.hpp Node.hpp
-  RootCoordinator.hpp Scheduler.hpp Time.hpp Trace.hpp)
+  Parameters.hpp RootCoordinator.hpp Scheduler.hpp Time.hpp Trace.hpp)
 
 INSTALL(FILES ${COMMON_HPP} DESTINATION ${PARADEVS_INCLUDE_DIRS}/common)
 

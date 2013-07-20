@@ -27,6 +27,8 @@
 #ifndef COMMON_ROOT_COORDINATOR
 #define COMMON_ROOT_COORDINATOR 1
 
+#include <common/Parameters.hpp>
+
 #include <string>
 
 namespace paradevs { namespace common {
@@ -38,8 +40,26 @@ public :
     RootCoordinator(const typename Time::type& t_start,
                     const typename Time::type& t_max,
                     const std::string& root_name,
+                    const typename Coordinator::parameters_type& parameters,
+                    const typename Coordinator::graph_parameters_type&
+                    graph_parameters) :
+        _root(root_name, parameters, graph_parameters),
+        _t_max(t_max), _tn(t_start)
+    { }
+
+    RootCoordinator(const typename Time::type& t_start,
+                    const typename Time::type& t_max,
+                    const std::string& root_name,
                     const typename Coordinator::parameters_type& parameters) :
-        _root(root_name, parameters), _t_max(t_max), _tn(t_start)
+        _root(root_name, parameters, NoParameters()),
+        _t_max(t_max), _tn(t_start)
+    { }
+
+    RootCoordinator(const typename Time::type& t_start,
+                    const typename Time::type& t_max,
+                    const std::string& root_name) :
+        _root(root_name, NoParameters(), NoParameters()),
+        _t_max(t_max), _tn(t_start)
     { }
 
     virtual ~RootCoordinator()

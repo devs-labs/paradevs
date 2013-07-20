@@ -30,6 +30,7 @@
 #include <common/InternalEvent.hpp>
 
 #include <boost/heap/fibonacci_heap.hpp>
+#include <boost/heap/binomial_heap.hpp>
 
 #include <cmath>
 #include <sstream>
@@ -89,21 +90,9 @@ public:
                            InternalEvent < Time >(time, model)));
     }
 
-    void put_increase(typename Time::type time, Model < Time >* model)
+    void put(typename Time::type time, Model < Time >* model)
     {
-        if (std::isfinite(time)) {
-            HeapScheduler < Time >::erase(model->heap_id());
-            model->heap_id(HeapScheduler < Time >::push(
-                               InternalEvent < Time >(time, model)));
-        } else {
-            HeapScheduler < Time >::increase(
-                model->heap_id(), InternalEvent < Time >(time, model));
-        }
-    }
-
-    void put_decrease(typename Time::type time, Model < Time >* model)
-    {
-        HeapScheduler < Time >::decrease(
+        HeapScheduler < Time >::update(
             model->heap_id(), InternalEvent < Time >(time, model));
     }
 

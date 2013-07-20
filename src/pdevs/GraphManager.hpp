@@ -1,5 +1,5 @@
 /**
- * @file GraphManager.hpp
+ * @file pdevs/GraphManager.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -30,14 +30,16 @@
 #include <common/Coordinator.hpp>
 #include <common/Links.hpp>
 #include <common/Model.hpp>
+#include <common/Parameters.hpp>
 
 namespace paradevs { namespace pdevs {
 
-template < class Time >
+template < class Time, class GraphParameters = common::NoParameters >
 class GraphManager
 {
 public:
-    GraphManager(common::Coordinator < Time >* coordinator) :
+    GraphManager(common::Coordinator < Time >* coordinator,
+                 const GraphParameters& /* parameters */) :
         _coordinator(coordinator)
     { }
 
