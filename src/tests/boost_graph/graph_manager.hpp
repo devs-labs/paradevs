@@ -83,7 +83,14 @@ public:
 
     virtual ~FlatGraphManager()
     {
-        // TODO
+        for (TopSimulators::const_iterator it = _top_simulators.begin();
+             it != _top_simulators.end(); ++it) {
+            delete it->second;
+        }
+        for (NormalSimulators::const_iterator it = _normal_simulators.begin();
+             it != _normal_simulators.end(); ++it) {
+            delete it->second;
+        }
     }
 
     void build_flat_graph(const Graph& g)
@@ -152,12 +159,15 @@ public:
     }
 
 private:
-    std::map < int, pdevs::Simulator <
-                        MyTime, TopPixel,
-                        TopPixelParameters >* > _top_simulators;
-    std::map < int, pdevs::Simulator <
-                        MyTime, NormalPixel,
-                        NormalPixelParameters>* > _normal_simulators;
+    typedef std::map < int, pdevs::Simulator <
+                                MyTime, TopPixel,
+                                TopPixelParameters >* > TopSimulators;
+    typedef std::map < int, pdevs::Simulator <
+                                MyTime, NormalPixel,
+                                NormalPixelParameters>* > NormalSimulators;
+
+    TopSimulators    _top_simulators;
+    NormalSimulators _normal_simulators;
 };
 
 class BuiltFlatGraphManager :
@@ -295,17 +305,22 @@ public:
 
     virtual ~HierarchicalGraphManager()
     {
-        // TODO
+        for (Coordinators::const_iterator it = _coordinators.begin();
+             it != _coordinators.end(); ++it) {
+            delete *it;
+        }
     }
 
 private:
-    typedef paradevs::pdevs::Coordinator <
-    MyTime,
-    paradevs::common::scheduler::VectorScheduler < MyTime >,
-    BuiltFlatGraphManager, paradevs::common::NoParameters,
-    GraphParameters > Coordinator;
+    typedef paradevs::pdevs::Coordinator < MyTime,
+                                           common::scheduler::VectorScheduler <
+                                               MyTime >,
+                                           BuiltFlatGraphManager,
+                                           common::NoParameters,
+                                           GraphParameters > Coordinator;
+    typedef std::vector < Coordinator* > Coordinators;
 
-    std::vector < Coordinator* > _coordinators;
+    Coordinators _coordinators;
 };
 
 class HierarchicalGraphBuilder
