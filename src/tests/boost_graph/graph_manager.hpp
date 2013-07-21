@@ -42,13 +42,14 @@ namespace paradevs { namespace tests { namespace boost_graph {
 
 struct VertexProperties
 {
-    double _weight;
+    int          _index;
+    double       _weight;
     DynamicsType _type;
 
-    VertexProperties() : _weight(0), _type(NORMAL_PIXEL)
+    VertexProperties() : _index(0), _weight(0), _type(NORMAL_PIXEL)
     { }
-    VertexProperties(double weight, DynamicsType type) :
-        _weight(weight), _type(type)
+    VertexProperties(int index, double weight, DynamicsType type) :
+        _index(index), _weight(weight), _type(type)
     { }
 };
 
@@ -56,17 +57,28 @@ typedef boost::property < boost::edge_weight_t, double > EdgeProperty;
 typedef boost::adjacency_list < boost::vecS, boost::vecS, boost::directedS,
                                 VertexProperties, EdgeProperty> Graph;
 typedef std::vector < Graph > Graphs;
+
 typedef std::pair < int, int > Edge;
 typedef std::vector < Edge > Edges;
-typedef std::vector < Edges > EdgeList;
+typedef Edges OutputEdges;
+typedef Edges InputEdges;
+typedef std::vector < OutputEdges > OutputEdgeList;
+typedef std::vector < InputEdges > InputEdgeList;
+
+typedef std::pair < int, int > Port;
+typedef std::pair < Port, Port > Connection;
+typedef std::vector < Connection > Connections;
 
 struct GraphParameters
 {
-    Graph _graph;
-    Edges _edges;
+    Graph       _graph;
+    InputEdges  _input_edges;
+    OutputEdges _output_edges;
 
-    GraphParameters(const Graph& graph, const Edges& edges) :
-        _graph(graph), _edges(edges)
+    GraphParameters(const Graph& graph,
+                    const InputEdges& input_edges,
+                    const OutputEdges& output_edges) :
+        _graph(graph), _input_edges(input_edges), _output_edges(output_edges)
     { }
 };
 
@@ -102,16 +114,15 @@ public:
 	{
             std::ostringstream ss;
 
-            ss << "a" << *vertexIt;
-
+            ss << "a" << g[*vertexIt]._index;
             switch (g[*vertexIt]._type) {
             case TOP_PIXEL:
-                _top_simulators[*vertexIt] =
+                _top_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
                         MyTime, TopPixel, TopPixelParameters >(
                             ss.str(), TopPixelParameters());
                 FlatGraphManager < Parameters >::add_child(
-                    _top_simulators[*vertexIt]);
+                    _top_simulators[g[*vertexIt]._index]);
                 break;
             case NORMAL_PIXEL:
                 unsigned int n = 0;
@@ -122,12 +133,12 @@ public:
                 for (; neighbourIt != neighbourEnd; ++neighbourIt) {
                     ++n;
                 }
-                _normal_simulators[*vertexIt] =
+                _normal_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
                         MyTime, NormalPixel, NormalPixelParameters >(
                             ss.str(), NormalPixelParameters(n));
                 FlatGraphManager < Parameters >::add_child(
-                        _normal_simulators[*vertexIt]);
+                        _normal_simulators[g[*vertexIt]._index]);
                 break;
             };
         }
@@ -144,21 +155,21 @@ public:
                 paradevs::common::Model < MyTime >* b = 0;
 
                 if (g[*vertexIt]._type == TOP_PIXEL) {
-                    a = _top_simulators[*vertexIt];
+                    a = _top_simulators[g[*vertexIt]._index];
                 } else {
-                    a = _normal_simulators[*vertexIt];
+                    a = _normal_simulators[g[*vertexIt]._index];
                 }
                 if (g[*neighbourIt]._type == TOP_PIXEL) {
-                    b = _top_simulators[*neighbourIt];
+                    b = _top_simulators[g[*neighbourIt]._index];
                 } else {
-                    b = _normal_simulators[*neighbourIt];
+                    b = _normal_simulators[g[*neighbourIt]._index];
                 }
                 FlatGraphManager < Parameters >::add_link(b, "out", a, "in");
             }
 	}
     }
 
-private:
+protected:
     typedef std::map < int, pdevs::Simulator <
                                 MyTime, TopPixel,
                                 TopPixelParameters >* > TopSimulators;
@@ -180,6 +191,25 @@ public:
             coordinator, parameters)
     {
         build_flat_graph(parameters._graph);
+        // input
+        for (Edges::const_iterator it = parameters._input_edges.begin();
+             it != parameters._input_edges.end(); ++it) {
+            std::ostringstream ss_in;
+
+            ss_in << "in_" << it->first;
+            BuiltFlatGraphManager::add_link(coordinator, ss_in.str(),
+                                            _normal_simulators[it->second],
+                                            "in");
+        }
+        // output
+        for (Edges::const_iterator it = parameters._output_edges.begin();
+             it != parameters._output_edges.end(); ++it) {
+            std::ostringstream ss_out;
+
+            ss_out << "out_" << it->second;
+            BuiltFlatGraphManager::add_link(_normal_simulators[it->first],
+                                            "out", coordinator, ss_out.str());
+        }
     }
 
     virtual ~BuiltFlatGraphManager()
@@ -196,11 +226,13 @@ public:
         FlatGraphManager < paradevs::common::NoParameters >(
             coordinator, parameters)
     {
-        GraphBuilder builder;
-        Graphs graphs;
-        EdgeList edges;
+        GraphBuilder   builder;
+        Graphs         graphs;
+        InputEdgeList  input_edges;
+        OutputEdgeList output_edges;
+        Connections    parent_connections;
 
-        builder.build(graphs, edges);
+        builder.build(graphs, input_edges, output_edges, parent_connections);
         build_flat_graph(graphs.front());
     }
 
@@ -214,7 +246,9 @@ public:
     FlatGraphBuilder()
     { }
 
-    void build(Graphs& graphs, EdgeList& /* edges */)
+    void build(Graphs& graphs, InputEdgeList& /* input_edges */,
+               OutputEdgeList& /* output_edges */,
+               Connections& /* parent_connections */)
     {
         Graph graph;
 
@@ -248,17 +282,17 @@ public:
 	boost::add_edge(v7, v8, 1, graph);
 	boost::add_edge(v9, v10, 1, graph);
 
-        graph[v6] = VertexProperties(1, TOP_PIXEL);
-        graph[v8] = VertexProperties(1, TOP_PIXEL);
-        graph[v10] = VertexProperties(1, TOP_PIXEL);
-        graph[v0] = VertexProperties(1, NORMAL_PIXEL);
-        graph[v1] = VertexProperties(1, NORMAL_PIXEL);
-        graph[v2] = VertexProperties(1, NORMAL_PIXEL);
-        graph[v3] = VertexProperties(1, NORMAL_PIXEL);
-        graph[v4] = VertexProperties(1, NORMAL_PIXEL);
-        graph[v5] = VertexProperties(1, NORMAL_PIXEL);
-        graph[v7] = VertexProperties(1, NORMAL_PIXEL);
-        graph[v9] = VertexProperties(1, NORMAL_PIXEL);
+        graph[v6] = VertexProperties(6, 1, TOP_PIXEL);
+        graph[v8] = VertexProperties(8, 1, TOP_PIXEL);
+        graph[v10] = VertexProperties(10, 1, TOP_PIXEL);
+        graph[v0] = VertexProperties(0, 1, NORMAL_PIXEL);
+        graph[v1] = VertexProperties(1, 1, NORMAL_PIXEL);
+        graph[v2] = VertexProperties(2, 1, NORMAL_PIXEL);
+        graph[v3] = VertexProperties(3, 1, NORMAL_PIXEL);
+        graph[v4] = VertexProperties(4, 1, NORMAL_PIXEL);
+        graph[v5] = VertexProperties(5, 1, NORMAL_PIXEL);
+        graph[v7] = VertexProperties(7, 1, NORMAL_PIXEL);
+        graph[v9] = VertexProperties(9, 1, NORMAL_PIXEL);
 
         graphs.push_back(graph);
     }
@@ -276,11 +310,14 @@ public:
                                         paradevs::common::NoParameters >(
                                             coordinator, parameters)
     {
-        GraphBuilder graph_builder;
-        Graphs graphs;
-        EdgeList edges;
+        GraphBuilder   graph_builder;
+        Graphs         graphs;
+        InputEdgeList  input_edges;
+        OutputEdgeList output_edges;
+        Connections    parent_connections;
 
-        graph_builder.build(graphs, edges);
+        graph_builder.build(graphs, input_edges, output_edges,
+                            parent_connections);
 
         // build coordinators (graphs)
         for (unsigned int i = 0; i < graphs.size(); ++i) {
@@ -290,7 +327,8 @@ public:
             ss << "S" << i;
             coordinator =
                 new Coordinator(ss.str(), paradevs::common::NoParameters(),
-                                GraphParameters(graphs[i], edges[i]));
+                                GraphParameters(graphs[i], input_edges[i],
+                                                output_edges[i]));
             _coordinators.push_back(coordinator);
             HierarchicalGraphManager < GraphBuilder >::add_child(
                 coordinator);
@@ -298,8 +336,17 @@ public:
         }
 
         // builds internal connections (edges)
-        for (unsigned int i = 0; i < edges.size(); ++i) {
-            // TODO
+        for (Connections::const_iterator it = parent_connections.begin();
+             it != parent_connections.end(); ++it) {
+            const Connection& connection = *it;
+            std::ostringstream ss_out;
+            std::ostringstream ss_in;
+
+            ss_out << "out_" << connection.first.second;
+            ss_in << "in_" << connection.second.second;
+            HierarchicalGraphManager < GraphBuilder >::add_link(
+                _coordinators[connection.first.first], ss_out.str(),
+                _coordinators[connection.second.first], ss_in.str());
         }
     }
 
@@ -329,7 +376,8 @@ public:
     HierarchicalGraphBuilder()
     { }
 
-    void build(Graphs& graphs, EdgeList& edges)
+    void build(Graphs& graphs, InputEdgeList& input_edges,
+               OutputEdgeList& output_edges, Connections& parent_connections)
     {
         // S1
         {
@@ -354,13 +402,13 @@ public:
             boost::add_edge(v4, v8, 1, graph);
             boost::add_edge(v7, v8, 1, graph);
 
-            graph[v6] = VertexProperties(1, TOP_PIXEL);
-            graph[v8] = VertexProperties(1, TOP_PIXEL);
-            graph[v1] = VertexProperties(1, NORMAL_PIXEL);
-            graph[v2] = VertexProperties(1, NORMAL_PIXEL);
-            graph[v4] = VertexProperties(1, NORMAL_PIXEL);
-            graph[v5] = VertexProperties(1, NORMAL_PIXEL);
-            graph[v7] = VertexProperties(1, NORMAL_PIXEL);
+            graph[v6] = VertexProperties(6, 1, TOP_PIXEL);
+            graph[v8] = VertexProperties(8, 1, TOP_PIXEL);
+            graph[v1] = VertexProperties(1, 1, NORMAL_PIXEL);
+            graph[v2] = VertexProperties(2, 1, NORMAL_PIXEL);
+            graph[v4] = VertexProperties(4, 1, NORMAL_PIXEL);
+            graph[v5] = VertexProperties(5, 1, NORMAL_PIXEL);
+            graph[v7] = VertexProperties(7, 1, NORMAL_PIXEL);
 
             graphs.push_back(graph);
         }
@@ -378,21 +426,34 @@ public:
             boost::add_edge(v9, v10, 1, graph);
             boost::add_edge(v3, v9, 1, graph);
 
-            graph[v10] = VertexProperties(1, TOP_PIXEL);
-            graph[v0] = VertexProperties(1, NORMAL_PIXEL);
-            graph[v3] = VertexProperties(1, NORMAL_PIXEL);
-            graph[v9] = VertexProperties(1, NORMAL_PIXEL);
+            graph[v10] = VertexProperties(10, 1, TOP_PIXEL);
+            graph[v0] = VertexProperties(0, 1, NORMAL_PIXEL);
+            graph[v3] = VertexProperties(3, 1, NORMAL_PIXEL);
+            graph[v9] = VertexProperties(9, 1, NORMAL_PIXEL);
 
             graphs.push_back(graph);
         }
         {
-            // S1 -> S2
-            edges.push_back(std::vector < std::pair < int, int >>());
-            edges[0].push_back(std::pair < int, int >(1, 0));
-            edges[0].push_back(std::pair < int, int >(2, 0));
-            // S2 -> S1
-            edges.push_back(std::vector < std::pair < int, int >>());
-            edges[1].push_back(std::pair < int, int >(3, 2));
+            // input S1
+            input_edges.push_back(InputEdges());
+            input_edges[0].push_back(Edge(3, 2));
+            // input S2
+            input_edges.push_back(InputEdges());
+            input_edges[0].push_back(Edge(1, 0));
+            input_edges[0].push_back(Edge(2, 0));
+
+            // output S1
+            output_edges.push_back(OutputEdges());
+            output_edges[0].push_back(Edge(1, 0));
+            output_edges[0].push_back(Edge(2, 0));
+            // output S2
+            output_edges.push_back(OutputEdges());
+            output_edges[0].push_back(Edge(3, 2));
+
+            // parent
+            parent_connections.push_back(Connection(Port(1,1),Port(2,0)));
+            parent_connections.push_back(Connection(Port(1,2),Port(2,0)));
+            parent_connections.push_back(Connection(Port(2,3),Port(1,2)));
         }
     }
 };

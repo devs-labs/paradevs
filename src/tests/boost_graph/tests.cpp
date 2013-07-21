@@ -58,7 +58,7 @@ void hierarchical_test()
 
 int main()
 {
-    flat_test();
+    // flat_test();
     hierarchical_test();
     return 0;
 }
