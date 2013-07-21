@@ -53,9 +53,18 @@ struct VertexProperties
     { }
 };
 
-typedef boost::property < boost::edge_weight_t, double > EdgeProperty;
+struct EdgeProperties
+{
+    double       _weight;
+
+    EdgeProperties() : _weight(0)
+    { }
+    EdgeProperties(double weight) : _weight(weight)
+    { }
+};
+
 typedef boost::adjacency_list < boost::vecS, boost::vecS, boost::directedS,
-                                VertexProperties, EdgeProperty> Graph;
+                                VertexProperties, EdgeProperties> Graph;
 typedef std::vector < Graph > Graphs;
 
 typedef std::pair < int, int > Edge;
