@@ -63,7 +63,7 @@ public:
         paradevs::dtss::GraphManager < MyTime,
                                        paradevs::common::NoParameters >(
                                            coordinator, parameters),
-        a("a", 1, NoParameters())
+        a("a", 1, common::NoParameters())
     {
         add_child(&a);
     }
@@ -72,7 +72,7 @@ public:
     { }
 
 private:
-    paradevs::dtss::Simulator < MyTime, A, NoParameters > a;
+    paradevs::dtss::Simulator < MyTime, A > a;
 };
 
 class TwoGraphManager :
@@ -85,10 +85,12 @@ public:
         paradevs::dtss::GraphManager < MyTime,
                                        paradevs::common::NoParameters >(
                                            coordinator, parameters),
-        a("a", 1, NoParameters()), b("b", 1, NoParameters())
+        a("a", 1, common::NoParameters()), b("b", 1, common::NoParameters())
     {
         add_child(&a);
         add_child(&b);
+        a.add_out_port("out");
+        b.add_in_port("in");
         add_link(&a, "out", &b, "in");
     }
 
@@ -96,8 +98,8 @@ public:
     { }
 
 private:
-    paradevs::dtss::Simulator < MyTime, A, NoParameters > a;
-    paradevs::dtss::Simulator < MyTime, B, NoParameters > b;
+    paradevs::dtss::Simulator < MyTime, A > a;
+    paradevs::dtss::Simulator < MyTime, B > b;
 };
 
 } } } // namespace paradevs tests dtss

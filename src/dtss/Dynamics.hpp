@@ -29,6 +29,7 @@
 
 #include <common/Bag.hpp>
 #include <common/ExternalEvent.hpp>
+#include <common/Parameters.hpp>
 
 #include <limits>
 #include <string>
@@ -36,7 +37,7 @@
 
 namespace paradevs { namespace dtss {
 
-template < class Time, class Parameters >
+template < class Time, class Parameters = common::NoParameters >
 class Dynamics
 {
 public:

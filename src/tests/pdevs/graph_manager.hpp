@@ -49,6 +49,12 @@ public:
     {
         add_child(&a);
         add_child(&b);
+
+        a.add_out_port("out");
+        b.add_in_port("in");
+        b.add_out_port("out");
+        coordinator->add_out_port("out");
+
         add_link(&a, "out", &b, "in");
         add_link(&b, "out", coordinator, "out");
     }
@@ -72,6 +78,12 @@ public:
     {
         add_child(&a);
         add_child(&b);
+
+        a.add_in_port("in");
+        a.add_out_port("out");
+        b.add_in_port("in");
+        coordinator->add_in_port("in");
+
         add_link(&a, "out", &b, "in");
         add_link(coordinator, "in", &a, "in");
     }
@@ -98,6 +110,7 @@ public:
     {
         add_child(&S1);
         add_child(&S2);
+
         add_link(&S1, "out", &S2, "in");
     }
 
@@ -146,6 +159,12 @@ public:
         add_child(&b1);
         add_child(&a2);
         add_child(&b2);
+        a1.add_out_port("out");
+        b1.add_in_port("in");
+        b1.add_out_port("out");
+        a2.add_in_port("in");
+        a2.add_out_port("out");
+        b2.add_in_port("in");
         add_link(&a1, "out", &b1, "in");
         add_link(&b1, "out", &a2, "in");
         add_link(&a2, "out", &b2, "in");

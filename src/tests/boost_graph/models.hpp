@@ -125,7 +125,8 @@ public:
                       const common::Bag < MyTime >& bag)
     {
 
-        std::cout << get_name() << " at " << t << ": dext" << std::endl;
+        std::cout << get_name() << " at " << t << ": dext -> "
+                  << bag.to_string() << std::endl;
 
         for (common::Bag < MyTime >::const_iterator it = bag.begin();
              it != bag.end(); ++it) {
@@ -136,6 +137,11 @@ public:
                 }
             }
         }
+
+        std::cout << get_name() << " at " << t << ": dext -> "
+                  << _received << "/" << _neighbour_number
+                  << std::endl;
+
     }
 
     virtual typename MyTime::type start(typename MyTime::type /* t */)

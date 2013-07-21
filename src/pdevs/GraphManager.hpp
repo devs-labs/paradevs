@@ -52,12 +52,25 @@ public:
         child->set_parent(_coordinator);
     }
 
-    void add_link(common::Model < Time >* out_model,
-                  const std::string& out_port_name,
-                  common::Model < Time >* in_model,
-                  const std::string& in_port_name)
+    void add_link(common::Model < Time >* src_model,
+                  const std::string& src_port_name,
+                  common::Model < Time >* dst_model,
+                  const std::string& dst_port_name)
     {
-        _link_list.add(out_model, out_port_name, in_model, in_port_name);
+        assert((src_model != _coordinator and
+                dst_model != _coordinator and
+                src_model->exist_out_port(src_port_name) and
+                dst_model->exist_in_port(dst_port_name)) or
+               (src_model == _coordinator and
+                dst_model != _coordinator and
+                src_model->exist_in_port(src_port_name) and
+                dst_model->exist_in_port(dst_port_name)) or
+               (src_model != _coordinator and
+                dst_model == _coordinator and
+                src_model->exist_out_port(src_port_name) and
+                dst_model->exist_out_port(dst_port_name)));
+
+        _link_list.add(src_model, src_port_name, dst_model, dst_port_name);
     }
 
     const common::Models < Time >& children() const

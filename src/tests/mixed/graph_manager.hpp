@@ -89,6 +89,12 @@ public:
     {
         add_child(&a);
         add_child(&b);
+
+        a.add_out_port("out");
+        b.add_in_port("in");
+        b.add_out_port("out");
+        coordinator->add_out_port("out");
+
         add_link(&a, "out", &b, "in");
         add_link(&b, "out", coordinator, "out");
     }
@@ -114,6 +120,12 @@ public:
     {
         add_child(&a);
         add_child(&b);
+
+        a.add_in_port("in");
+        a.add_out_port("out");
+        b.add_in_port("in");
+        coordinator->add_in_port("in");
+
         add_link(&a, "out", &b, "in");
         add_link(coordinator, "in", &a, "in");
     }
@@ -183,6 +195,9 @@ public:
         }
         for (unsigned int i = 0; i < size; ++i) {
             add_child(_models[i]);
+
+            _models[i]->add_in_port("in");
+            _models[i]->add_out_port("out");
         }
         for (unsigned int i = 0; i < size - 1; ++i) {
             add_link(_models[i], "out", _models[i + 1], "in");
@@ -220,10 +235,17 @@ public:
         }
         for (unsigned int i = 0; i < 100; ++i) {
             add_child(_models[i]);
+
+            _models[i]->add_in_port("in");
+            _models[i]->add_out_port("out");
         }
         for (unsigned int i = 0; i < 99; ++i) {
             add_link(_models[i], "out", _models[i + 1], "in");
         }
+
+        coordinator->add_in_port("in");
+        coordinator->add_out_port("out");
+
         add_link(coordinator, "in", _models[0], "in");
         add_link(_models[49], "out", coordinator, "out");
     }

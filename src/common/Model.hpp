@@ -51,6 +51,9 @@ class InternalEvent;
 template < class Time >
 class Bag;
 
+typedef std::string Port;
+typedef std::vector < Port > Ports;
+
 template < class Time >
 class Model
 {
@@ -66,6 +69,60 @@ public:
         }
     }
 
+    // structure
+    void add_in_port(const std::string& port_name)
+    {
+        assert(not exist_in_port(port_name));
+
+        _in_ports.push_back(port_name);
+    }
+
+    void add_out_port(const std::string& port_name)
+    {
+        assert(not exist_out_port(port_name));
+
+        _out_ports.push_back(port_name);
+    }
+
+    void delete_in_port(const std::string& port_name)
+    {
+        assert(not exist_in_port(port_name));
+
+        _in_ports.erase(std::find(_in_ports.begin(), _in_ports.end(),
+                                  port_name));
+    }
+
+    void delete_out_port(const std::string& port_name)
+    {
+        assert(not exist_out_port(port_name));
+
+        _out_ports.erase(std::find(_out_ports.begin(), _out_ports.end(),
+                                   port_name));
+    }
+
+    bool exist_in_port(const std::string& port_name)
+    {
+        return std::find(_in_ports.begin(), _in_ports.end(),
+                         port_name) != _in_ports.end();
+    }
+
+    bool exist_out_port(const std::string& port_name)
+    {
+        return std::find(_out_ports.begin(), _out_ports.end(),
+                         port_name) != _out_ports.end();
+    }
+
+    const std::string& get_name() const
+    { return _name; }
+
+    Model < Time >* get_parent() const
+    { return _parent; }
+
+
+    void set_parent(Model < Time >* parent)
+    { _parent = parent; }
+
+    // event
     void add_event(const common::ExternalEvent < Time >& message)
     {
         if (_inputs == 0) {
@@ -99,24 +156,20 @@ public:
         }
     }
 
+    // time
+    typename Time::type get_tl() const
+    { return _tl; }
+
+    typename Time::type get_tn() const
+    { return _tn; }
+
+    // devs methods
     virtual void observation(std::ostream& file) const =0;
     virtual void output(typename Time::type t) =0;
     virtual void post_event(typename Time::type t,
                             const common::ExternalEvent < Time >& event) = 0;
     virtual typename Time::type start(typename Time::type t) =0;
     virtual typename Time::type transition(typename Time::type t) =0;
-
-    virtual const std::string& get_name() const
-    { return _name; }
-
-    Model < Time >* get_parent() const
-    { return _parent; }
-
-    typename Time::type get_tl() const
-    { return _tl; }
-
-    typename Time::type get_tn() const
-    { return _tn; }
 
     void heap_id(typename boost::heap::fibonacci_heap <
                      InternalEvent < Time >,
@@ -132,9 +185,6 @@ public:
                                Time > > > >::handle_type heap_id()
                                { return _heap_id; }
 
-    void set_parent(Model < Time >* parent)
-    { _parent = parent; }
-
 protected:
     typename Time::type _tl;
     typename Time::type _tn;
@@ -142,6 +192,9 @@ protected:
 private :
     Model < Time >*     _parent;
     std::string         _name;
+    Ports               _in_ports;
+    Ports               _out_ports;
+
     Bag < Time >*       _inputs;
     typename boost::heap::fibonacci_heap <
         InternalEvent < Time >,

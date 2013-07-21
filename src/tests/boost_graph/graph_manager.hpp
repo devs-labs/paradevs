@@ -75,7 +75,7 @@ public:
         }
     }
 
-    void build_flat_graph(const Graph& g)
+    void build_flat_graph(const Graph& g, const InputEdges& inputs)
     {
         Graph::vertex_iterator vertexIt, vertexEnd;
 
@@ -91,6 +91,7 @@ public:
                     new pdevs::Simulator <
                         MyTime, TopPixel, TopPixelParameters >(
                             ss.str(), TopPixelParameters());
+                _top_simulators[g[*vertexIt]._index]->add_out_port("out");
                 FlatGraphManager < Parameters >::add_child(
                     _top_simulators[g[*vertexIt]._index]);
                 break;
@@ -103,10 +104,19 @@ public:
                 for (; neighbourIt != neighbourEnd; ++neighbourIt) {
                     ++n;
                 }
+                for (InputEdges::const_iterator it = inputs.begin();
+                     it != inputs.end(); ++it) {
+                    if (g[*vertexIt]._index == it->second) {
+                        ++n;
+                    }
+                }
+
                 _normal_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
                         MyTime, NormalPixel, NormalPixelParameters >(
                             ss.str(), NormalPixelParameters(n));
+                _normal_simulators[g[*vertexIt]._index]->add_in_port("in");
+                _normal_simulators[g[*vertexIt]._index]->add_out_port("out");
                 FlatGraphManager < Parameters >::add_child(
                         _normal_simulators[g[*vertexIt]._index]);
                 break;
@@ -160,13 +170,16 @@ public:
         FlatGraphManager < GraphParameters >(
             coordinator, parameters)
     {
-        build_flat_graph(parameters._graph);
+        build_flat_graph(parameters._graph, parameters._input_edges);
         // input
         for (Edges::const_iterator it = parameters._input_edges.begin();
              it != parameters._input_edges.end(); ++it) {
             std::ostringstream ss_in;
 
             ss_in << "in_" << it->first;
+            if (not coordinator->exist_in_port(ss_in.str())) {
+                coordinator->add_in_port(ss_in.str());
+            }
             BuiltFlatGraphManager::add_link(coordinator, ss_in.str(),
                                             _normal_simulators[it->second],
                                             "in");
@@ -176,7 +189,10 @@ public:
              it != parameters._output_edges.end(); ++it) {
             std::ostringstream ss_out;
 
-            ss_out << "out_" << it->second;
+            ss_out << "out_" << it->first;
+            if (not coordinator->exist_out_port(ss_out.str())) {
+                coordinator->add_out_port(ss_out.str());
+            }
             BuiltFlatGraphManager::add_link(_normal_simulators[it->first],
                                             "out", coordinator, ss_out.str());
         }
@@ -203,7 +219,7 @@ public:
         Connections    parent_connections;
 
         builder.build(graphs, input_edges, output_edges, parent_connections);
-        build_flat_graph(graphs.front());
+        build_flat_graph(graphs.front(), InputEdges());
     }
 
     virtual ~InBuildFlatGraphManager()
@@ -236,7 +252,7 @@ public:
             Coordinator* coordinator = 0;
             std::ostringstream ss;
 
-            ss << "S" << i;
+            ss << "S" << (i + 1);
             coordinator =
                 new Coordinator(ss.str(), paradevs::common::NoParameters(),
                                 GraphParameters(graphs[i], input_edges[i],
@@ -255,10 +271,10 @@ public:
             std::ostringstream ss_in;
 
             ss_out << "out_" << connection.first.second;
-            ss_in << "in_" << connection.second.second;
+            ss_in << "in_" << connection.first.second;
             HierarchicalGraphManager < GraphBuilder >::add_link(
-                _coordinators[connection.first.first], ss_out.str(),
-                _coordinators[connection.second.first], ss_in.str());
+                _coordinators[connection.first.first - 1], ss_out.str(),
+                _coordinators[connection.second.first - 1], ss_in.str());
         }
     }
 

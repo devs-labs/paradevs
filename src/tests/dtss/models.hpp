@@ -44,17 +44,16 @@ struct Limits
 
 typedef paradevs::common::Time < double, Limits < double > > MyTime;
 
-struct NoParameters
-{
-    NoParameters()
-    { }
-};
-
-class A : public paradevs::dtss::Dynamics < MyTime, NoParameters >
+class A :
+        public paradevs::dtss::Dynamics < MyTime,
+                                          paradevs::common::NoParameters >
 {
 public:
-    A(const std::string& name, const NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime, NoParameters >(name, parameters)
+    A(const std::string& name,
+      const paradevs::common::NoParameters& parameters) :
+        paradevs::dtss::Dynamics < MyTime,
+                                   paradevs::common::NoParameters >(name,
+                                                                    parameters)
     { }
     virtual ~A()
     { }
@@ -93,11 +92,16 @@ public:
     }
 };
 
-class B : public paradevs::dtss::Dynamics < MyTime, NoParameters >
+class B :
+        public paradevs::dtss::Dynamics < MyTime,
+                                          paradevs::common::NoParameters >
 {
 public:
-    B(const std::string& name, const NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime, NoParameters >(name, parameters)
+    B(const std::string& name,
+      const paradevs::common::NoParameters& parameters) :
+        paradevs::dtss::Dynamics < MyTime,
+                                   paradevs::common::NoParameters >(name,
+                                                                    parameters)
     { }
     virtual ~B()
     { }
