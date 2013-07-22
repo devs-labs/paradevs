@@ -162,7 +162,7 @@ public:
 
 private:
     pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::VectorScheduler <
+                         paradevs::common::scheduler::HeapScheduler <
                              MyTime >,
                          S1GraphManager,
                          paradevs::common::NoParameters,
@@ -322,13 +322,13 @@ public:
 
 private:
     pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::VectorScheduler <
+                         paradevs::common::scheduler::HeapScheduler <
                              MyTime >,
                          Linear2GraphManager,
                          paradevs::common::NoParameters,
                          paradevs::common::NoParameters > S1;
     pdevs::Coordinator < MyTime,
-                         paradevs::common::scheduler::VectorScheduler <
+                         paradevs::common::scheduler::HeapScheduler <
                              MyTime >,
                          Linear2GraphManager,
                          paradevs::common::NoParameters,

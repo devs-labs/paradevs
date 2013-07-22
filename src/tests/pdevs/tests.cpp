@@ -188,7 +188,7 @@ TEST_CASE("pdevs/hierachical", "run")
 {
     paradevs::common::RootCoordinator <
         MyTime, paradevs::pdevs::Coordinator <
-            MyTime, paradevs::common::scheduler::VectorScheduler <
+            MyTime, paradevs::common::scheduler::HeapScheduler <
                 MyTime >, RootGraphManager >
         > rc(0, 10, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());

@@ -29,6 +29,7 @@
 
 #include <tests/pdevs/models.hpp>
 
+#include <common/scheduler/HeapScheduler.hpp>
 #include <common/scheduler/VectorScheduler.hpp>
 #include <common/Trace.hpp>
 
@@ -119,10 +120,10 @@ public:
 
 private:
     paradevs::pdevs::Coordinator <
-    MyTime, paradevs::common::scheduler::VectorScheduler < MyTime >,
+    MyTime, paradevs::common::scheduler::HeapScheduler < MyTime >,
     S1GraphManager > S1;
     paradevs::pdevs::Coordinator <
-        MyTime, paradevs::common::scheduler::VectorScheduler < MyTime >,
+        MyTime, paradevs::common::scheduler::HeapScheduler < MyTime >,
         S2GraphManager > S2;
 };
 

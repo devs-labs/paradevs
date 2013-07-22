@@ -51,10 +51,14 @@ struct Heap
 };
 
 template < class Time >
-class HeapScheduler : public boost::heap::fibonacci_heap <
-    InternalEvent < Time >, boost::heap::compare <
-                                EventCompare < InternalEvent < Time > > > >
+class HeapScheduler
 {
+    typedef boost::heap::fibonacci_heap < InternalEvent < Time >,
+                                          boost::heap::compare <
+                                              EventCompare <
+                                                  InternalEvent < Time > > >
+                                          > Heap;
+
 public:
     HeapScheduler()
     { }
@@ -63,17 +67,15 @@ public:
 
     Model < Time >* get_current_model()
     {
-        return HeapScheduler < Time >::top().get_model();
+        return _heap.top().get_model();
     }
 
     Models < Time > get_current_models(typename Time::type time) const
     {
         Models < Time > models;
 
-        for (typename HeapScheduler < Time >::ordered_iterator it =
-                 HeapScheduler < Time >::ordered_begin();
-             it != HeapScheduler < Time >::ordered_end() and
-                 it->get_time() == time; ++it) {
+        for (typename Heap::ordered_iterator it = _heap.ordered_begin();
+             it != _heap.ordered_end() and it->get_time() == time; ++it) {
             models.push_back(it->get_model());
         }
         return models;
@@ -81,19 +83,24 @@ public:
 
     typename Time::type get_current_time() const
     {
-        return HeapScheduler < Time >::top().get_time();
+        return _heap.top().get_time();
     }
 
     void init(typename Time::type time, Model < Time >* model)
     {
-        model->heap_id(HeapScheduler < Time >::push(
-                           InternalEvent < Time >(time, model)));
+        model->heap_id(_heap.push(InternalEvent < Time >(time, model)));
     }
 
     void put(typename Time::type time, Model < Time >* model)
     {
-        HeapScheduler < Time >::update(
-            model->heap_id(), InternalEvent < Time >(time, model));
+        typename Time::type previous_time = (*model->heap_id()).get_time();
+
+        (*model->heap_id()).set_time(time);
+        if (previous_time < time) {
+            _heap.decrease(model->heap_id());
+        } else if (previous_time > time) {
+            _heap.increase(model->heap_id());
+        }
     }
 
     std::string to_string() const
@@ -101,15 +108,17 @@ public:
         std::stringstream ss;
 
         ss << "Scheduler = { ";
-        for (typename HeapScheduler < Time >::ordered_iterator it =
-                 HeapScheduler < Time >::ordered_begin();
-             it != HeapScheduler < Time >::ordered_end(); ++it) {
+        for (typename Heap::ordered_iterator it = _heap.ordered_begin();
+             it != _heap.ordered_end(); ++it) {
             ss << "(" << it->get_time() << " -> " << it->get_model()->get_name()
                << ") ";
         }
         ss << "}";
         return ss.str();
     }
+
+private:
+    Heap _heap;
 };
 
 } } } // namespace paradevs common scheduler

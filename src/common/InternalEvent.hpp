@@ -37,7 +37,7 @@ template < class Time >
 class Model;
 
 template < class Time >
-class InternalEvent
+struct InternalEvent
 {
 public:
     InternalEvent(const typename Time::type& time, Model < Time >* model)
@@ -63,10 +63,18 @@ public:
         return _time > e._time;
     }
 
+    bool operator>=(InternalEvent const &e) const
+    {
+        return _time >= e._time;
+    }
+
     bool operator==(InternalEvent const &e) const
     {
         return _time == e._time;
     }
+
+    void set_time(typename Time::type time)
+    { _time = time; }
 
 private:
     typename Time::type _time;
@@ -78,7 +86,7 @@ struct EventCompare
     : std::binary_function < Event, Event, bool >
 {
     bool operator()(const Event &left, const Event &right) const
-    { return left > right; }
+    { return left >= right; }
 };
 
 } } // namespace paradevs common

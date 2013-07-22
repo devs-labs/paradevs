@@ -178,11 +178,11 @@ public:
                              Time > > > >::handle_type id)
     { _heap_id = id; }
 
-    typename boost::heap::fibonacci_heap <
+    const typename boost::heap::fibonacci_heap <
         InternalEvent < Time >,
         boost::heap::compare <
             EventCompare < InternalEvent <
-                               Time > > > >::handle_type heap_id()
+                               Time > > > >::handle_type& heap_id() const
                                { return _heap_id; }
 
 protected:
