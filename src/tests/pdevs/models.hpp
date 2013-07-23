@@ -49,11 +49,17 @@ public:
     void dint(typename common::DoubleTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -65,12 +71,19 @@ public:
               const common::Bag < common::DoubleTime, SchedulerHandle >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         _phase = SEND;
     }
@@ -80,22 +93,36 @@ public:
                const common::Bag < common::DoubleTime, SchedulerHandle >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
     }
 
     typename common::DoubleTime::type start(typename common::DoubleTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::START);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         _phase = WAIT;
         return 0;
@@ -104,11 +131,18 @@ public:
     typename common::DoubleTime::type ta(
         typename common::DoubleTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::TA);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         if (_phase == WAIT) {
             return 1;
@@ -120,18 +154,23 @@ public:
     common::Bag < common::DoubleTime, SchedulerHandle > lambda(
         typename common::DoubleTime::type t) const
     {
+#ifndef WITH_TRACE
+        (void)t;
+#endif
         common::Bag < common::DoubleTime, SchedulerHandle > msgs;
 
         msgs.push_back(
             common::ExternalEvent < common::DoubleTime, SchedulerHandle >(
                 "out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         return msgs;
     }
@@ -160,11 +199,17 @@ public:
     void dint(typename common::DoubleTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -176,12 +221,19 @@ public:
               const common::Bag < common::DoubleTime, SchedulerHandle >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         _phase = SEND;
     }
@@ -191,24 +243,36 @@ public:
                const common::Bag < common::DoubleTime, SchedulerHandle >& msgs)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+        (void)msgs;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
     }
 
     typename common::DoubleTime::type start(typename common::DoubleTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::START);
         common::Trace < common::DoubleTime >::trace().flush();
-
+#endif
         _phase = WAIT;
         return std::numeric_limits < double >::max();
     }
@@ -216,11 +280,18 @@ public:
     typename common::DoubleTime::type ta(
         typename common::DoubleTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::TA);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         if (_phase == WAIT) {
             return std::numeric_limits < double >::max();
@@ -232,17 +303,22 @@ public:
     common::Bag < common::DoubleTime, SchedulerHandle > lambda(
         typename common::DoubleTime::type t) const
     {
+#ifndef WITH_TRACE
+        (void)t;
+#endif
         common::Bag < common::DoubleTime, SchedulerHandle > msgs;
 
         msgs.push_back(common::ExternalEvent < common::DoubleTime,
                                                SchedulerHandle >("out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         return msgs;
     }

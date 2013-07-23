@@ -52,20 +52,35 @@ public:
                     SchedulerHandle >& /* x */,
                     common::DoubleTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
+
     }
 
     common::DoubleTime::type start(common::DoubleTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::START);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         return 0;
     }
@@ -73,17 +88,24 @@ public:
     common::Bag < common::DoubleTime, SchedulerHandle > lambda(
         common::DoubleTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
         common::Bag < common::DoubleTime, SchedulerHandle > msgs;
 
         msgs.push_back(common::ExternalEvent < common::DoubleTime,
                                                SchedulerHandle >("out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         return msgs;
     }
@@ -108,22 +130,36 @@ public:
                     SchedulerHandle >& x,
                     common::DoubleTime::type t)
     {
+
+#ifndef WITH_TRACE
+        (void)x;
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::DELTA_INT)
             << "x = " << x.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
     }
 
     common::DoubleTime::type start(common::DoubleTime::type t)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::START);
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         return 0;
     }
@@ -131,17 +167,24 @@ public:
     common::Bag < common::DoubleTime, SchedulerHandle > lambda(
         common::DoubleTime::type t) const
     {
+
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
         common::Bag < common::DoubleTime, SchedulerHandle > msgs;
 
         msgs.push_back(common::ExternalEvent < common::DoubleTime,
                                                SchedulerHandle >("out", 0.));
 
+#ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
             << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
+#endif
 
         return msgs;
     }
