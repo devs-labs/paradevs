@@ -11,7 +11,7 @@ LINK_DIRECTORIES(
 
 # graph tests
 ADD_EXECUTABLE(graph-tests ${COMMON_HPP} ${COMMON_SCHEDULER_HPP} ${PDEVS_HPP}
-  graph_builder.hpp graph_manager.hpp tests.cpp models.hpp)
+  graph_builder.hpp graph_defs.hpp graph_manager.hpp tests.cpp models.hpp)
 SET_TARGET_PROPERTIES(graph-tests PROPERTIES ${PARADEVS_APP_PROPERTIES})
 
 TARGET_LINK_LIBRARIES(graph-tests

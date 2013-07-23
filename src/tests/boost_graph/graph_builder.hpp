@@ -27,47 +27,9 @@
 #ifndef __TESTS_BOOST_GRAPH_GRAPH_BUILDER_HPP
 #define __TESTS_BOOST_GRAPH_GRAPH_BUILDER_HPP 1
 
-#include <boost/graph/adjacency_list.hpp>
+#include <tests/boost_graph/graph_defs.hpp>
 
 namespace paradevs { namespace tests { namespace boost_graph {
-
-struct VertexProperties
-{
-    int          _index;
-    double       _weight;
-    DynamicsType _type;
-
-    VertexProperties() : _index(0), _weight(0), _type(NORMAL_PIXEL)
-    { }
-    VertexProperties(int index, double weight, DynamicsType type) :
-        _index(index), _weight(weight), _type(type)
-    { }
-};
-
-struct EdgeProperties
-{
-    double       _weight;
-
-    EdgeProperties() : _weight(0)
-    { }
-    EdgeProperties(double weight) : _weight(weight)
-    { }
-};
-
-typedef boost::adjacency_list < boost::vecS, boost::vecS, boost::directedS,
-                                VertexProperties, EdgeProperties> Graph;
-typedef std::vector < Graph > Graphs;
-
-typedef std::pair < int, int > Edge;
-typedef std::vector < Edge > Edges;
-typedef Edges OutputEdges;
-typedef Edges InputEdges;
-typedef std::vector < OutputEdges > OutputEdgeList;
-typedef std::vector < InputEdges > InputEdgeList;
-
-typedef std::pair < int, int > Port;
-typedef std::pair < Port, Port > Connection;
-typedef std::vector < Connection > Connections;
 
 class FlatGraphBuilder
 {
