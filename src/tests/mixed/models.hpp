@@ -60,8 +60,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace() <<
-            common::TraceElement < common::DoubleTime >(get_name(), t,
-                                            common::DELTA_INT);
+            common::TraceElement < common::DoubleTime >(
+                A1 < SchedulerHandle >::get_name(), t, common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -82,8 +82,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_EXT)
+            << common::TraceElement < common::DoubleTime >(
+                A1 < SchedulerHandle >::get_name(), t, common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -103,8 +103,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_CONF)
+            << common::TraceElement < common::DoubleTime >(
+                A1 < SchedulerHandle >::get_name(), t, common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -119,8 +119,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::START);
+            << common::TraceElement < common::DoubleTime >(
+                A1 < SchedulerHandle >::get_name(), t, common::START);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
         _phase = WAIT;
@@ -136,8 +136,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::TA);
+            << common::TraceElement < common::DoubleTime >(
+                A1 < SchedulerHandle >::get_name(), t, common::TA);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
         if (_phase == WAIT) {
@@ -162,8 +162,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::LAMBDA)
+            << common::TraceElement < common::DoubleTime >(
+                A1 < SchedulerHandle >::get_name(), t, common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -201,8 +201,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_INT);
+            << common::TraceElement < common::DoubleTime >(
+                B1 < SchedulerHandle >::get_name(), t, common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -223,8 +223,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_EXT)
+            << common::TraceElement < common::DoubleTime >(
+                B1 < SchedulerHandle >::get_name(), t, common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -244,8 +244,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_CONF)
+            << common::TraceElement < common::DoubleTime >(
+                B1 < SchedulerHandle >::get_name(), t, common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -261,8 +261,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::START);
+            << common::TraceElement < common::DoubleTime >(
+                B1 < SchedulerHandle >::get_name(), t, common::START);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -280,8 +280,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::TA);
+            << common::TraceElement < common::DoubleTime >(
+                B1 < SchedulerHandle >::get_name(), t, common::TA);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -306,8 +306,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::LAMBDA)
+            << common::TraceElement < common::DoubleTime >(
+                B1 < SchedulerHandle >::get_name(), t, common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -347,8 +347,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_INT)
+            << common::TraceElement < common::DoubleTime >(
+                A2 < SchedulerHandle >::get_name(), t, common::DELTA_INT)
             << "x = " << x.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -364,8 +364,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::START);
+            << common::TraceElement < common::DoubleTime >(
+                A2 < SchedulerHandle >::get_name(), t, common::START);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -387,8 +387,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::LAMBDA)
+            << common::TraceElement < common::DoubleTime >(
+                A2 < SchedulerHandle >::get_name(), t, common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -423,8 +423,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_INT)
+            << common::TraceElement < common::DoubleTime >(
+                B2 < SchedulerHandle >::get_name(), t, common::DELTA_INT)
             << "x = " << x.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -440,8 +440,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::START);
+            << common::TraceElement < common::DoubleTime >(
+                B2 < SchedulerHandle >::get_name(), t, common::START);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -463,8 +463,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::LAMBDA)
+            << common::TraceElement < common::DoubleTime >(
+                B2 < SchedulerHandle >::get_name(), t, common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -497,8 +497,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace() <<
-            common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                        common::DELTA_INT);
+            common::TraceElement < common::DoubleTime >(
+                Beep < SchedulerHandle >::get_name(), t, common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -519,8 +519,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_EXT)
+            << common::TraceElement < common::DoubleTime >(
+                Beep < SchedulerHandle >::get_name(), t, common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -540,8 +540,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::DELTA_CONF)
+            << common::TraceElement < common::DoubleTime >(
+                Beep < SchedulerHandle >::get_name(), t, common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
@@ -557,8 +557,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::START);
+            << common::TraceElement < common::DoubleTime >(
+                Beep < SchedulerHandle >::get_name(), t, common::START);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -576,8 +576,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::TA);
+            << common::TraceElement < common::DoubleTime >(
+                Beep < SchedulerHandle >::get_name(), t, common::TA);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
 
@@ -602,8 +602,8 @@ public:
 
 #ifdef WITH_TRACE
         common::Trace < common::DoubleTime >::trace()
-            << common::TraceElement < common::DoubleTime >(get_name(), t,
-                                                           common::LAMBDA)
+            << common::TraceElement < common::DoubleTime >(
+                Beep < SchedulerHandle >::get_name(), t, common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < common::DoubleTime >::trace().flush();
 #endif

@@ -179,10 +179,12 @@ public:
 private:
     dtss::Simulator < common::DoubleTime,
                       A2 < SchedulerHandle >,
-                      SchedulerHandle > a;
+                      SchedulerHandle
+                    > a;
     dtss::Simulator < common::DoubleTime,
                       B2 < SchedulerHandle >,
-                      SchedulerHandle > b;
+                      SchedulerHandle
+                    > b;
 };
 
 class RootGraphManager :
@@ -214,13 +216,15 @@ private:
         common::DoubleTime,
         SchedulerType,
         SchedulerHandle,
-        S1GraphManager < SchedulerHandle > > S1;
+        S1GraphManager < SchedulerHandle >
+    > S1;
     paradevs::dtss::Coordinator <
         common::DoubleTime,
         LastBagPolicy < SchedulerHandle >,
         S2GraphManager < SchedulerHandle >,
         SchedulerHandle,
-        paradevs::dtss::Parameters < common::DoubleTime > > S2;
+        paradevs::dtss::Parameters < common::DoubleTime >
+    > S2;
 };
 
 template < int size, class SchedulerHandle >
