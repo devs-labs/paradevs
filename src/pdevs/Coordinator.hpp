@@ -29,7 +29,7 @@
 
 #include <common/Coordinator.hpp>
 #include <common/Parameters.hpp>
-#include <common/Trace.hpp>
+#include <common/utils/Trace.hpp>
 
 #include <cassert>
 #include <iostream>

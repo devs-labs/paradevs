@@ -29,7 +29,6 @@
 
 #include <common/scheduler/VectorScheduler.hpp>
 #include <common/scheduler/HeapScheduler.hpp>
-#include <common/Trace.hpp>
 
 #include <dtss/Coordinator.hpp>
 #include <dtss/GraphManager.hpp>

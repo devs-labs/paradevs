@@ -28,6 +28,7 @@
 #define TESTS_DTSS_MODELS_HPP 1
 
 #include <dtss/Dynamics.hpp>
+
 #include <common/time/DoubleTime.hpp>
 
 namespace paradevs { namespace tests { namespace dtss {

@@ -30,7 +30,7 @@
 #include <common/Coordinator.hpp>
 #include <common/Parameters.hpp>
 #include <common/Simulator.hpp>
-#include <common/Trace.hpp>
+#include <common/utils/Trace.hpp>
 
 #include <cassert>
 

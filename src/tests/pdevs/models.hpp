@@ -28,7 +28,7 @@
 #define TESTS_PDEVS_MODELS_HPP 1
 
 #include <common/time/DoubleTime.hpp>
-#include <common/Trace.hpp>
+#include <common/utils/Trace.hpp>
 
 #include <pdevs/Dynamics.hpp>
 

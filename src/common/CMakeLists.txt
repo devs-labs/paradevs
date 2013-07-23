@@ -11,9 +11,10 @@ LINK_DIRECTORIES(
   ${Boost_LIBRARY_DIRS})
 
 SET(COMMON_HPP Bag.hpp ExternalEvent.hpp InternalEvent.hpp Links.hpp Node.hpp
-  Parameters.hpp RootCoordinator.hpp Scheduler.hpp Trace.hpp)
+  Parameters.hpp RootCoordinator.hpp)
 
 INSTALL(FILES ${COMMON_HPP} DESTINATION ${PARADEVS_INCLUDE_DIRS}/common)
 
 ADD_SUBDIRECTORY(scheduler)
 ADD_SUBDIRECTORY(time)
+ADD_SUBDIRECTORY(utils)

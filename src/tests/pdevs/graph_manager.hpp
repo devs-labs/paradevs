@@ -30,7 +30,6 @@
 #include <tests/pdevs/models.hpp>
 
 #include <common/scheduler/HeapScheduler.hpp>
-#include <common/Trace.hpp>
 
 #include <pdevs/Coordinator.hpp>
 #include <pdevs/GraphManager.hpp>
