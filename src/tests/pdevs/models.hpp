@@ -30,7 +30,7 @@
 #include <common/time/DoubleTime.hpp>
 #include <common/utils/Trace.hpp>
 
-#include <pdevs/Dynamics.hpp>
+#include <kernel/pdevs/Dynamics.hpp>
 
 namespace paradevs { namespace tests { namespace pdevs {
 

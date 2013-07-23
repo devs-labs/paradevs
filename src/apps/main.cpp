@@ -30,7 +30,7 @@
 #include <common/scheduler/VectorScheduler.hpp>
 #include <common/scheduler/HeapScheduler.hpp>
 
-#include <pdevs/Coordinator.hpp>
+#include <kernel/pdevs/Coordinator.hpp>
 
 #include <tests/mixed/models.hpp>
 #include <tests/mixed/graph_manager.hpp>

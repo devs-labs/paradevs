@@ -31,9 +31,9 @@
 
 #include <common/scheduler/HeapScheduler.hpp>
 
-#include <pdevs/Coordinator.hpp>
-#include <pdevs/GraphManager.hpp>
-#include <pdevs/Simulator.hpp>
+#include <kernel/pdevs/Coordinator.hpp>
+#include <kernel/pdevs/GraphManager.hpp>
+#include <kernel/pdevs/Simulator.hpp>
 
 namespace paradevs { namespace tests { namespace pdevs {
 

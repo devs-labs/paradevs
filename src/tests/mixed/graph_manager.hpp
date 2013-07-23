@@ -30,13 +30,13 @@
 #include <common/scheduler/VectorScheduler.hpp>
 #include <common/scheduler/HeapScheduler.hpp>
 
-#include <dtss/Coordinator.hpp>
-#include <dtss/GraphManager.hpp>
-#include <dtss/Simulator.hpp>
+#include <kernel/dtss/Coordinator.hpp>
+#include <kernel/dtss/GraphManager.hpp>
+#include <kernel/dtss/Simulator.hpp>
 
-#include <pdevs/Coordinator.hpp>
-#include <pdevs/GraphManager.hpp>
-#include <pdevs/Simulator.hpp>
+#include <kernel/pdevs/Coordinator.hpp>
+#include <kernel/pdevs/GraphManager.hpp>
+#include <kernel/pdevs/Simulator.hpp>
 
 #include <tests/mixed/models.hpp>
 

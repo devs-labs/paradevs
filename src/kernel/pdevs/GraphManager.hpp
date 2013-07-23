@@ -1,5 +1,5 @@
 /**
- * @file dtss/GraphManager.hpp
+ * @file kernel/pdevs/GraphManager.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,19 +24,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DTSS_GRAPH_MANANGER
-#define DTSS_GRAPH_MANANGER 1
+#ifndef PDEVS_GRAPH_MANANGER
+#define PDEVS_GRAPH_MANANGER 1
 
 #include <common/Coordinator.hpp>
 #include <common/Links.hpp>
 #include <common/Model.hpp>
 #include <common/Parameters.hpp>
 
-namespace paradevs { namespace dtss {
+namespace paradevs { namespace pdevs {
 
-template < class Time,
-           class SchedulerHandle =
-               paradevs::common::scheduler::NoSchedulerHandle,
+template < class Time, class SchedulerHandle,
            class GraphParameters = common::NoParameters >
 class GraphManager
 {
@@ -88,27 +86,26 @@ public:
                 _link_list.find(ymsg.get_model(),
                                 ymsg.get_port_name());
 
-            for (typename common::Links < Time,
-                                          SchedulerHandle >::const_iterator it =
-                     result_model.first; it != result_model.second; ++it) {
-                // event on output port of coupled model
+            for (typename common::Links < Time, SchedulerHandle >::
+                     const_iterator it = result_model.first;
+                     it != result_model.second; ++it) {
+                // event on output port of coupled Model
                 if (it->second.get_model() == _coordinator) {
                     common::Bag < Time, SchedulerHandle > ymessages;
 
                     ymessages.push_back(
-                        common::ExternalEvent < Time,
-                                                SchedulerHandle >(
-                                                    it->second,
+                        common::ExternalEvent <
+                            Time, SchedulerHandle >(it->second,
                                                     ymsg.get_content()));
                     dynamic_cast < common::Coordinator <
-                        Time, SchedulerHandle >* >(_coordinator->get_parent())
-                        ->dispatch_events(ymessages, t);
+                        Time,  SchedulerHandle >* >(
+                            _coordinator->get_parent())->dispatch_events(
+                                ymessages, t);
                 } else { // event on input port of internal model
                     it->second.get_model()->post_event(
-                        t, common::ExternalEvent < Time,
-                                                   SchedulerHandle >(
-                                                       it->second,
-                                                       ymsg.get_content()));
+                        t, common::ExternalEvent <
+                            Time,  SchedulerHandle >(
+                                it->second, ymsg.get_content()));
                 }
             }
         }
@@ -124,9 +121,10 @@ public:
         for (typename common::Links < Time,
                                       SchedulerHandle >::const_iterator it_r =
                  result.first; it_r != result.second; ++it_r) {
-            it_r->second.get_model()->post_event(
-                t, common::ExternalEvent < Time, SchedulerHandle >(it_r->second,
-                                         event.get_content()));
+                 it_r->second.get_model()->post_event(
+                     t, common::ExternalEvent <
+                         Time, SchedulerHandle >(it_r->second,
+                                                 event.get_content()));
         }
     }
 
@@ -136,6 +134,6 @@ private:
     common::Coordinator < Time, SchedulerHandle >* _coordinator;
 };
 
-} } // namespace paradevs dtss
+} } // namespace paradevs pdevs
 
 #endif

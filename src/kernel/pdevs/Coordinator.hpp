@@ -1,5 +1,5 @@
 /**
- * @file pdevs/Coordinator.hpp
+ * @file kernel/pdevs/Coordinator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */

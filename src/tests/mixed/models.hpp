@@ -30,9 +30,9 @@
 #include <common/time/DoubleTime.hpp>
 #include <common/utils/Trace.hpp>
 
-#include <dtss/Dynamics.hpp>
+#include <kernel/dtss/Dynamics.hpp>
 
-#include <pdevs/Dynamics.hpp>
+#include <kernel/pdevs/Dynamics.hpp>
 
 namespace paradevs { namespace tests { namespace mixed {
 

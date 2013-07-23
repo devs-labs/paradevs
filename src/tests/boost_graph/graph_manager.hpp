@@ -30,9 +30,9 @@
 #include <common/scheduler/HeapScheduler.hpp>
 #include <common/scheduler/VectorScheduler.hpp>
 
-#include <pdevs/Coordinator.hpp>
-#include <pdevs/GraphManager.hpp>
-#include <pdevs/Simulator.hpp>
+#include <kernel/pdevs/Coordinator.hpp>
+#include <kernel/pdevs/GraphManager.hpp>
+#include <kernel/pdevs/Simulator.hpp>
 
 #include <tests/boost_graph/models.hpp>
 #include <tests/boost_graph/graph_builder.hpp>

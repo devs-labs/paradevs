@@ -24,12 +24,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TESTS_BOOST_GRAPH_MODELS_HPP
-#define __TESTS_BOOST_GRAPH_MODELS_HPP 1
+#ifndef TESTS_BOOST_GRAPH_MODELS_HPP
+#define TESTS_BOOST_GRAPH_MODELS_HPP 1
 
 #include <common/time/DoubleTime.hpp>
 
-#include <pdevs/Dynamics.hpp>
+#include <kernel/pdevs/Dynamics.hpp>
 
 namespace paradevs { namespace tests { namespace boost_graph {
 

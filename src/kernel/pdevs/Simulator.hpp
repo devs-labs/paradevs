@@ -1,5 +1,5 @@
 /**
- * @file dtss/Coordinator.hpp
+ * @file kernel/pdevs/Simulator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,51 +24,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DTSS_COORDINATOR
-#define DTSS_COORDINATOR 1
+#ifndef PDEVS_SIMULATOR
+#define PDEVS_SIMULATOR 1
 
 #include <common/Coordinator.hpp>
 #include <common/Parameters.hpp>
+#include <common/Simulator.hpp>
 #include <common/utils/Trace.hpp>
 
 #include <cassert>
-#include <iostream>
 
-namespace paradevs { namespace dtss {
+namespace paradevs { namespace pdevs {
 
-template < class Time >
-class Parameters
+template < class Time, class Dynamics, class SchedulerHandle,
+           class Parameters = common::NoParameters >
+class Simulator : public common::Simulator < Time, SchedulerHandle >
 {
-public:
-    Parameters(typename Time::type time_step) : _time_step(time_step)
+    typedef Simulator < Time, Dynamics, SchedulerHandle, Parameters > type;
+
+public :
+    Simulator(const std::string& name, const Parameters& parameters) :
+        common::Simulator < Time, SchedulerHandle >(name),
+        _dynamics(name, parameters)
     { }
 
-    typename Time::type _time_step;
-};
-
-template < class Time, class Policy, class GraphManager,
-           class SchedulerHandle, class Parameters = Parameters < Time >,
-           class GraphParameters = common::NoParameters >
-class Coordinator : public common::Coordinator < Time, SchedulerHandle >
-{
-    typedef Coordinator < Time, Policy, GraphManager, SchedulerHandle,
-                          Parameters, GraphParameters > type;
-
-public:
-    typedef Parameters parameters_type;
-    typedef GraphParameters graph_parameters_type;
-
-    Coordinator(const std::string& name,
-                const Parameters& parameters,
-                const GraphParameters& graph_paramaters) :
-        common::Coordinator < Time, SchedulerHandle >(name),
-        _graph_manager(this, graph_paramaters),
-        _time_step(parameters._time_step)
+    ~Simulator()
     { }
 
-    virtual ~Coordinator()
-    { }
-
+/*************************************************
+ * when i-message(t)
+ *   tl = t - e
+ *   tn = tl + ta(s)
+ *************************************************/
     typename Time::type start(typename Time::type t)
     {
 
@@ -81,13 +68,9 @@ public:
         common::Trace < Time >::trace().flush();
 #endif
 
-        assert(_graph_manager.children().size() > 0);
-
-        for (auto & child : _graph_manager.children()) {
-            child->start(type::_tn);
-        }
         type::_tl = t;
-        type::_tn = t;
+        type::_tn =
+            type::_tl + _dynamics.start(t);
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
@@ -101,64 +84,43 @@ public:
         return type::_tn;
     }
 
-    typename Time::type dispatch_events(common::Bag < Time,
-                                                      SchedulerHandle > bag,
-                                        typename Time::type t)
+    void observation(std::ostream &file) const
     {
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::Y_MESSAGE)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn << " ; bag = " << bag.to_string();
-        common::Trace < Time >::trace().flush();
-#endif
-
-        _graph_manager.dispatch_events(bag, t);
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::Y_MESSAGE)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
-        return type::_tn;
+        _dynamics.observation(file);
     }
 
-    void observation(std::ostream& file) const
-    {
-        for (auto & child : _graph_manager.children()) {
-            child->observation(file);
-        }
-    }
-
+/*************************************************
+ * when *-message(t)
+ *   if (t = tn) then
+ *     y = lambda(s)
+ *     send y-message(y,t) to parent
+ *************************************************/
     void output(typename Time::type t)
     {
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(type::get_name(), t,
-                                             common::OUTPUT)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn;
+                                             common::OUTPUT) << ": BEFORE";
         common::Trace < Time >::trace().flush();
 #endif
 
-        if (t == type::_tn) {
-            for (auto & model : _graph_manager.children()) {
-                model->output(t);
+        if(t == type::_tn) {
+            common::Bag < Time, SchedulerHandle > bag = _dynamics.lambda(t);
+
+            if (not bag.empty()) {
+                for (auto & event : bag) {
+                    event.set_model(this);
+                }
+                dynamic_cast < common::Coordinator < Time, SchedulerHandle >* >(
+                    type::get_parent())->dispatch_events(bag, t);
             }
         }
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(type::get_name(), t,
-                                             common::OUTPUT)
-            << ": AFTER => " << "tl = " << type::_tl << " ; tn = " << type::_tn;
+                                             common::OUTPUT) << ": AFTER";
         common::Trace < Time >::trace().flush();
 #endif
 
@@ -169,6 +131,10 @@ public:
                                                   SchedulerHandle >& event)
     {
 
+#ifndef WITH_TRACE
+        (void)t;
+#endif
+
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(type::get_name(), t,
@@ -177,11 +143,7 @@ public:
         common::Trace < Time >::trace().flush();
 #endif
 
-        if (t == type::_tn) {
-            _graph_manager.post_event(t, event);
-        } else {
-            _policy(t, event, type::_tl, type::_tn);
-        }
+        type::add_event(event);
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
@@ -193,6 +155,18 @@ public:
 
     }
 
+/*************************************************
+ * when x-message(t)
+ *   if (x is empty and t = tn) then
+ *       s = delta_int(s)
+ *  else if (x isn't empty and t = tn)
+ *       s = delta_conf(s,x)
+ *  else if (x isn't empty and t < tn)
+ *    e = t - tl
+ *    s = delta_ext(s,e,x)
+ *  tn = t + ta(s)
+ *  tl = t
+ *************************************************/
     typename Time::type transition(typename Time::type t)
     {
 
@@ -205,16 +179,19 @@ public:
         common::Trace < Time >::trace().flush();
 #endif
 
-        if (t == type::_tn) {
-            for (auto & event : _policy.bag()) {
-                post_event(t, event);
+        assert(type::_tl <= t and t <= type::_tn);
+
+        if(t == type::_tn) {
+            if (type::event_number() == 0) {
+                _dynamics.dint(t);
+            } else {
+                _dynamics.dconf(t, t - type::_tl, type::get_bag());
             }
-            for (auto & model : _graph_manager.children()) {
-                model->transition(t);
-            }
-            type::_tl = t;
-            type::_tn = t + _time_step;
+        } else {
+            _dynamics.dext(t, t - type::_tl, type::get_bag());
         }
+        type::_tn = t + _dynamics.ta(t);
+        type::_tl = t;
         type::clear_bag();
 
 #ifdef WITH_TRACE
@@ -228,12 +205,10 @@ public:
         return type::_tn;
     }
 
-private:
-    GraphManager        _graph_manager;
-    typename Time::type _time_step;
-    Policy              _policy;
+private :
+    Dynamics _dynamics;
 };
 
-} } // namespace paradevs dtss
+} } // namespace paradevs pdevs
 
 #endif

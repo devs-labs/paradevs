@@ -1,5 +1,5 @@
 /**
- * @file pdevs/Simulator.hpp
+ * @file kernel/dtss/Simulator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,8 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PDEVS_SIMULATOR
-#define PDEVS_SIMULATOR 1
+#ifndef DTSS_SIMULATOR
+#define DTSS_SIMULATOR 1
 
 #include <common/Coordinator.hpp>
 #include <common/Parameters.hpp>
@@ -34,28 +34,27 @@
 
 #include <cassert>
 
-namespace paradevs { namespace pdevs {
+namespace paradevs { namespace dtss {
 
-template < class Time, class Dynamics, class SchedulerHandle,
+template < class Time, class Dynamics,
+           class SchedulerHandle =
+               paradevs::common::scheduler::NoSchedulerHandle,
            class Parameters = common::NoParameters >
 class Simulator : public common::Simulator < Time, SchedulerHandle >
 {
     typedef Simulator < Time, Dynamics, SchedulerHandle, Parameters > type;
 
-public :
-    Simulator(const std::string& name, const Parameters& parameters) :
+public:
+    Simulator(const std::string& name, typename Time::type time_step,
+        const Parameters& parameters) :
         common::Simulator < Time, SchedulerHandle >(name),
-        _dynamics(name, parameters)
+        _dynamics(name, parameters),
+        _time_step(time_step)
     { }
 
     ~Simulator()
-    { }
+    {  }
 
-/*************************************************
- * when i-message(t)
- *   tl = t - e
- *   tn = tl + ta(s)
- *************************************************/
     typename Time::type start(typename Time::type t)
     {
 
@@ -68,9 +67,9 @@ public :
         common::Trace < Time >::trace().flush();
 #endif
 
+        _dynamics.start(t);
         type::_tl = t;
-        type::_tn =
-            type::_tl + _dynamics.start(t);
+        type::_tn = t;
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
@@ -89,12 +88,6 @@ public :
         _dynamics.observation(file);
     }
 
-/*************************************************
- * when *-message(t)
- *   if (t = tn) then
- *     y = lambda(s)
- *     send y-message(y,t) to parent
- *************************************************/
     void output(typename Time::type t)
     {
 
@@ -105,7 +98,7 @@ public :
         common::Trace < Time >::trace().flush();
 #endif
 
-        if(t == type::_tn) {
+        if (t == type::_tn) {
             common::Bag < Time, SchedulerHandle > bag = _dynamics.lambda(t);
 
             if (not bag.empty()) {
@@ -155,23 +148,11 @@ public :
 
     }
 
-/*************************************************
- * when x-message(t)
- *   if (x is empty and t = tn) then
- *       s = delta_int(s)
- *  else if (x isn't empty and t = tn)
- *       s = delta_conf(s,x)
- *  else if (x isn't empty and t < tn)
- *    e = t - tl
- *    s = delta_ext(s,e,x)
- *  tn = t + ta(s)
- *  tl = t
- *************************************************/
     typename Time::type transition(typename Time::type t)
     {
 
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
+ #ifdef WITH_TRACE
+       common::Trace < Time >::trace()
             << common::TraceElement < Time >(type::get_name(), t,
                                              common::S_MESSAGE)
             << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
@@ -179,26 +160,19 @@ public :
         common::Trace < Time >::trace().flush();
 #endif
 
-        assert(type::_tl <= t and t <= type::_tn);
+        assert(t == type::_tn);
 
-        if(t == type::_tn) {
-            if (type::event_number() == 0) {
-                _dynamics.dint(t);
-            } else {
-                _dynamics.dconf(t, t - type::_tl, type::get_bag());
-            }
-        } else {
-            _dynamics.dext(t, t - type::_tl, type::get_bag());
-        }
-        type::_tn = t + _dynamics.ta(t);
+        _dynamics.transition(type::get_bag(), t);
         type::_tl = t;
+        type::_tn = t + _time_step;
         type::clear_bag();
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
             << common::TraceElement < Time >(type::get_name(), t,
                                              common::S_MESSAGE)
-            << ": AFTER => " << "tl = " << type::_tl << " ; tn = " << type::_tn;
+            << ": AFTER => " << "tl = " << type::_tl << " ; tn = "
+            << type::_tn;
         common::Trace < Time >::trace().flush();
 #endif
 
@@ -206,9 +180,10 @@ public :
     }
 
 private :
-    Dynamics _dynamics;
+    Dynamics            _dynamics;
+    typename Time::type _time_step;
 };
 
-} } // namespace paradevs pdevs
+} } // namespace paradevs dtss
 
 #endif

@@ -27,7 +27,7 @@
 #ifndef TESTS_DTSS_MODELS_HPP
 #define TESTS_DTSS_MODELS_HPP 1
 
-#include <dtss/Dynamics.hpp>
+#include <kernel/dtss/Dynamics.hpp>
 
 #include <common/time/DoubleTime.hpp>
 

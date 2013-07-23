@@ -27,9 +27,9 @@
 #ifndef TESTS_DTSS_GRAPH_MANAGER_HPP
 #define TESTS_DTSS_GRAPH_MANAGER_HPP 1
 
-#include <dtss/Coordinator.hpp>
-#include <dtss/GraphManager.hpp>
-#include <dtss/Simulator.hpp>
+#include <kernel/dtss/Coordinator.hpp>
+#include <kernel/dtss/GraphManager.hpp>
+#include <kernel/dtss/Simulator.hpp>
 
 #include <tests/dtss/models.hpp>
 
