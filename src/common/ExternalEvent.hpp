@@ -36,12 +36,12 @@
 
 namespace paradevs { namespace common {
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Node;
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Model;
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class ExternalEvent
 {
 public:
@@ -49,8 +49,9 @@ public:
         _port_name(port_name), _model(0), _content(content)
     { }
 
-    ExternalEvent(const Node < Time >& node, double content) :
-        _port_name(node.get_port_name()), _model(node.get_model()),
+    ExternalEvent(const Node < Time, SchedulerHandle >& node, double content) :
+        _port_name(node.get_port_name()),
+        _model(node.get_model()),
         _content(content)
     { }
 
@@ -69,13 +70,13 @@ public:
     void set_content(double content)
     { _content = content; }
 
-    Model < Time >* get_model() const
+    Model < Time, SchedulerHandle >* get_model() const
     { return _model; }
 
     bool on_port(const std::string& port_name) const
     { return _port_name == port_name; }
 
-    void set_model(Model < Time >* model)
+    void set_model(Model < Time, SchedulerHandle >* model)
     { _model = model; }
 
     std::string to_string() const
@@ -88,9 +89,9 @@ public:
     }
 
 private :
-    std::string     _port_name;
-    Model < Time >* _model;
-    double          _content;
+    std::string                      _port_name;
+    Model < Time, SchedulerHandle >* _model;
+    double                           _content;
 };
 
 } } // namespace paradevs common

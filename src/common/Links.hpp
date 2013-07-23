@@ -34,36 +34,46 @@
 
 namespace paradevs { namespace common {
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Node;
 
-template < class Time >
-class Links : public std::multimap < Node < Time >, Node < Time > >
+template < class Time, class SchedulerHandle >
+class Links : public std::multimap < Node < Time, SchedulerHandle >,
+                                     Node < Time, SchedulerHandle > >
 {
 public:
 
-    typedef std::pair < typename Links < Time >::const_iterator,
-                        typename Links < Time >::const_iterator > Result;
+    typedef std::pair <
+    typename Links < Time, SchedulerHandle >::const_iterator,
+    typename Links < Time, SchedulerHandle >::const_iterator > Result;
 
     Links()
     { }
     virtual ~Links()
     { }
 
-    void add(Model < Time >* out_model, const std::string& out_port_name,
-             Model < Time >* in_model, const std::string& in_port_name)
+    void add(Model < Time, SchedulerHandle >* out_model,
+             const std::string& out_port_name,
+             Model < Time, SchedulerHandle >* in_model,
+             const std::string& in_port_name)
     {
-        std::multimap < Node < Time >, Node < Time > >::insert(
-            std::pair < Node < Time >, Node <Time > >(
-                Node < Time >(out_model, out_port_name),
-                Node < Time >(in_model, in_port_name)));
+        std::multimap < Node < Time, SchedulerHandle >,
+                        Node < Time, SchedulerHandle > >::insert(
+                            std::pair < Node < Time, SchedulerHandle >,
+                                        Node < Time, SchedulerHandle > >(
+                                            Node < Time, SchedulerHandle >(
+                                                out_model, out_port_name),
+                                            Node < Time, SchedulerHandle >(
+                                                in_model, in_port_name)));
     }
 
-    Links::Result find(Model < Time >* out_model,
+    Links::Result find(Model < Time, SchedulerHandle >* out_model,
                        const std::string& out_port_name) const
     {
-        return std::multimap < Node < Time >, Node < Time > >::equal_range(
-            common::Node < Time >(out_model, out_port_name));
+        return std::multimap < Node < Time, SchedulerHandle >,
+                               Node < Time, SchedulerHandle > >::equal_range(
+                                   common::Node < Time, SchedulerHandle >(
+                                       out_model, out_port_name));
     }
 
     std::string to_string() const
@@ -71,8 +81,9 @@ public:
         std::stringstream ss;
 
         ss << "Graph = { ";
-        for (typename Node < Time >::const_iterator it = Node < Time >::begin();
-             it != Node < Time >::end(); ++it) {
+        for (typename Node < Time, SchedulerHandle >::const_iterator it =
+                 Node < Time, SchedulerHandle >::begin();
+             it != Node < Time, SchedulerHandle >::end(); ++it) {
             ss << "(" << it->first.get_model()->get_name() << ":"
                << it->first.get_port_name()
                << " -> "

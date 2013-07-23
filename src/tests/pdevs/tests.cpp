@@ -38,8 +38,11 @@ TEST_CASE("pdevs/only_one", "run")
 {
     paradevs::common::RootCoordinator <
         MyTime, paradevs::pdevs::Coordinator <
-            MyTime, paradevs::common::scheduler::VectorScheduler <
-                MyTime >, OnlyOneGraphManager >
+            MyTime,
+            paradevs::common::scheduler::HeapScheduler <
+                MyTime, SchedulerHandle >,
+            SchedulerHandle,
+            OnlyOneGraphManager < SchedulerHandle > >
         > rc(0, 10, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
@@ -78,8 +81,11 @@ TEST_CASE("pdevs/flat", "run")
 {
     paradevs::common::RootCoordinator <
         MyTime, paradevs::pdevs::Coordinator <
-            MyTime, paradevs::common::scheduler::VectorScheduler <
-                MyTime >, FlatGraphManager >
+            MyTime,
+            paradevs::common::scheduler::HeapScheduler <
+                MyTime, SchedulerHandle >,
+            SchedulerHandle,
+            FlatGraphManager < SchedulerHandle> >
         > rc(0, 10, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
@@ -188,8 +194,11 @@ TEST_CASE("pdevs/hierachical", "run")
 {
     paradevs::common::RootCoordinator <
         MyTime, paradevs::pdevs::Coordinator <
-            MyTime, paradevs::common::scheduler::HeapScheduler <
-                MyTime >, RootGraphManager >
+            MyTime,
+            paradevs::common::scheduler::HeapScheduler <
+                MyTime, SchedulerHandle >,
+            SchedulerHandle,
+            RootGraphManager >
         > rc(0, 10, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 

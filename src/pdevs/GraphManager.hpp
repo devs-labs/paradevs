@@ -34,11 +34,12 @@
 
 namespace paradevs { namespace pdevs {
 
-template < class Time, class GraphParameters = common::NoParameters >
+template < class Time, class SchedulerHandle,
+           class GraphParameters = common::NoParameters >
 class GraphManager
 {
 public:
-    GraphManager(common::Coordinator < Time >* coordinator,
+    GraphManager(common::Coordinator < Time, SchedulerHandle >* coordinator,
                  const GraphParameters& /* parameters */) :
         _coordinator(coordinator)
     { }
@@ -46,15 +47,15 @@ public:
     virtual ~GraphManager()
     { }
 
-    void add_child(common::Model < Time >* child)
+    void add_child(common::Model < Time, SchedulerHandle >* child)
     {
         _child_list.push_back(child);
         child->set_parent(_coordinator);
     }
 
-    void add_link(common::Model < Time >* src_model,
+    void add_link(common::Model < Time, SchedulerHandle >* src_model,
                   const std::string& src_port_name,
-                  common::Model < Time >* dst_model,
+                  common::Model < Time, SchedulerHandle >* dst_model,
                   const std::string& dst_port_name)
     {
         assert((src_model != _coordinator and
@@ -73,55 +74,64 @@ public:
         _link_list.add(src_model, src_port_name, dst_model, dst_port_name);
     }
 
-    const common::Models < Time >& children() const
+    const common::Models < Time, SchedulerHandle >& children() const
     { return _child_list; }
 
-    void dispatch_events(common::Bag < Time > bag, typename Time::type t)
+    void dispatch_events(common::Bag < Time, SchedulerHandle > bag,
+                         typename Time::type t)
     {
         for (auto & ymsg : bag) {
-            typename common::Links < Time >::Result result_model =
+            typename common::Links < Time,
+                                     SchedulerHandle >::Result result_model =
                 _link_list.find(ymsg.get_model(),
                                 ymsg.get_port_name());
 
-            for (typename common::Links < Time >::const_iterator it =
-                     result_model.first; it != result_model.second; ++it) {
-                // event on output port of coupled model
+            for (typename common::Links < Time, SchedulerHandle >::
+                     const_iterator it = result_model.first;
+                     it != result_model.second; ++it) {
+                // event on output port of coupled Model
                 if (it->second.get_model() == _coordinator) {
-                    common::Bag < Time > ymessages;
+                    common::Bag < Time, SchedulerHandle > ymessages;
 
                     ymessages.push_back(
-                        common::ExternalEvent < Time >(it->second,
-                                                       ymsg.get_content()));
-                    dynamic_cast < common::Coordinator < Time >* >(
-                        _coordinator->get_parent())->dispatch_events(ymessages,
-                                                                     t);
+                        common::ExternalEvent <
+                            Time, SchedulerHandle >(it->second,
+                                                    ymsg.get_content()));
+                    dynamic_cast < common::Coordinator <
+                        Time,  SchedulerHandle >* >(
+                            _coordinator->get_parent())->dispatch_events(
+                                ymessages, t);
                 } else { // event on input port of internal model
                     it->second.get_model()->post_event(
-                        t, common::ExternalEvent < Time >(it->second,
-                                                 ymsg.get_content()));
+                        t, common::ExternalEvent <
+                            Time,  SchedulerHandle >(
+                                it->second, ymsg.get_content()));
                 }
             }
         }
     }
 
     void post_event(typename Time::type t,
-                    const common::ExternalEvent < Time >& event)
+                    const common::ExternalEvent < Time,
+                                                  SchedulerHandle >& event)
     {
-        typename common::Links < Time >::Result result =
+        typename common::Links < Time, SchedulerHandle >::Result result =
             _link_list.find(_coordinator, event.get_port_name());
 
-        for (typename common::Links < Time >::const_iterator it_r =
+        for (typename common::Links < Time,
+                                      SchedulerHandle >::const_iterator it_r =
                  result.first; it_r != result.second; ++it_r) {
-            it_r->second.get_model()->post_event(
-                t, common::ExternalEvent < Time >(it_r->second,
-                                         event.get_content()));
+                 it_r->second.get_model()->post_event(
+                     t, common::ExternalEvent <
+                         Time, SchedulerHandle >(it_r->second,
+                                                 event.get_content()));
         }
     }
 
 private:
-    common::Links < Time >        _link_list;
-    common::Models < Time >       _child_list;
-    common::Coordinator < Time >* _coordinator;
+    common::Links < Time, SchedulerHandle >        _link_list;
+    common::Models < Time, SchedulerHandle >       _child_list;
+    common::Coordinator < Time, SchedulerHandle >* _coordinator;
 };
 
 } } // namespace paradevs pdevs

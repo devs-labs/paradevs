@@ -1,5 +1,5 @@
 /**
- * @file main.cpp
+ * @file app/main.cpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -47,10 +47,10 @@ void run_flat_with_heap()
     paradevs::common::RootCoordinator <
         MyTime, paradevs::pdevs::Coordinator <
             MyTime,
-            paradevs::common::scheduler::HeapScheduler < MyTime >,
-            LinearGraphManager < size >,
-            paradevs::common::NoParameters,
-            paradevs::common::NoParameters >
+            paradevs::common::scheduler::HeapScheduler < MyTime,
+                                                         SchedulerHandle >,
+            SchedulerHandle,
+            LinearGraphManager < size, SchedulerHandle > >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
@@ -71,9 +71,9 @@ void run_flat_with_vector()
         MyTime, paradevs::pdevs::Coordinator <
             MyTime,
             paradevs::common::scheduler::VectorScheduler < MyTime >,
-            LinearGraphManager < size >,
-            paradevs::common::NoParameters,
-            paradevs::common::NoParameters >
+            paradevs::common::scheduler::NoSchedulerHandle,
+            LinearGraphManager <
+                size, paradevs::common::scheduler::NoSchedulerHandle > >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
@@ -88,10 +88,10 @@ void run_hierarchic_with_heap()
     paradevs::common::RootCoordinator <
         MyTime, paradevs::pdevs::Coordinator <
             MyTime,
-            paradevs::common::scheduler::HeapScheduler < MyTime >,
-            Root2GraphManager,
-            paradevs::common::NoParameters,
-            paradevs::common::NoParameters >
+            paradevs::common::scheduler::HeapScheduler < MyTime,
+                                                         SchedulerHandle >,
+            SchedulerHandle,
+            Root2GraphManager >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
@@ -105,9 +105,8 @@ void run_hierarchic_with_vector()
         MyTime, paradevs::pdevs::Coordinator <
             MyTime,
             paradevs::common::scheduler::VectorScheduler < MyTime >,
-            Root3GraphManager,
-            paradevs::common::NoParameters,
-            paradevs::common::NoParameters >
+            paradevs::common::scheduler::NoSchedulerHandle,
+            Root3GraphManager >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 

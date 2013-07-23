@@ -39,6 +39,29 @@
 
 namespace paradevs { namespace tests { namespace boost_graph {
 
+struct SchedulerHandle;
+
+typedef typename paradevs::common::scheduler::HeapScheduler <
+    MyTime, SchedulerHandle >::type SchedulerType;
+
+struct SchedulerHandle
+{
+    SchedulerHandle()
+    { }
+
+    SchedulerHandle(const SchedulerType::handle_type& handle)
+        : _handle(handle)
+    { }
+
+    const SchedulerHandle& handle() const
+    { return *this; }
+
+    void handle(const SchedulerHandle& handle)
+    { _handle = handle._handle; }
+
+    SchedulerType::handle_type _handle;
+};
+
 struct GraphParameters
 {
     Graph       _graph;
@@ -52,25 +75,29 @@ struct GraphParameters
     { }
 };
 
-template < class Parameters >
+template < class SchedulerHandle, class Parameters >
 class FlatGraphManager :
-    public paradevs::pdevs::GraphManager < MyTime, Parameters >
+        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle,
+                                               Parameters >
 {
 public:
-    FlatGraphManager(common::Coordinator < MyTime >* coordinator,
+    FlatGraphManager(common::Coordinator < MyTime,
+                                           SchedulerHandle >* coordinator,
         const Parameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, Parameters >(
+        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle, Parameters >(
             coordinator, parameters)
     { }
 
     virtual ~FlatGraphManager()
     {
-        for (TopSimulators::const_iterator it = _top_simulators.begin();
-             it != _top_simulators.end(); ++it) {
+        for (typename TopSimulators::const_iterator it =
+                 _top_simulators.begin(); it != _top_simulators.end();
+             ++it) {
             delete it->second;
         }
-        for (NormalSimulators::const_iterator it = _normal_simulators.begin();
-             it != _normal_simulators.end(); ++it) {
+        for (typename NormalSimulators::const_iterator it =
+                 _normal_simulators.begin(); it != _normal_simulators.end();
+             ++it) {
             delete it->second;
         }
     }
@@ -89,10 +116,10 @@ public:
             case TOP_PIXEL:
                 _top_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
-                        MyTime, TopPixel, TopPixelParameters >(
-                            ss.str(), TopPixelParameters());
+                        MyTime, TopPixel < SchedulerHandle >, SchedulerHandle,
+                        TopPixelParameters >(ss.str(), TopPixelParameters());
                 _top_simulators[g[*vertexIt]._index]->add_out_port("out");
-                FlatGraphManager < Parameters >::add_child(
+                FlatGraphManager < SchedulerHandle, Parameters >::add_child(
                     _top_simulators[g[*vertexIt]._index]);
                 break;
             case NORMAL_PIXEL:
@@ -113,11 +140,12 @@ public:
 
                 _normal_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
-                        MyTime, NormalPixel, NormalPixelParameters >(
+                        MyTime, NormalPixel < SchedulerHandle >,
+                        SchedulerHandle, NormalPixelParameters >(
                             ss.str(), NormalPixelParameters(n));
                 _normal_simulators[g[*vertexIt]._index]->add_in_port("in");
                 _normal_simulators[g[*vertexIt]._index]->add_out_port("out");
-                FlatGraphManager < Parameters >::add_child(
+                FlatGraphManager < SchedulerHandle, Parameters >::add_child(
                         _normal_simulators[g[*vertexIt]._index]);
                 break;
             };
@@ -131,8 +159,8 @@ public:
             boost::tie(neighbourIt, neighbourEnd) =
                 boost::adjacent_vertices(*vertexIt, g);
             for (; neighbourIt != neighbourEnd; ++neighbourIt) {
-                paradevs::common::Model < MyTime >* a = 0;
-                paradevs::common::Model < MyTime >* b = 0;
+                paradevs::common::Model < MyTime, SchedulerHandle >* a = 0;
+                paradevs::common::Model < MyTime, SchedulerHandle >* b = 0;
 
                 if (g[*vertexIt]._type == TOP_PIXEL) {
                     a = _top_simulators[g[*vertexIt]._index];
@@ -144,33 +172,40 @@ public:
                 } else {
                     b = _normal_simulators[g[*neighbourIt]._index];
                 }
-                FlatGraphManager < Parameters >::add_link(b, "out", a, "in");
+                FlatGraphManager < SchedulerHandle,
+                                   Parameters >::add_link(b, "out",
+                                                               a, "in");
             }
 	}
     }
 
 protected:
     typedef std::map < int, pdevs::Simulator <
-                                MyTime, TopPixel,
+                                MyTime, TopPixel < SchedulerHandle >,
+                                SchedulerHandle,
                                 TopPixelParameters >* > TopSimulators;
     typedef std::map < int, pdevs::Simulator <
-                                MyTime, NormalPixel,
+                                MyTime, NormalPixel < SchedulerHandle >,
+                                SchedulerHandle,
                                 NormalPixelParameters >* > NormalSimulators;
 
     TopSimulators    _top_simulators;
     NormalSimulators _normal_simulators;
 };
 
+template < class SchedulerHandle >
 class BuiltFlatGraphManager :
-    public FlatGraphManager < GraphParameters >
+        public FlatGraphManager < SchedulerHandle, GraphParameters >
 {
 public:
-    BuiltFlatGraphManager(common::Coordinator < MyTime >* coordinator,
-                          const GraphParameters& parameters) :
-        FlatGraphManager < GraphParameters >(
+    BuiltFlatGraphManager(
+        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        const GraphParameters& parameters) :
+        FlatGraphManager < SchedulerHandle, GraphParameters >(
             coordinator, parameters)
     {
-        build_flat_graph(parameters._graph, parameters._input_edges);
+        BuiltFlatGraphManager < SchedulerHandle >::build_flat_graph(
+            parameters._graph, parameters._input_edges);
         // input
         for (Edges::const_iterator it = parameters._input_edges.begin();
              it != parameters._input_edges.end(); ++it) {
@@ -180,9 +215,10 @@ public:
             if (not coordinator->exist_in_port(ss_in.str())) {
                 coordinator->add_in_port(ss_in.str());
             }
-            BuiltFlatGraphManager::add_link(coordinator, ss_in.str(),
-                                            _normal_simulators[it->second],
-                                            "in");
+            BuiltFlatGraphManager < SchedulerHandle>::add_link(
+                coordinator, ss_in.str(),
+                BuiltFlatGraphManager <
+                    SchedulerHandle >::_normal_simulators[it->second], "in");
         }
         // output
         for (Edges::const_iterator it = parameters._output_edges.begin();
@@ -193,8 +229,10 @@ public:
             if (not coordinator->exist_out_port(ss_out.str())) {
                 coordinator->add_out_port(ss_out.str());
             }
-            BuiltFlatGraphManager::add_link(_normal_simulators[it->first],
-                                            "out", coordinator, ss_out.str());
+            BuiltFlatGraphManager < SchedulerHandle>::add_link(
+                BuiltFlatGraphManager <
+                    SchedulerHandle >::_normal_simulators[it->first], "out",
+                coordinator, ss_out.str());
         }
     }
 
@@ -202,14 +240,16 @@ public:
     { }
 };
 
-template < class GraphBuilder >
+template < class SchedulerHandle, class GraphBuilder >
 class InBuildFlatGraphManager :
-    public FlatGraphManager < paradevs::common::NoParameters >
+        public FlatGraphManager < SchedulerHandle,
+                                  paradevs::common::NoParameters >
 {
 public:
-    InBuildFlatGraphManager(common::Coordinator < MyTime >* coordinator,
-                            const paradevs::common::NoParameters& parameters) :
-        FlatGraphManager < paradevs::common::NoParameters >(
+    InBuildFlatGraphManager(
+        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        const paradevs::common::NoParameters& parameters) :
+        FlatGraphManager < SchedulerHandle, paradevs::common::NoParameters >(
             coordinator, parameters)
     {
         GraphBuilder   builder;
@@ -219,22 +259,25 @@ public:
         Connections    parent_connections;
 
         builder.build(graphs, input_edges, output_edges, parent_connections);
-        build_flat_graph(graphs.front(), InputEdges());
+        InBuildFlatGraphManager < SchedulerHandle,
+                                  GraphBuilder >::build_flat_graph(
+                                      graphs.front(), InputEdges());
     }
 
     virtual ~InBuildFlatGraphManager()
     { }
 };
 
-template < class GraphBuilder >
+template < class SchedulerHandle, class GraphBuilder >
 class HierarchicalGraphManager :
-    public paradevs::pdevs::GraphManager < MyTime,
-                                           paradevs::common::NoParameters >
+        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle,
+                                               paradevs::common::NoParameters >
 {
 public:
-    HierarchicalGraphManager(common::Coordinator < MyTime >* coordinator,
-                             const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime,
+    HierarchicalGraphManager(
+        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        const paradevs::common::NoParameters& parameters) :
+        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle,
                                         paradevs::common::NoParameters >(
                                             coordinator, parameters)
     {
@@ -258,8 +301,8 @@ public:
                                 GraphParameters(graphs[i], input_edges[i],
                                                 output_edges[i]));
             _coordinators.push_back(coordinator);
-            HierarchicalGraphManager < GraphBuilder >::add_child(
-                coordinator);
+            HierarchicalGraphManager < SchedulerHandle,
+                                       GraphBuilder >::add_child(coordinator);
 
         }
 
@@ -272,27 +315,29 @@ public:
 
             ss_out << "out_" << connection.first.second;
             ss_in << "in_" << connection.first.second;
-            HierarchicalGraphManager < GraphBuilder >::add_link(
-                _coordinators[connection.first.first - 1], ss_out.str(),
-                _coordinators[connection.second.first - 1], ss_in.str());
+            HierarchicalGraphManager <
+                SchedulerHandle, GraphBuilder >::add_link(
+                    _coordinators[connection.first.first - 1], ss_out.str(),
+                    _coordinators[connection.second.first - 1], ss_in.str());
         }
     }
 
     virtual ~HierarchicalGraphManager()
     {
-        for (Coordinators::const_iterator it = _coordinators.begin();
+        for (typename Coordinators::const_iterator it = _coordinators.begin();
              it != _coordinators.end(); ++it) {
             delete *it;
         }
     }
 
 private:
-    typedef paradevs::pdevs::Coordinator < MyTime,
-                                           common::scheduler::VectorScheduler <
-                                               MyTime >,
-                                           BuiltFlatGraphManager,
-                                           common::NoParameters,
-                                           GraphParameters > Coordinator;
+    typedef paradevs::pdevs::Coordinator <
+        MyTime,
+        SchedulerType,
+        SchedulerHandle,
+        BuiltFlatGraphManager < SchedulerHandle >,
+        common::NoParameters,
+        GraphParameters > Coordinator;
     typedef std::vector < Coordinator* > Coordinators;
 
     Coordinators _coordinators;

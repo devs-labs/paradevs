@@ -50,12 +50,15 @@ typedef paradevs::common::Time < double, Limits < double > > MyTime;
 struct TopPixelParameters
 { };
 
-class TopPixel : public paradevs::pdevs::Dynamics < MyTime, TopPixelParameters >
+template < class SchedulerHandle>
+class TopPixel :
+    public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                       TopPixelParameters >
 {
 public:
     TopPixel(const std::string& name,
              const TopPixelParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime,
+        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
                                     TopPixelParameters >(name, parameters)
     { }
 
@@ -65,7 +68,8 @@ public:
     virtual void dint(typename MyTime::type t)
     {
 
-        std::cout << get_name() << " at " << t << ": dint" << std::endl;
+        std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
+                  << t << ": dint" << std::endl;
 
     }
 
@@ -75,14 +79,17 @@ public:
     virtual typename MyTime::type ta(typename MyTime::type /* t */) const
     { return 1; }
 
-    virtual common::Bag < MyTime > lambda(typename MyTime::type t) const
+    virtual common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
 
-        std::cout << get_name() << " at " << t << ": lambda" << std::endl;
+        std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
+                  << t << ": lambda" << std::endl;
 
-        common::Bag < MyTime > bag;
+        common::Bag < MyTime, SchedulerHandle > bag;
 
-        bag.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        bag.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                          "out", 0.));
         return bag;
     }
 };
@@ -95,13 +102,15 @@ struct NormalPixelParameters
     unsigned int _neighbour_number;
 };
 
-class NormalPixel : public paradevs::pdevs::Dynamics < MyTime,
-                                                       NormalPixelParameters >
+template < class SchedulerHandle>
+class NormalPixel :
+    public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                       NormalPixelParameters >
 {
 public:
     NormalPixel(const std::string& name,
              const NormalPixelParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime,
+        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
                                     NormalPixelParameters >(name, parameters),
         _neighbour_number(parameters._neighbour_number)
     { }
@@ -112,7 +121,8 @@ public:
     virtual void dint(typename MyTime::type t)
     {
 
-        std::cout << get_name() << " at " << t << ": dint" << std::endl;
+        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+                  << t << ": dint" << std::endl;
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -122,14 +132,16 @@ public:
 
     virtual void dext(typename MyTime::type t,
                       typename MyTime::type /* e */,
-                      const common::Bag < MyTime >& bag)
+                      const common::Bag < MyTime, SchedulerHandle >& bag)
     {
 
-        std::cout << get_name() << " at " << t << ": dext -> "
+        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+                  << t << ": dext -> "
                   << bag.to_string() << std::endl;
 
-        for (common::Bag < MyTime >::const_iterator it = bag.begin();
-             it != bag.end(); ++it) {
+        for (typename common::Bag < MyTime,
+                                    SchedulerHandle >::const_iterator it =
+                 bag.begin(); it != bag.end(); ++it) {
             if (it->on_port("in")) {
                 ++_received;
                 if (_received == _neighbour_number) {
@@ -138,7 +150,8 @@ public:
             }
         }
 
-        std::cout << get_name() << " at " << t << ": dext -> "
+        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+                  << t << ": dext -> "
                   << _received << "/" << _neighbour_number
                   << std::endl;
 
@@ -154,7 +167,8 @@ public:
     virtual typename MyTime::type ta(typename MyTime::type t) const
     {
 
-        std::cout << get_name() << " at " << t << ": ta" << std::endl;
+        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+                  << t << ": ta" << std::endl;
 
         if (_phase == WAIT) {
             return MyTime::infinity;
@@ -163,15 +177,18 @@ public:
         }
     }
 
-    virtual common::Bag < MyTime > lambda(typename MyTime::type t) const
+    virtual common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
 
-        std::cout << get_name() << " at " << t << ": lambda" << std::endl;
+        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+                  << t << ": lambda" << std::endl;
 
-        common::Bag < MyTime > bag;
+        common::Bag < MyTime, SchedulerHandle > bag;
 
         if (_phase == SEND) {
-            bag.push_back(common::ExternalEvent < MyTime >("out", 0.));
+            bag.push_back(common::ExternalEvent < MyTime,
+                                                  SchedulerHandle >("out", 0.));
         }
         return bag;
     }

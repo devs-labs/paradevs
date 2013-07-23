@@ -10,7 +10,8 @@ LINK_DIRECTORIES(
   ${LIBXML_LIBRARY_DIR}
   ${Boost_LIBRARY_DIRS})
 
-SET(COMMON_SCHEDULER_HPP HeapScheduler.hpp VectorScheduler.hpp)
+SET(COMMON_SCHEDULER_HPP HeapScheduler.hpp SchedulerHandle.hpp
+  VectorScheduler.hpp)
 
 INSTALL(FILES ${COMMON_SCHEDULER_HPP} DESTINATION
   ${PARADEVS_INCLUDE_DIRS}/common/scheduler)

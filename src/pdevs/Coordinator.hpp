@@ -36,12 +36,15 @@
 
 namespace paradevs { namespace pdevs {
 
-template < class Time, class Scheduler, class GraphManager,
+template < class Time,
+           class Scheduler,
+           class SchedulerHandle,
+           class GraphManager,
            class Parameters = common::NoParameters,
            class GraphParameters = common::NoParameters >
-class Coordinator : public common::Coordinator < Time >
+class Coordinator : public common::Coordinator < Time, SchedulerHandle >
 {
-    typedef Coordinator < Time, Scheduler, GraphManager,
+    typedef Coordinator < Time, Scheduler, SchedulerHandle, GraphManager,
                           Parameters, GraphParameters > type;
 
 public:
@@ -51,7 +54,7 @@ public:
     Coordinator(const std::string& name,
                 const Parameters& /* parameters */,
                 const GraphParameters& graph_parameters) :
-        common::Coordinator < Time >(name),
+        common::Coordinator < Time, SchedulerHandle >(name),
         _graph_manager(this, graph_parameters)
     { }
 
@@ -75,7 +78,7 @@ public:
         for (auto & child : _graph_manager.children()) {
             _event_table.init(child->start(
                                   Coordinator < Time, Scheduler,
-                                  GraphManager, Parameters,
+                                  SchedulerHandle, GraphManager, Parameters,
                                   GraphParameters >::_tn), child);
         }
         type::_tl = t;
@@ -116,7 +119,8 @@ public:
 
         assert(t == type::_tn);
 
-        common::Models < Time > IMM = _event_table.get_current_models(t);
+        common::Models < Time, SchedulerHandle > IMM =
+            _event_table.get_current_models(t);
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
@@ -166,7 +170,8 @@ public:
 
         assert(t >= type::_tl and t <= type::_tn);
 
-        common::Models < Time > receivers = _event_table.get_current_models(t);
+        common::Models < Time, SchedulerHandle > receivers =
+            _event_table.get_current_models(t);
 
         add_models_with_inputs(receivers);
 
@@ -200,7 +205,8 @@ public:
     }
 
     void post_event(typename Time::type t,
-                    const common::ExternalEvent < Time >& event)
+                    const common::ExternalEvent < Time,
+                                                  SchedulerHandle >& event)
     {
 
 #ifdef WITH_TRACE
@@ -229,8 +235,8 @@ public:
 /*******************************************************************
  * when y-message(y_d, t) with output y_d from d
  *******************************************************************/
-    typename Time::type dispatch_events(common::Bag < Time > bag,
-                                        typename Time::type t)
+    typename Time::type dispatch_events(
+        common::Bag < Time, SchedulerHandle > bag, typename Time::type t)
     {
 
 #ifdef WITH_TRACE
@@ -266,7 +272,8 @@ public:
         }
     }
 
-    void add_models_with_inputs(common::Models < Time >& receivers)
+    void add_models_with_inputs(
+        common::Models < Time, SchedulerHandle >& receivers)
     {
         for (auto & model : _graph_manager.children()) {
             if (model->event_number() > 0) {

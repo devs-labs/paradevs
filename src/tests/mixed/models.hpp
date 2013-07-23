@@ -48,17 +48,16 @@ struct Limits
 
 typedef paradevs::common::Time < double, Limits < double > > MyTime;
 
-struct NoParameters
-{
-    NoParameters()
-    { }
-};
-
-class A1 : public paradevs::pdevs::Dynamics < MyTime, NoParameters >
+template < class SchedulerHandle>
+class A1 : public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                              paradevs::common::NoParameters >
 {
 public:
-    A1(const std::string& name, const NoParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime, NoParameters >(name, parameters)
+    A1(const std::string& name,
+       const paradevs::common::NoParameters& parameters) :
+        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                    paradevs::common::NoParameters >(
+                                        name, parameters)
     { }
     virtual ~A1()
     { }
@@ -83,7 +82,7 @@ public:
     }
 
     void dext(typename MyTime::type t, typename MyTime::type /* e */,
-              const common::Bag < MyTime >& msgs)
+              const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
 #ifndef WITH_TRACE
@@ -103,7 +102,7 @@ public:
     }
 
     void dconf(typename MyTime::type t, typename MyTime::type /* e */,
-               const common::Bag < MyTime >& msgs)
+               const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
 #ifndef WITH_TRACE
@@ -156,16 +155,18 @@ public:
         }
     }
 
-    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
 
 #ifndef WITH_TRACE
         (void)t;
 #endif
 
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                           "out", 0.));
 
 #ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
@@ -184,11 +185,16 @@ private:
     Phase _phase;
 };
 
-class B1 : public paradevs::pdevs::Dynamics < MyTime, NoParameters >
+template < class SchedulerHandle>
+class B1 : public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                              paradevs::common::NoParameters >
 {
 public:
-    B1(const std::string& name, const NoParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime, NoParameters >(name, parameters)
+    B1(const std::string& name,
+       const paradevs::common::NoParameters& parameters) :
+        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                    paradevs::common::NoParameters >(
+                                        name, parameters)
     { }
     virtual ~B1()
     { }
@@ -213,7 +219,7 @@ public:
     }
 
     void dext(typename MyTime::type t, typename MyTime::type /* e */,
-              const common::Bag < MyTime >& msgs)
+              const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
 #ifndef WITH_TRACE
@@ -233,7 +239,7 @@ public:
     }
 
     void dconf(typename MyTime::type t, typename MyTime::type /* e */,
-               const common::Bag < MyTime >& msgs)
+               const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
 #ifndef WITH_TRACE
@@ -290,15 +296,17 @@ public:
         }
     }
 
-    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
 
 #ifndef WITH_TRACE
         (void)t;
 #endif
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", t));
+        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                           "out", t));
 
 #ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
@@ -317,16 +325,22 @@ private:
     Phase _phase;
 };
 
-class A2 : public paradevs::dtss::Dynamics < MyTime, NoParameters >
+template < class SchedulerHandle >
+class A2 : public paradevs::dtss::Dynamics < MyTime, SchedulerHandle >
 {
 public:
-    A2(const std::string& name, const NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime, NoParameters >(name, parameters)
+    A2(const std::string& name,
+       const paradevs::common::NoParameters& parameters) :
+        paradevs::dtss::Dynamics <
+           MyTime, SchedulerHandle,
+           paradevs::common::NoParameters >(name, parameters)
     { }
     virtual ~A2()
     { }
 
-    void transition(const common::Bag < MyTime >& x, typename MyTime::type t)
+    void transition(
+        const common::Bag < MyTime, SchedulerHandle >& x,
+            typename MyTime::type t)
     {
 
 #ifndef WITH_TRACE
@@ -361,15 +375,17 @@ public:
         return 0;
     }
 
-    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
 
 #ifndef WITH_TRACE
         (void)t;
 #endif
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(
+            common::ExternalEvent < MyTime, SchedulerHandle >( "out", 0.));
 
 #ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
@@ -383,16 +399,22 @@ public:
     }
 };
 
-class B2 : public paradevs::dtss::Dynamics < MyTime, NoParameters >
+template < class SchedulerHandle >
+class B2 : public paradevs::dtss::Dynamics < MyTime, SchedulerHandle >
 {
 public:
-    B2(const std::string& name, const NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime, NoParameters >(name, parameters)
+    B2(const std::string& name,
+       const paradevs::common::NoParameters& parameters) :
+        paradevs::dtss::Dynamics <
+           MyTime, SchedulerHandle,
+           paradevs::common::NoParameters >(name, parameters)
     { }
     virtual ~B2()
     { }
 
-    void transition(const common::Bag < MyTime >& x, typename MyTime::type t)
+    void transition(
+        const common::Bag < MyTime, SchedulerHandle >& x,
+            typename MyTime::type t)
     {
 
 #ifndef WITH_TRACE
@@ -427,15 +449,17 @@ public:
         return 0;
     }
 
-    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
 
 #ifndef WITH_TRACE
         (void)t;
 #endif
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(
+            common::ExternalEvent < MyTime, SchedulerHandle >("out", 0.));
 
 #ifdef WITH_TRACE
         common::Trace < MyTime >::trace()
@@ -449,11 +473,16 @@ public:
     }
 };
 
-class Beep : public paradevs::pdevs::Dynamics < MyTime, NoParameters >
+template < class SchedulerHandle>
+class Beep : public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                                paradevs::common::NoParameters >
 {
 public:
-    Beep(const std::string& name, const NoParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime, NoParameters >(name, parameters)
+    Beep(const std::string& name,
+         const paradevs::common::NoParameters& parameters) :
+        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+                                    paradevs::common::NoParameters >(name,
+                                                                     parameters)
     { }
     virtual ~Beep()
     { }
@@ -478,7 +507,7 @@ public:
     }
 
     void dext(typename MyTime::type t, typename MyTime::type /* e */,
-              const common::Bag < MyTime >& msgs)
+              const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
 #ifndef WITH_TRACE
@@ -498,7 +527,7 @@ public:
     }
 
     void dconf(typename MyTime::type t, typename MyTime::type /* e */,
-               const common::Bag < MyTime >& msgs)
+               const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
 #ifndef WITH_TRACE
@@ -555,15 +584,17 @@ public:
         }
     }
 
-    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
 
 #ifndef WITH_TRACE
         (void)t;
 #endif
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                           "out", 0.));
 
 #ifdef WITH_TRACE
         common::Trace < MyTime >::trace()

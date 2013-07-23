@@ -47,12 +47,12 @@ public:
 };
 
 template < class Time, class Policy, class GraphManager,
-           class Parameters = Parameters < Time >,
+           class SchedulerHandle, class Parameters = Parameters < Time >,
            class GraphParameters = common::NoParameters >
-class Coordinator : public common::Coordinator < Time >
+class Coordinator : public common::Coordinator < Time, SchedulerHandle >
 {
-    typedef Coordinator < Time, Policy, GraphManager, Parameters,
-                          GraphParameters > type;
+    typedef Coordinator < Time, Policy, GraphManager, SchedulerHandle,
+                          Parameters, GraphParameters > type;
 
 public:
     typedef Parameters parameters_type;
@@ -61,7 +61,7 @@ public:
     Coordinator(const std::string& name,
                 const Parameters& parameters,
                 const GraphParameters& graph_paramaters) :
-        common::Coordinator < Time >(name),
+        common::Coordinator < Time, SchedulerHandle >(name),
         _graph_manager(this, graph_paramaters),
         _time_step(parameters._time_step)
     { }
@@ -101,7 +101,8 @@ public:
         return type::_tn;
     }
 
-    typename Time::type dispatch_events(common::Bag < Time > bag,
+    typename Time::type dispatch_events(common::Bag < Time,
+                                                      SchedulerHandle > bag,
                                         typename Time::type t)
     {
 
@@ -164,7 +165,8 @@ public:
     }
 
     void post_event(typename Time::type t,
-                    const common::ExternalEvent < Time >& event)
+                    const common::ExternalEvent < Time,
+                                                  SchedulerHandle >& event)
     {
 
 #ifdef WITH_TRACE

@@ -31,13 +31,11 @@
 #include <common/ExternalEvent.hpp>
 #include <common/Parameters.hpp>
 
-#include <limits>
-#include <string>
-#include <vector>
-
 namespace paradevs { namespace dtss {
 
-template < class Time, class Parameters = common::NoParameters >
+template < class Time,
+           class SchedulerHandle = common::scheduler::NoSchedulerHandle,
+           class Parameters = common::NoParameters >
 class Dynamics
 {
 public:
@@ -48,15 +46,17 @@ public:
     virtual ~Dynamics()
     { }
 
-    virtual void transition(const common::Bag < Time >& /* x */,
+    virtual void transition(const common::Bag < Time,
+                                                SchedulerHandle >& /* x */,
                             typename Time::type /* t */)
     { }
 
     virtual typename Time::type start(typename Time::type/* time */)
     { return Time::infinity; }
 
-    common::Bag < Time > lambda(typename Time::type /* time */) const
-    { return common::Bag < Time >(); }
+    common::Bag < Time, SchedulerHandle > lambda(
+        typename Time::type /* time */) const
+    { return common::Bag < Time, SchedulerHandle >(); }
 
     virtual void observation(std::ostream& /* file */) const
     { }

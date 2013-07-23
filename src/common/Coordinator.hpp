@@ -37,14 +37,14 @@
 
 namespace paradevs { namespace common {
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Model;
 
-template < class Time >
-class Coordinator : public Model < Time >
+template < class Time, class SchedulerHandle >
+class Coordinator : public Model < Time, SchedulerHandle >
 {
 public :
-    Coordinator(const std::string& name) : Model < Time >(name)
+    Coordinator(const std::string& name) : Model < Time, SchedulerHandle >(name)
     { }
 
     virtual ~Coordinator()
@@ -54,8 +54,12 @@ public :
     virtual void observation(std::ostream& file) const =0;
     virtual void output(typename Time::type t) =0;
     virtual void post_event(typename Time::type t,
-                            const common::ExternalEvent < Time >& event) =0;
-    virtual typename Time::type dispatch_events(common::Bag < Time > bag,
+                            const common::ExternalEvent < Time,
+                                                          SchedulerHandle >&
+                            event) =0;
+    virtual typename Time::type dispatch_events(common::Bag < Time,
+                                                              SchedulerHandle >
+                                                bag,
                                                 typename Time::type t) =0;
     virtual typename Time::type start(typename Time::type t) =0;
     virtual typename Time::type transition(typename Time::type t) =0;

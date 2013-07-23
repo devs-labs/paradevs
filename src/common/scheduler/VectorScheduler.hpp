@@ -29,13 +29,16 @@
 
 #include <common/InternalEvent.hpp>
 
+#include <common/scheduler/SchedulerHandle.hpp>
+
 #include <algorithm>
 #include <sstream>
 
 namespace paradevs { namespace common { namespace scheduler {
 
 template < class Time >
-class VectorScheduler : protected std::vector < InternalEvent < Time > >
+class VectorScheduler :
+        protected std::vector < InternalEvent < Time, NoSchedulerHandle > >
 {
 public:
     VectorScheduler()
@@ -43,14 +46,15 @@ public:
     virtual ~VectorScheduler()
     { }
 
-    Model < Time >* get_current_model()
+    Model < Time, NoSchedulerHandle >* get_current_model()
     {
         return VectorScheduler < Time >::front().get_model();
     }
 
-    Models < Time > get_current_models(typename Time::type time) const
+    Models < Time, NoSchedulerHandle > get_current_models(
+        typename Time::type time) const
     {
-        Models < Time > models;
+        Models < Time, NoSchedulerHandle > models;
 
         for (typename VectorScheduler < Time >::const_iterator it =
                  VectorScheduler < Time >::begin();
@@ -64,19 +68,20 @@ public:
     typename Time::type get_current_time() const
     { return VectorScheduler < Time >::front().get_time(); }
 
-    void init(typename Time::type time, Model < Time >* model)
+    void init(typename Time::type time,
+              Model < Time, NoSchedulerHandle >* model)
     {
         VectorScheduler < Time >::push_back(
-            InternalEvent < Time >(time, model));
+            InternalEvent < Time, NoSchedulerHandle >(time, model));
         std::sort(VectorScheduler < Time >::begin(),
                   VectorScheduler < Time >::end());
     }
 
-    void put(typename Time::type time, Model < Time >* model)
+    void put(typename Time::type time, Model < Time, NoSchedulerHandle >* model)
     {
         remove(model);
         VectorScheduler < Time >::push_back(
-            InternalEvent < Time >(time, model));
+            InternalEvent < Time, NoSchedulerHandle >(time, model));
         std::sort(VectorScheduler < Time >::begin(),
                   VectorScheduler < Time >::end());
     }
@@ -97,7 +102,7 @@ public:
     }
 
 private:
-    void remove(Model < Time >* model)
+    void remove(Model < Time, NoSchedulerHandle >* model)
     {
         typename VectorScheduler < Time >::iterator jt =
             VectorScheduler < Time >::begin();

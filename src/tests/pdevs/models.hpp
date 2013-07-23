@@ -48,11 +48,12 @@ struct Limits
 
 typedef paradevs::common::Time < double, Limits < double > > MyTime;
 
-class A : public paradevs::pdevs::Dynamics < MyTime >
+template < class SchedulerHandle>
+class A : public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle >
 {
 public:
     A(const std::string& name, const common::NoParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime >(name, parameters)
+        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle >(name, parameters)
     { }
     virtual ~A()
     { }
@@ -61,8 +62,9 @@ public:
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_INT);
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::DELTA_INT);
         common::Trace < MyTime >::trace().flush();
 
         if (_phase == SEND) {
@@ -71,12 +73,13 @@ public:
     }
 
     void dext(typename MyTime::type t, typename MyTime::type /* e */,
-              const common::Bag < MyTime >& msgs)
+              const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_EXT)
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 
@@ -84,12 +87,13 @@ public:
     }
 
     void dconf(typename MyTime::type t, typename MyTime::type /* e */,
-               const common::Bag < MyTime >& msgs)
+               const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_CONF)
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 
@@ -98,8 +102,9 @@ public:
     typename MyTime::type start(typename MyTime::type t)
     {
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::START);
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::START);
         common::Trace < MyTime >::trace().flush();
 
         _phase = WAIT;
@@ -109,8 +114,9 @@ public:
     typename MyTime::type ta(typename MyTime::type t) const
     {
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::TA);
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::TA);
         common::Trace < MyTime >::trace().flush();
 
         if (_phase == WAIT) {
@@ -120,15 +126,18 @@ public:
         }
     }
 
-    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                           "out", 0.));
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::LAMBDA)
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 
@@ -144,11 +153,12 @@ private:
     Phase _phase;
 };
 
-class B : public paradevs::pdevs::Dynamics < MyTime >
+template < class SchedulerHandle >
+class B : public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle >
 {
 public:
     B(const std::string& name, const common::NoParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime >(name, parameters)
+        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle >(name, parameters)
     { }
     virtual ~B()
     { }
@@ -157,8 +167,9 @@ public:
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_INT);
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::DELTA_INT);
         common::Trace < MyTime >::trace().flush();
 
         if (_phase == SEND) {
@@ -167,12 +178,13 @@ public:
     }
 
     void dext(typename MyTime::type t, typename MyTime::type /* e */,
-              const common::Bag < MyTime >& msgs)
+              const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_EXT)
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::DELTA_EXT)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 
@@ -180,12 +192,13 @@ public:
     }
 
     void dconf(typename MyTime::type t, typename MyTime::type /* e */,
-               const common::Bag < MyTime >& msgs)
+               const common::Bag < MyTime, SchedulerHandle >& msgs)
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_CONF)
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::DELTA_CONF)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 
@@ -195,8 +208,9 @@ public:
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::START);
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::START);
         common::Trace < MyTime >::trace().flush();
 
         _phase = WAIT;
@@ -206,8 +220,9 @@ public:
     typename MyTime::type ta(typename MyTime::type t) const
     {
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::TA);
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::TA);
         common::Trace < MyTime >::trace().flush();
 
         if (_phase == WAIT) {
@@ -217,15 +232,18 @@ public:
         }
     }
 
-    common::Bag < MyTime > lambda(typename MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(
+        typename MyTime::type t) const
     {
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                           "out", 0.));
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::LAMBDA)
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 

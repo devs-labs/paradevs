@@ -30,7 +30,6 @@
 #include <tests/pdevs/models.hpp>
 
 #include <common/scheduler/HeapScheduler.hpp>
-#include <common/scheduler/VectorScheduler.hpp>
 #include <common/Trace.hpp>
 
 #include <pdevs/Coordinator.hpp>
@@ -39,71 +38,106 @@
 
 namespace paradevs { namespace tests { namespace pdevs {
 
+struct SchedulerHandle;
+
+typedef typename paradevs::common::scheduler::HeapScheduler <
+    MyTime, SchedulerHandle >::type SchedulerType;
+
+struct SchedulerHandle
+{
+    SchedulerHandle()
+    { }
+
+    SchedulerHandle(const SchedulerType::handle_type& handle)
+        : _handle(handle)
+    { }
+
+    const SchedulerHandle& handle() const
+    { return *this; }
+
+    void handle(const SchedulerHandle& handle)
+    { _handle = handle._handle; }
+
+    SchedulerType::handle_type _handle;
+};
+
+template < class SchedulerHandle >
 class S1GraphManager :
-        public paradevs::pdevs::GraphManager < MyTime >
+        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
 {
 public:
-    S1GraphManager(common::Coordinator < MyTime >* coordinator,
+    S1GraphManager(common::Coordinator < MyTime, SchedulerHandle >* coordinator,
                    const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime >(coordinator, parameters),
+        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
+                                                                  parameters),
         a("a1", common::NoParameters()), b("b1", common::NoParameters())
     {
-        add_child(&a);
-        add_child(&b);
+        S1GraphManager < SchedulerHandle >::add_child(&a);
+        S1GraphManager < SchedulerHandle >::add_child(&b);
 
         a.add_out_port("out");
         b.add_in_port("in");
         b.add_out_port("out");
         coordinator->add_out_port("out");
 
-        add_link(&a, "out", &b, "in");
-        add_link(&b, "out", coordinator, "out");
+        S1GraphManager < SchedulerHandle >::add_link(&a, "out", &b, "in");
+        S1GraphManager < SchedulerHandle >::add_link(&b, "out",
+                                                     coordinator, "out");
     }
 
     virtual ~S1GraphManager()
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A > a;
-    paradevs::pdevs::Simulator < MyTime, B > b;
+    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+                                 SchedulerHandle > a;
+    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+                                 SchedulerHandle > b;
 };
 
+template < class SchedulerHandle >
 class S2GraphManager :
-        public paradevs::pdevs::GraphManager < MyTime >
+        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
 {
 public:
-    S2GraphManager(common::Coordinator < MyTime >* coordinator,
+    S2GraphManager(common::Coordinator < MyTime, SchedulerHandle >* coordinator,
                    const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime >(coordinator, parameters),
+        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
+                                                                  parameters),
         a("a2", common::NoParameters()), b("b2", common::NoParameters())
     {
-        add_child(&a);
-        add_child(&b);
+        S2GraphManager < SchedulerHandle >::add_child(&a);
+        S2GraphManager < SchedulerHandle >::add_child(&b);
 
         a.add_in_port("in");
         a.add_out_port("out");
         b.add_in_port("in");
         coordinator->add_in_port("in");
 
-        add_link(&a, "out", &b, "in");
-        add_link(coordinator, "in", &a, "in");
+        S2GraphManager < SchedulerHandle >::add_link(&a, "out", &b, "in");
+        S2GraphManager < SchedulerHandle >::add_link(coordinator, "in",
+                                                     &a, "in");
     }
 
     virtual ~S2GraphManager()
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A > a;
-    paradevs::pdevs::Simulator < MyTime, B > b;
+    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+                                 SchedulerHandle > a;
+    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+                                 SchedulerHandle > b;
 };
 
 class RootGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime >
+        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
 {
 public:
-    RootGraphManager(common::Coordinator < MyTime >* coordinator,
-                     const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime >(coordinator, parameters),
+    RootGraphManager(
+        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        const paradevs::common::NoParameters& parameters) :
+        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(
+                                            coordinator, parameters),
         S1("S1", paradevs::common::NoParameters(),
            paradevs::common::NoParameters()),
         S2("S2", paradevs::common::NoParameters(),
@@ -120,65 +154,82 @@ public:
 
 private:
     paradevs::pdevs::Coordinator <
-    MyTime, paradevs::common::scheduler::HeapScheduler < MyTime >,
-    S1GraphManager > S1;
+        MyTime,
+        SchedulerType,
+        SchedulerHandle,
+        S1GraphManager < SchedulerHandle > > S1;
     paradevs::pdevs::Coordinator <
-        MyTime, paradevs::common::scheduler::HeapScheduler < MyTime >,
-        S2GraphManager > S2;
+        MyTime,
+        SchedulerType,
+        SchedulerHandle,
+        S2GraphManager < SchedulerHandle > > S2;
 };
 
+template < class SchedulerHandle >
 class OnlyOneGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime >
+        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
 {
 public:
-    OnlyOneGraphManager(common::Coordinator < MyTime >* coordinator,
+    OnlyOneGraphManager(common::Coordinator < MyTime,
+                                              SchedulerHandle >* coordinator,
                         const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime >(coordinator, parameters),
+        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
+                                                                  parameters),
         a("a", common::NoParameters())
     {
-        add_child(&a);
+        OnlyOneGraphManager < SchedulerHandle >::add_child(&a);
     }
 
     virtual ~OnlyOneGraphManager()
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A > a;
+    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+                                 SchedulerHandle > a;
 };
 
+template < class SchedulerHandle >
 class FlatGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime >
+        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
 {
 public:
-    FlatGraphManager(common::Coordinator < MyTime >* coordinator,
+    FlatGraphManager(common::Coordinator < MyTime,
+                                           SchedulerHandle >* coordinator,
                      const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime >(coordinator, parameters),
+        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
+                                                                  parameters),
         a1("a1", common::NoParameters()), b1("b1", common::NoParameters()),
         a2("a2", common::NoParameters()), b2("b2", common::NoParameters())
     {
-        add_child(&a1);
-        add_child(&b1);
-        add_child(&a2);
-        add_child(&b2);
+        FlatGraphManager < SchedulerHandle >::add_child(&a1);
+        FlatGraphManager < SchedulerHandle >::add_child(&b1);
+        FlatGraphManager < SchedulerHandle >::add_child(&a2);
+        FlatGraphManager < SchedulerHandle >::add_child(&b2);
+
         a1.add_out_port("out");
         b1.add_in_port("in");
         b1.add_out_port("out");
         a2.add_in_port("in");
         a2.add_out_port("out");
         b2.add_in_port("in");
-        add_link(&a1, "out", &b1, "in");
-        add_link(&b1, "out", &a2, "in");
-        add_link(&a2, "out", &b2, "in");
+
+        FlatGraphManager < SchedulerHandle >::add_link(&a1, "out", &b1, "in");
+        FlatGraphManager < SchedulerHandle >::add_link(&b1, "out", &a2, "in");
+        FlatGraphManager < SchedulerHandle >::add_link(&a2, "out", &b2, "in");
     }
 
     virtual ~FlatGraphManager()
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A > a1;
-    paradevs::pdevs::Simulator < MyTime, B > b1;
-    paradevs::pdevs::Simulator < MyTime, A > a2;
-    paradevs::pdevs::Simulator < MyTime, B > b2;
+    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+                                 SchedulerHandle > a1;
+    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+                                 SchedulerHandle > b1;
+    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+                                 SchedulerHandle > a2;
+    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+                                 SchedulerHandle > b2;
 };
 
 } } } // namespace paradevs tests pdevs

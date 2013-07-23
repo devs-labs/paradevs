@@ -36,7 +36,8 @@
 
 namespace paradevs { namespace pdevs {
 
-template < class Time, class Parameters = common::NoParameters >
+template < class Time, class SchedulerHandle,
+           class Parameters = common::NoParameters >
 class Dynamics
 {
 public:
@@ -49,7 +50,7 @@ public:
 
     virtual void dconf(typename Time::type /* t */,
                        typename Time::type /* e */,
-                       const common::Bag < Time >& /* bag */)
+                       const common::Bag < Time, SchedulerHandle >& /* bag */)
     { }
 
     virtual void dint(typename Time::type /* t */)
@@ -57,7 +58,7 @@ public:
 
     virtual void dext(typename Time::type /* t */,
                       typename Time::type /* e */,
-                      const common::Bag < Time >& /* bag */)
+                      const common::Bag < Time, SchedulerHandle >& /* bag */)
     { }
 
     virtual typename Time::type start(typename Time::type /* time */)
@@ -66,8 +67,9 @@ public:
     virtual typename Time::type ta(typename Time::type /* time */) const
     { return Time::infinity; }
 
-    virtual common::Bag < Time > lambda(typename Time::type /* time */) const
-    { return common::Bag < Time >(); }
+    virtual common::Bag < Time, SchedulerHandle > lambda(
+        typename Time::type /* time */) const
+    { return common::Bag < Time, SchedulerHandle >(); }
 
     virtual void observation(std::ostream& /* file */) const
     { }

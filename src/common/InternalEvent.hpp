@@ -33,21 +33,22 @@
 
 namespace paradevs { namespace common {
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Model;
 
-template < class Time >
-struct InternalEvent
+template < class Time, class SchedulerHandle >
+class InternalEvent
 {
 public:
-    InternalEvent(const typename Time::type& time, Model < Time >* model)
+    InternalEvent(const typename Time::type& time,
+                  Model < Time, SchedulerHandle >* model)
         : _time(time), _model(model)
     { }
 
     virtual ~InternalEvent()
     { }
 
-    Model < Time >* get_model() const
+    Model < Time, SchedulerHandle >* get_model() const
     { return _model; }
 
     typename Time::type get_time() const
@@ -77,8 +78,8 @@ public:
     { _time = time; }
 
 private:
-    typename Time::type _time;
-    Model < Time >*     _model;
+    typename Time::type              _time;
+    Model < Time, SchedulerHandle >* _model;
 };
 
 template < typename Event >

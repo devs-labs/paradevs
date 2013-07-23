@@ -36,14 +36,16 @@
 
 namespace paradevs { namespace pdevs {
 
-template < class Time, class Dynamics, class Parameters = common::NoParameters >
-class Simulator : public common::Simulator < Time >
+template < class Time, class Dynamics, class SchedulerHandle,
+           class Parameters = common::NoParameters >
+class Simulator : public common::Simulator < Time, SchedulerHandle >
 {
-    typedef Simulator < Time, Dynamics, Parameters > type;
+    typedef Simulator < Time, Dynamics, SchedulerHandle, Parameters > type;
 
 public :
     Simulator(const std::string& name, const Parameters& parameters) :
-        common::Simulator < Time >(name), _dynamics(name, parameters)
+        common::Simulator < Time, SchedulerHandle >(name),
+        _dynamics(name, parameters)
     { }
 
     ~Simulator()
@@ -104,13 +106,13 @@ public :
 #endif
 
         if(t == type::_tn) {
-            common::Bag < Time > bag = _dynamics.lambda(t);
+            common::Bag < Time, SchedulerHandle > bag = _dynamics.lambda(t);
 
             if (not bag.empty()) {
                 for (auto & event : bag) {
                     event.set_model(this);
                 }
-                dynamic_cast < common::Coordinator < Time >* >(
+                dynamic_cast < common::Coordinator < Time, SchedulerHandle >* >(
                     type::get_parent())->dispatch_events(bag, t);
             }
         }
@@ -125,7 +127,8 @@ public :
     }
 
     void post_event(typename Time::type t,
-                    const common::ExternalEvent < Time >& event)
+                    const common::ExternalEvent < Time,
+                                                  SchedulerHandle >& event)
     {
 
 #ifndef WITH_TRACE

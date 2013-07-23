@@ -44,47 +44,53 @@ struct Limits
 
 typedef paradevs::common::Time < double, Limits < double > > MyTime;
 
+template < class SchedulerHandle>
 class A :
-        public paradevs::dtss::Dynamics < MyTime,
+        public paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
                                           paradevs::common::NoParameters >
 {
 public:
     A(const std::string& name,
       const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime,
+        paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
                                    paradevs::common::NoParameters >(name,
                                                                     parameters)
     { }
     virtual ~A()
     { }
 
-    void transition(const common::Bag < MyTime >& /* x */, MyTime::type t)
+    void transition(const common::Bag < MyTime, SchedulerHandle >& /* x */,
+                    MyTime::type t)
     {
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_INT);
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::DELTA_INT);
         common::Trace < MyTime >::trace().flush();
     }
 
     MyTime::type start(MyTime::type t)
     {
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::START);
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::START);
         common::Trace < MyTime >::trace().flush();
 
         return 0;
     }
 
-    common::Bag < MyTime > lambda(MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(MyTime::type t) const
     {
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                           "out", 0.));
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::LAMBDA)
+            << common::TraceElement < MyTime >(
+                A < SchedulerHandle >::get_name(), t,
+                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 
@@ -92,25 +98,28 @@ public:
     }
 };
 
+template < class SchedulerHandle>
 class B :
-        public paradevs::dtss::Dynamics < MyTime,
+        public paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
                                           paradevs::common::NoParameters >
 {
 public:
     B(const std::string& name,
       const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime,
+        paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
                                    paradevs::common::NoParameters >(name,
                                                                     parameters)
     { }
     virtual ~B()
     { }
 
-    void transition(const common::Bag < MyTime >& x, MyTime::type t)
+    void transition(const common::Bag < MyTime, SchedulerHandle >& x,
+                    MyTime::type t)
     {
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::DELTA_INT)
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::DELTA_INT)
             << "x = " << x.to_string();
         common::Trace < MyTime >::trace().flush();
     }
@@ -119,22 +128,25 @@ public:
     {
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::START);
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::START);
         common::Trace < MyTime >::trace().flush();
 
         return 0;
     }
 
-    common::Bag < MyTime > lambda(MyTime::type t) const
+    common::Bag < MyTime, SchedulerHandle > lambda(MyTime::type t) const
     {
-        common::Bag < MyTime > msgs;
+        common::Bag < MyTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime >("out", 0.));
+        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
+                           "out", 0.));
 
         common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(get_name(), t,
-                                               common::LAMBDA)
+            << common::TraceElement < MyTime >(
+                B < SchedulerHandle >::get_name(), t,
+                common::LAMBDA)
             << "messages = " << msgs.to_string();
         common::Trace < MyTime >::trace().flush();
 

@@ -35,71 +35,80 @@
 
 namespace paradevs { namespace tests { namespace dtss {
 
+template < class SchedulerHandle >
 struct Policy
 {
-    const common::Bag < MyTime >& bag() const
+    const common::Bag < MyTime, SchedulerHandle >& bag() const
     { return _bag; }
 
-    virtual void operator()(MyTime::type /* t */,
-                            const common::ExternalEvent < MyTime >& event,
-                            MyTime::type /* tl */,
-                            MyTime::type /* tn */)
+    virtual void operator()(
+        MyTime::type /* t */,
+        const common::ExternalEvent < MyTime, SchedulerHandle >& event,
+        MyTime::type /* tl */,
+        MyTime::type /* tn */)
     {
         _bag.clear();
         _bag.push_back(event);
     }
 
 private:
-    common::Bag < MyTime > _bag;
+    common::Bag < MyTime, SchedulerHandle > _bag;
 };
 
+template < class SchedulerHandle >
 class OnlyOneGraphManager :
-        public paradevs::dtss::GraphManager < MyTime,
+        public paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
                                               paradevs::common::NoParameters >
 {
 public:
-    OnlyOneGraphManager(common::Coordinator < MyTime >* coordinator,
+    OnlyOneGraphManager(common::Coordinator < MyTime,
+                                              SchedulerHandle >* coordinator,
                         const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::GraphManager < MyTime,
+        paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
                                        paradevs::common::NoParameters >(
                                            coordinator, parameters),
         a("a", 1, common::NoParameters())
     {
-        add_child(&a);
+        OnlyOneGraphManager < SchedulerHandle >::add_child(&a);
     }
 
     virtual ~OnlyOneGraphManager()
     { }
 
 private:
-    paradevs::dtss::Simulator < MyTime, A > a;
+    paradevs::dtss::Simulator < MyTime, A < SchedulerHandle >,
+                                SchedulerHandle > a;
 };
 
+template < class SchedulerHandle >
 class TwoGraphManager :
-        public paradevs::dtss::GraphManager < MyTime,
+        public paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
                                               paradevs::common::NoParameters >
 {
 public:
-    TwoGraphManager(common::Coordinator < MyTime >* coordinator,
+    TwoGraphManager(common::Coordinator < MyTime,
+                                          SchedulerHandle >* coordinator,
                     const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::GraphManager < MyTime,
+        paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
                                        paradevs::common::NoParameters >(
                                            coordinator, parameters),
         a("a", 1, common::NoParameters()), b("b", 1, common::NoParameters())
     {
-        add_child(&a);
-        add_child(&b);
+        TwoGraphManager < SchedulerHandle >::add_child(&a);
+        TwoGraphManager < SchedulerHandle >::add_child(&b);
         a.add_out_port("out");
         b.add_in_port("in");
-        add_link(&a, "out", &b, "in");
+        TwoGraphManager < SchedulerHandle >::add_link(&a, "out", &b, "in");
     }
 
     virtual ~TwoGraphManager()
     { }
 
 private:
-    paradevs::dtss::Simulator < MyTime, A > a;
-    paradevs::dtss::Simulator < MyTime, B > b;
+    paradevs::dtss::Simulator < MyTime, A < SchedulerHandle >,
+                                SchedulerHandle > a;
+    paradevs::dtss::Simulator < MyTime, B < SchedulerHandle >,
+                                SchedulerHandle > b;
 };
 
 } } } // namespace paradevs tests dtss

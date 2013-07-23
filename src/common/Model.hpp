@@ -31,30 +31,27 @@
 #include <common/ExternalEvent.hpp>
 #include <common/InternalEvent.hpp>
 
-#include <boost/heap/fibonacci_heap.hpp>
-
+#include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <vector>
 
 namespace paradevs { namespace common {
 
-template < class Time >
-struct EventCompare;
-
-template < class Time >
+template < class Time, class SchedulerHandle >
 class ExternalEvent;
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class InternalEvent;
 
-template < class Time >
+template < class Tim, class SchedulerHandlee >
 class Bag;
 
 typedef std::string Port;
 typedef std::vector < Port > Ports;
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Model
 {
 public:
@@ -115,26 +112,27 @@ public:
     const std::string& get_name() const
     { return _name; }
 
-    Model < Time >* get_parent() const
+    Model < Time, SchedulerHandle >* get_parent() const
     { return _parent; }
 
 
-    void set_parent(Model < Time >* parent)
+    void set_parent(Model < Time, SchedulerHandle >* parent)
     { _parent = parent; }
 
     // event
-    void add_event(const common::ExternalEvent < Time >& message)
+    void add_event(const common::ExternalEvent < Time, SchedulerHandle >&
+                   message)
     {
         if (_inputs == 0) {
-            _inputs = new Bag < Time >;
+            _inputs = new Bag < Time, SchedulerHandle >;
         }
         _inputs->push_back(message);
     }
 
-    const common::Bag < Time >& get_bag()
+    const common::Bag < Time, SchedulerHandle >& get_bag()
     {
         if (_inputs == 0) {
-            _inputs = new Bag < Time>;
+            _inputs = new Bag < Time, SchedulerHandle >;
         }
         return *_inputs;
     }
@@ -167,44 +165,35 @@ public:
     virtual void observation(std::ostream& file) const =0;
     virtual void output(typename Time::type t) =0;
     virtual void post_event(typename Time::type t,
-                            const common::ExternalEvent < Time >& event) = 0;
+                            const common::ExternalEvent < Time,
+                                                          SchedulerHandle >&
+                            event) = 0;
     virtual typename Time::type start(typename Time::type t) =0;
     virtual typename Time::type transition(typename Time::type t) =0;
 
-    void heap_id(typename boost::heap::fibonacci_heap <
-                     InternalEvent < Time >,
-                     boost::heap::compare <
-                         EventCompare < InternalEvent <
-                             Time > > > >::handle_type id)
-    { _heap_id = id; }
+    // scheduler
+    void handle(SchedulerHandle handle)
+    { _handle.handle(handle); }
 
-    const typename boost::heap::fibonacci_heap <
-        InternalEvent < Time >,
-        boost::heap::compare <
-            EventCompare < InternalEvent <
-                               Time > > > >::handle_type& heap_id() const
-                               { return _heap_id; }
+    const SchedulerHandle& handle() const
+    { return _handle.handle(); }
 
 protected:
     typename Time::type _tl;
     typename Time::type _tn;
 
 private :
-    Model < Time >*     _parent;
-    std::string         _name;
-    Ports               _in_ports;
-    Ports               _out_ports;
+    Model < Time, SchedulerHandle >* _parent;
+    std::string                      _name;
+    Ports                            _in_ports;
+    Ports                            _out_ports;
 
-    Bag < Time >*       _inputs;
-    typename boost::heap::fibonacci_heap <
-        InternalEvent < Time >,
-        boost::heap::compare <
-            EventCompare < InternalEvent <
-                               Time > > > >::handle_type _heap_id;
+    Bag < Time, SchedulerHandle >*   _inputs;
+    SchedulerHandle                  _handle;
 };
 
-template < class Time >
-class Models : public std::vector < Model < Time >* >
+template < class Time, class SchedulerHandle >
+class Models : public std::vector < Model < Time, SchedulerHandle >* >
 {
 public:
     Models()
@@ -217,8 +206,9 @@ public:
         std::ostringstream ss;
 
         ss << "{ ";
-        for (typename Models < Time >::const_iterator it =
-                 Models < Time >::begin(); it != Models < Time >::end(); ++it) {
+        for (typename Models < Time, SchedulerHandle >::const_iterator it =
+                 Models < Time, SchedulerHandle >::begin();
+             it != Models < Time, SchedulerHandle >::end(); ++it) {
             ss << (*it)->get_name() << " ";
         }
         ss << "}";

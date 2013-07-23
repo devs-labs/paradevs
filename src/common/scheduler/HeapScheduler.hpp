@@ -30,52 +30,40 @@
 #include <common/InternalEvent.hpp>
 
 #include <boost/heap/fibonacci_heap.hpp>
-#include <boost/heap/binomial_heap.hpp>
 
-#include <cmath>
 #include <sstream>
 
 namespace paradevs { namespace common { namespace scheduler {
 
-template < typename Time >
-struct Heap
+template < class Time, class T >
+class HeapScheduler :
+        public boost::heap::fibonacci_heap <
+    InternalEvent < Time, T >,
+    boost::heap::compare <
+        EventCompare < InternalEvent < Time, T > > > >
 {
-    typedef boost::heap::fibonacci_heap <
-        InternalEvent < Time >, boost::heap::compare <
-                       EventCompare < InternalEvent < Time > > > > Type;
-
-    typedef typename boost::heap::fibonacci_heap <
-        InternalEvent < Time >, boost::heap::compare <
-                       EventCompare < InternalEvent <
-                                          Time > > > >::handle_type Handle;
-};
-
-template < class Time >
-class HeapScheduler
-{
-    typedef boost::heap::fibonacci_heap < InternalEvent < Time >,
-                                          boost::heap::compare <
-                                              EventCompare <
-                                                  InternalEvent < Time > > >
-                                          > Heap;
-
 public:
+    typedef HeapScheduler < Time, T > type;
+    typedef Model < Time, T >         model_type;
+    typedef Models < Time, T >        models_type;
+    typedef InternalEvent < Time, T > internal_event_type;
+
     HeapScheduler()
     { }
     virtual ~HeapScheduler()
     { }
 
-    Model < Time >* get_current_model()
+    model_type* get_current_model()
     {
-        return _heap.top().get_model();
+        return type::top().get_model();
     }
 
-    Models < Time > get_current_models(typename Time::type time) const
+    models_type get_current_models(typename Time::type time) const
     {
-        Models < Time > models;
+        models_type models;
 
-        for (typename Heap::ordered_iterator it = _heap.ordered_begin();
-             it != _heap.ordered_end() and it->get_time() == time; ++it) {
+        for (typename type::ordered_iterator it = type::ordered_begin();
+             it != type::ordered_end() and it->get_time() == time; ++it) {
             models.push_back(it->get_model());
         }
         return models;
@@ -83,23 +71,24 @@ public:
 
     typename Time::type get_current_time() const
     {
-        return _heap.top().get_time();
+        return type::top().get_time();
     }
 
-    void init(typename Time::type time, Model < Time >* model)
+    void init(typename Time::type time, model_type* model)
     {
-        model->heap_id(_heap.push(InternalEvent < Time >(time, model)));
+        model->handle(T(type::push(internal_event_type(time, model))));
     }
 
-    void put(typename Time::type time, Model < Time >* model)
+    void put(typename Time::type time, model_type* model)
     {
-        typename Time::type previous_time = (*model->heap_id()).get_time();
+        typename Time::type previous_time =
+            (*model->handle()._handle).get_time();
 
-        (*model->heap_id()).set_time(time);
+        (*model->handle()._handle).set_time(time);
         if (previous_time < time) {
-            _heap.decrease(model->heap_id());
+            type::decrease(model->handle()._handle);
         } else if (previous_time > time) {
-            _heap.increase(model->heap_id());
+            type::increase(model->handle()._handle);
         }
     }
 
@@ -108,17 +97,14 @@ public:
         std::stringstream ss;
 
         ss << "Scheduler = { ";
-        for (typename Heap::ordered_iterator it = _heap.ordered_begin();
-             it != _heap.ordered_end(); ++it) {
+        for (typename type::ordered_iterator it = type::ordered_begin();
+             it != type::ordered_end(); ++it) {
             ss << "(" << it->get_time() << " -> " << it->get_model()->get_name()
                << ") ";
         }
         ss << "}";
         return ss.str();
     }
-
-private:
-    Heap _heap;
 };
 
 } } } // namespace paradevs common scheduler

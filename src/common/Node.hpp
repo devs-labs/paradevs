@@ -33,25 +33,25 @@
 
 namespace paradevs { namespace common {
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Model;
 
-template < class Time >
+template < class Time, class SchedulerHandle >
 class Node
 {
 public :
-    Node(Model < Time >* model, const std::string& port_name)
+    Node(Model < Time, SchedulerHandle >* model, const std::string& port_name)
         : _model(model), _port_name(port_name)
     { }
 
-    Node(const Node < Time >& other)
+    Node(const Node < Time, SchedulerHandle >& other)
     : _model(other._model), _port_name(other._port_name)
     { }
 
     virtual ~Node()
     { }
 
-    bool operator<(const Node < Time >& o) const
+    bool operator<(const Node < Time, SchedulerHandle >& o) const
     {
         if (o._model == _model) {
             return o._port_name < _port_name;
@@ -60,7 +60,7 @@ public :
         }
     }
 
-    bool operator==(const Node < Time >& o) const
+    bool operator==(const Node < Time, SchedulerHandle >& o) const
     {
         return (o._port_name == _port_name and o._model == _model);
     }
@@ -68,11 +68,11 @@ public :
     const std::string& get_port_name() const
     { return _port_name; }
 
-    Model < Time >* get_model() const
+    Model < Time, SchedulerHandle >* get_model() const
     { return _model; }
 
 private :
-    Model < Time >* _model;
+    Model < Time, SchedulerHandle >* _model;
     std::string     _port_name;
 };
 
