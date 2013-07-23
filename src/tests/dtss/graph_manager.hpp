@@ -38,33 +38,35 @@ namespace paradevs { namespace tests { namespace dtss {
 template < class SchedulerHandle >
 struct Policy
 {
-    const common::Bag < MyTime, SchedulerHandle >& bag() const
+    const common::Bag < common::DoubleTime, SchedulerHandle >& bag() const
     { return _bag; }
 
     virtual void operator()(
-        MyTime::type /* t */,
-        const common::ExternalEvent < MyTime, SchedulerHandle >& event,
-        MyTime::type /* tl */,
-        MyTime::type /* tn */)
+        common::DoubleTime::type /* t */,
+        const common::ExternalEvent < common::DoubleTime,
+                                      SchedulerHandle >& event,
+        common::DoubleTime::type /* tl */,
+        common::DoubleTime::type /* tn */)
     {
         _bag.clear();
         _bag.push_back(event);
     }
 
 private:
-    common::Bag < MyTime, SchedulerHandle > _bag;
+    common::Bag < common::DoubleTime, SchedulerHandle > _bag;
 };
 
 template < class SchedulerHandle >
 class OnlyOneGraphManager :
-        public paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
+        public paradevs::dtss::GraphManager < common::DoubleTime,
+                                              SchedulerHandle,
                                               paradevs::common::NoParameters >
 {
 public:
-    OnlyOneGraphManager(common::Coordinator < MyTime,
+    OnlyOneGraphManager(common::Coordinator < common::DoubleTime,
                                               SchedulerHandle >* coordinator,
                         const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
+        paradevs::dtss::GraphManager < common::DoubleTime, SchedulerHandle,
                                        paradevs::common::NoParameters >(
                                            coordinator, parameters),
         a("a", 1, common::NoParameters())
@@ -76,20 +78,21 @@ public:
     { }
 
 private:
-    paradevs::dtss::Simulator < MyTime, A < SchedulerHandle >,
+    paradevs::dtss::Simulator < common::DoubleTime, A < SchedulerHandle >,
                                 SchedulerHandle > a;
 };
 
 template < class SchedulerHandle >
 class TwoGraphManager :
-        public paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
+        public paradevs::dtss::GraphManager < common::DoubleTime,
+                                              SchedulerHandle,
                                               paradevs::common::NoParameters >
 {
 public:
-    TwoGraphManager(common::Coordinator < MyTime,
+    TwoGraphManager(common::Coordinator < common::DoubleTime,
                                           SchedulerHandle >* coordinator,
                     const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::GraphManager < MyTime, SchedulerHandle,
+        paradevs::dtss::GraphManager < common::DoubleTime, SchedulerHandle,
                                        paradevs::common::NoParameters >(
                                            coordinator, parameters),
         a("a", 1, common::NoParameters()), b("b", 1, common::NoParameters())
@@ -105,9 +108,9 @@ public:
     { }
 
 private:
-    paradevs::dtss::Simulator < MyTime, A < SchedulerHandle >,
+    paradevs::dtss::Simulator < common::DoubleTime, A < SchedulerHandle >,
                                 SchedulerHandle > a;
-    paradevs::dtss::Simulator < MyTime, B < SchedulerHandle >,
+    paradevs::dtss::Simulator < common::DoubleTime, B < SchedulerHandle >,
                                 SchedulerHandle > b;
 };
 

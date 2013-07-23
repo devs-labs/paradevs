@@ -28,71 +28,61 @@
 #define TESTS_DTSS_MODELS_HPP 1
 
 #include <dtss/Dynamics.hpp>
-#include <common/Time.hpp>
+#include <common/time/DoubleTime.hpp>
 
 namespace paradevs { namespace tests { namespace dtss {
 
-template < typename T >
-struct Limits
-{
-    static constexpr T negative_infinity =
-        -std::numeric_limits < T >::infinity();
-    static constexpr T positive_infinity =
-        std::numeric_limits < T >::infinity();
-    static constexpr T null = 0;
-};
-
-typedef paradevs::common::Time < double, Limits < double > > MyTime;
-
 template < class SchedulerHandle>
 class A :
-        public paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
+        public paradevs::dtss::Dynamics < common::DoubleTime, SchedulerHandle,
                                           paradevs::common::NoParameters >
 {
 public:
     A(const std::string& name,
       const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
+        paradevs::dtss::Dynamics < common::DoubleTime, SchedulerHandle,
                                    paradevs::common::NoParameters >(name,
                                                                     parameters)
     { }
     virtual ~A()
     { }
 
-    void transition(const common::Bag < MyTime, SchedulerHandle >& /* x */,
-                    MyTime::type t)
+    void transition(const common::Bag < common::DoubleTime,
+                    SchedulerHandle >& /* x */,
+                    common::DoubleTime::type t)
     {
-        common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(
+        common::Trace < common::DoubleTime >::trace()
+            << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::DELTA_INT);
-        common::Trace < MyTime >::trace().flush();
+        common::Trace < common::DoubleTime >::trace().flush();
     }
 
-    MyTime::type start(MyTime::type t)
+    common::DoubleTime::type start(common::DoubleTime::type t)
     {
-        common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(
+        common::Trace < common::DoubleTime >::trace()
+            << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::START);
-        common::Trace < MyTime >::trace().flush();
+        common::Trace < common::DoubleTime >::trace().flush();
 
         return 0;
     }
 
-    common::Bag < MyTime, SchedulerHandle > lambda(MyTime::type t) const
+    common::Bag < common::DoubleTime, SchedulerHandle > lambda(
+        common::DoubleTime::type t) const
     {
-        common::Bag < MyTime, SchedulerHandle > msgs;
+        common::Bag < common::DoubleTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
-                           "out", 0.));
+        msgs.push_back(common::ExternalEvent < common::DoubleTime,
+                                               SchedulerHandle >("out", 0.));
 
-        common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(
+        common::Trace < common::DoubleTime >::trace()
+            << common::TraceElement < common::DoubleTime >(
                 A < SchedulerHandle >::get_name(), t,
                 common::LAMBDA)
             << "messages = " << msgs.to_string();
-        common::Trace < MyTime >::trace().flush();
+        common::Trace < common::DoubleTime >::trace().flush();
 
         return msgs;
     }
@@ -100,55 +90,57 @@ public:
 
 template < class SchedulerHandle>
 class B :
-        public paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
+        public paradevs::dtss::Dynamics < common::DoubleTime, SchedulerHandle,
                                           paradevs::common::NoParameters >
 {
 public:
     B(const std::string& name,
       const paradevs::common::NoParameters& parameters) :
-        paradevs::dtss::Dynamics < MyTime, SchedulerHandle,
+        paradevs::dtss::Dynamics < common::DoubleTime, SchedulerHandle,
                                    paradevs::common::NoParameters >(name,
                                                                     parameters)
     { }
     virtual ~B()
     { }
 
-    void transition(const common::Bag < MyTime, SchedulerHandle >& x,
-                    MyTime::type t)
+    void transition(const common::Bag < common::DoubleTime,
+                    SchedulerHandle >& x,
+                    common::DoubleTime::type t)
     {
-        common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(
+        common::Trace < common::DoubleTime >::trace()
+            << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::DELTA_INT)
             << "x = " << x.to_string();
-        common::Trace < MyTime >::trace().flush();
+        common::Trace < common::DoubleTime >::trace().flush();
     }
 
-    MyTime::type start(MyTime::type t)
+    common::DoubleTime::type start(common::DoubleTime::type t)
     {
 
-        common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(
+        common::Trace < common::DoubleTime >::trace()
+            << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::START);
-        common::Trace < MyTime >::trace().flush();
+        common::Trace < common::DoubleTime >::trace().flush();
 
         return 0;
     }
 
-    common::Bag < MyTime, SchedulerHandle > lambda(MyTime::type t) const
+    common::Bag < common::DoubleTime, SchedulerHandle > lambda(
+        common::DoubleTime::type t) const
     {
-        common::Bag < MyTime, SchedulerHandle > msgs;
+        common::Bag < common::DoubleTime, SchedulerHandle > msgs;
 
-        msgs.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
-                           "out", 0.));
+        msgs.push_back(common::ExternalEvent < common::DoubleTime,
+                                               SchedulerHandle >("out", 0.));
 
-        common::Trace < MyTime >::trace()
-            << common::TraceElement < MyTime >(
+        common::Trace < common::DoubleTime >::trace()
+            << common::TraceElement < common::DoubleTime >(
                 B < SchedulerHandle >::get_name(), t,
                 common::LAMBDA)
             << "messages = " << msgs.to_string();
-        common::Trace < MyTime >::trace().flush();
+        common::Trace < common::DoubleTime >::trace().flush();
 
         return msgs;
     }

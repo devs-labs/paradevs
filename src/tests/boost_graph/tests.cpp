@@ -37,9 +37,9 @@ using namespace paradevs::tests::boost_graph;
 void flat_test()
 {
     RootCoordinator <
-        MyTime,
+        DoubleTime,
         paradevs::pdevs::Coordinator <
-            MyTime,
+            DoubleTime,
             SchedulerType,
             SchedulerHandle,
             InBuildFlatGraphManager < SchedulerHandle, FlatGraphBuilder >,
@@ -53,9 +53,9 @@ void flat_test()
 void hierarchical_test()
 {
     RootCoordinator <
-        MyTime,
+        DoubleTime,
         paradevs::pdevs::Coordinator <
-            MyTime,
+            DoubleTime,
             SchedulerType,
             SchedulerHandle,
             HierarchicalGraphManager < SchedulerHandle,

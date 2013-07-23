@@ -45,16 +45,16 @@ void run_flat_with_heap()
     std::cout << "run_flat_with_heap [" << size << "] ..." << std::endl;
 
     paradevs::common::RootCoordinator <
-        MyTime, paradevs::pdevs::Coordinator <
-            MyTime,
-            paradevs::common::scheduler::HeapScheduler < MyTime,
-                                                         SchedulerHandle >,
+        paradevs::common::DoubleTime, paradevs::pdevs::Coordinator <
+            paradevs::common::DoubleTime,
+            paradevs::common::scheduler::HeapScheduler <
+                paradevs::common::DoubleTime, SchedulerHandle >,
             SchedulerHandle,
             LinearGraphManager < size, SchedulerHandle > >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
-    paradevs::common::Trace < MyTime >::trace().clear();
+    paradevs::common::Trace < paradevs::common::DoubleTime >::trace().clear();
     rc.run();
 
     std::cout << "... OK -> " << t.elapsed() << std::endl;
@@ -68,16 +68,17 @@ void run_flat_with_vector()
     std::cout << "run_flat_with_vector [" << size << "] ..." << std::endl;
 
     paradevs::common::RootCoordinator <
-        MyTime, paradevs::pdevs::Coordinator <
-            MyTime,
-            paradevs::common::scheduler::VectorScheduler < MyTime >,
+        paradevs::common::DoubleTime, paradevs::pdevs::Coordinator <
+            paradevs::common::DoubleTime,
+            paradevs::common::scheduler::VectorScheduler <
+                paradevs::common::DoubleTime >,
             paradevs::common::scheduler::NoSchedulerHandle,
             LinearGraphManager <
                 size, paradevs::common::scheduler::NoSchedulerHandle > >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
-    paradevs::common::Trace < MyTime >::trace().clear();
+    paradevs::common::Trace < paradevs::common::DoubleTime >::trace().clear();
     rc.run();
 
     std::cout << "... OK -> " << t.elapsed() << std::endl;
@@ -86,31 +87,32 @@ void run_flat_with_vector()
 void run_hierarchic_with_heap()
 {
     paradevs::common::RootCoordinator <
-        MyTime, paradevs::pdevs::Coordinator <
-            MyTime,
-            paradevs::common::scheduler::HeapScheduler < MyTime,
-                                                         SchedulerHandle >,
+        paradevs::common::DoubleTime, paradevs::pdevs::Coordinator <
+            paradevs::common::DoubleTime,
+            paradevs::common::scheduler::HeapScheduler <
+                paradevs::common::DoubleTime, SchedulerHandle >,
             SchedulerHandle,
             Root2GraphManager >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
-    paradevs::common::Trace < MyTime >::trace().clear();
+    paradevs::common::Trace < paradevs::common::DoubleTime >::trace().clear();
     rc.run();
 }
 
 void run_hierarchic_with_vector()
 {
     paradevs::common::RootCoordinator <
-        MyTime, paradevs::pdevs::Coordinator <
-            MyTime,
-            paradevs::common::scheduler::VectorScheduler < MyTime >,
+        paradevs::common::DoubleTime, paradevs::pdevs::Coordinator <
+            paradevs::common::DoubleTime,
+            paradevs::common::scheduler::VectorScheduler <
+                paradevs::common::DoubleTime >,
             paradevs::common::scheduler::NoSchedulerHandle,
             Root3GraphManager >
         > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
-    paradevs::common::Trace < MyTime >::trace().clear();
+    paradevs::common::Trace < paradevs::common::DoubleTime >::trace().clear();
     rc.run();
 }
 

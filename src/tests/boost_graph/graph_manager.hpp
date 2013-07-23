@@ -42,7 +42,7 @@ namespace paradevs { namespace tests { namespace boost_graph {
 struct SchedulerHandle;
 
 typedef typename paradevs::common::scheduler::HeapScheduler <
-    MyTime, SchedulerHandle >::type SchedulerType;
+    common::DoubleTime, SchedulerHandle >::type SchedulerType;
 
 struct SchedulerHandle
 {
@@ -77,14 +77,16 @@ struct GraphParameters
 
 template < class SchedulerHandle, class Parameters >
 class FlatGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle,
+        public paradevs::pdevs::GraphManager < common::DoubleTime,
+                                               SchedulerHandle,
                                                Parameters >
 {
 public:
-    FlatGraphManager(common::Coordinator < MyTime,
+    FlatGraphManager(common::Coordinator < common::DoubleTime,
                                            SchedulerHandle >* coordinator,
         const Parameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle, Parameters >(
+        paradevs::pdevs::GraphManager < common::DoubleTime, SchedulerHandle,
+                                        Parameters >(
             coordinator, parameters)
     { }
 
@@ -116,7 +118,8 @@ public:
             case TOP_PIXEL:
                 _top_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
-                        MyTime, TopPixel < SchedulerHandle >, SchedulerHandle,
+                        common::DoubleTime, TopPixel < SchedulerHandle >,
+                        SchedulerHandle,
                         TopPixelParameters >(ss.str(), TopPixelParameters());
                 _top_simulators[g[*vertexIt]._index]->add_out_port("out");
                 FlatGraphManager < SchedulerHandle, Parameters >::add_child(
@@ -140,7 +143,7 @@ public:
 
                 _normal_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
-                        MyTime, NormalPixel < SchedulerHandle >,
+                        common::DoubleTime, NormalPixel < SchedulerHandle >,
                         SchedulerHandle, NormalPixelParameters >(
                             ss.str(), NormalPixelParameters(n));
                 _normal_simulators[g[*vertexIt]._index]->add_in_port("in");
@@ -159,8 +162,10 @@ public:
             boost::tie(neighbourIt, neighbourEnd) =
                 boost::adjacent_vertices(*vertexIt, g);
             for (; neighbourIt != neighbourEnd; ++neighbourIt) {
-                paradevs::common::Model < MyTime, SchedulerHandle >* a = 0;
-                paradevs::common::Model < MyTime, SchedulerHandle >* b = 0;
+                paradevs::common::Model < common::DoubleTime,
+                                          SchedulerHandle >* a = 0;
+                paradevs::common::Model < common::DoubleTime,
+                                          SchedulerHandle >* b = 0;
 
                 if (g[*vertexIt]._type == TOP_PIXEL) {
                     a = _top_simulators[g[*vertexIt]._index];
@@ -181,11 +186,13 @@ public:
 
 protected:
     typedef std::map < int, pdevs::Simulator <
-                                MyTime, TopPixel < SchedulerHandle >,
+                                common::DoubleTime,
+                                TopPixel < SchedulerHandle >,
                                 SchedulerHandle,
                                 TopPixelParameters >* > TopSimulators;
     typedef std::map < int, pdevs::Simulator <
-                                MyTime, NormalPixel < SchedulerHandle >,
+                                common::DoubleTime,
+                                NormalPixel < SchedulerHandle >,
                                 SchedulerHandle,
                                 NormalPixelParameters >* > NormalSimulators;
 
@@ -199,7 +206,8 @@ class BuiltFlatGraphManager :
 {
 public:
     BuiltFlatGraphManager(
-        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        common::Coordinator < common::DoubleTime,
+                              SchedulerHandle >* coordinator,
         const GraphParameters& parameters) :
         FlatGraphManager < SchedulerHandle, GraphParameters >(
             coordinator, parameters)
@@ -247,7 +255,8 @@ class InBuildFlatGraphManager :
 {
 public:
     InBuildFlatGraphManager(
-        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        common::Coordinator < common::DoubleTime,
+                              SchedulerHandle >* coordinator,
         const paradevs::common::NoParameters& parameters) :
         FlatGraphManager < SchedulerHandle, paradevs::common::NoParameters >(
             coordinator, parameters)
@@ -270,14 +279,16 @@ public:
 
 template < class SchedulerHandle, class GraphBuilder >
 class HierarchicalGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle,
+        public paradevs::pdevs::GraphManager < common::DoubleTime,
+                                               SchedulerHandle,
                                                paradevs::common::NoParameters >
 {
 public:
     HierarchicalGraphManager(
-        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        common::Coordinator < common::DoubleTime,
+                              SchedulerHandle >* coordinator,
         const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle,
+        paradevs::pdevs::GraphManager < common::DoubleTime, SchedulerHandle,
                                         paradevs::common::NoParameters >(
                                             coordinator, parameters)
     {
@@ -332,7 +343,7 @@ public:
 
 private:
     typedef paradevs::pdevs::Coordinator <
-        MyTime,
+        common::DoubleTime,
         SchedulerType,
         SchedulerHandle,
         BuiltFlatGraphManager < SchedulerHandle >,

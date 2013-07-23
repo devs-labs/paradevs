@@ -41,7 +41,7 @@ namespace paradevs { namespace tests { namespace pdevs {
 struct SchedulerHandle;
 
 typedef typename paradevs::common::scheduler::HeapScheduler <
-    MyTime, SchedulerHandle >::type SchedulerType;
+    common::DoubleTime, SchedulerHandle >::type SchedulerType;
 
 struct SchedulerHandle
 {
@@ -63,13 +63,16 @@ struct SchedulerHandle
 
 template < class SchedulerHandle >
 class S1GraphManager :
-        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
+        public paradevs::pdevs::GraphManager < common::DoubleTime,
+                                               SchedulerHandle >
 {
 public:
-    S1GraphManager(common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+    S1GraphManager(common::Coordinator < common::DoubleTime,
+                                         SchedulerHandle >* coordinator,
                    const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
-                                                                  parameters),
+        paradevs::pdevs::GraphManager < common::DoubleTime,
+                                        SchedulerHandle >(coordinator,
+                                                          parameters),
         a("a1", common::NoParameters()), b("b1", common::NoParameters())
     {
         S1GraphManager < SchedulerHandle >::add_child(&a);
@@ -89,21 +92,24 @@ public:
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, A < SchedulerHandle >,
                                  SchedulerHandle > a;
-    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, B < SchedulerHandle >,
                                  SchedulerHandle > b;
 };
 
 template < class SchedulerHandle >
 class S2GraphManager :
-        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
+        public paradevs::pdevs::GraphManager < common::DoubleTime,
+                                               SchedulerHandle >
 {
 public:
-    S2GraphManager(common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+    S2GraphManager(common::Coordinator < common::DoubleTime,
+                                         SchedulerHandle >* coordinator,
                    const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
-                                                                  parameters),
+        paradevs::pdevs::GraphManager < common::DoubleTime,
+                                        SchedulerHandle >(coordinator,
+                                                          parameters),
         a("a2", common::NoParameters()), b("b2", common::NoParameters())
     {
         S2GraphManager < SchedulerHandle >::add_child(&a);
@@ -123,20 +129,22 @@ public:
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, A < SchedulerHandle >,
                                  SchedulerHandle > a;
-    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, B < SchedulerHandle >,
                                  SchedulerHandle > b;
 };
 
 class RootGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
+        public paradevs::pdevs::GraphManager < common::DoubleTime,
+                                               SchedulerHandle >
 {
 public:
     RootGraphManager(
-        common::Coordinator < MyTime, SchedulerHandle >* coordinator,
+        common::Coordinator < common::DoubleTime,
+                              SchedulerHandle >* coordinator,
         const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(
+        paradevs::pdevs::GraphManager < common::DoubleTime, SchedulerHandle >(
                                             coordinator, parameters),
         S1("S1", paradevs::common::NoParameters(),
            paradevs::common::NoParameters()),
@@ -154,12 +162,12 @@ public:
 
 private:
     paradevs::pdevs::Coordinator <
-        MyTime,
+        common::DoubleTime,
         SchedulerType,
         SchedulerHandle,
         S1GraphManager < SchedulerHandle > > S1;
     paradevs::pdevs::Coordinator <
-        MyTime,
+        common::DoubleTime,
         SchedulerType,
         SchedulerHandle,
         S2GraphManager < SchedulerHandle > > S2;
@@ -167,14 +175,16 @@ private:
 
 template < class SchedulerHandle >
 class OnlyOneGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
+        public paradevs::pdevs::GraphManager < common::DoubleTime,
+                                               SchedulerHandle >
 {
 public:
-    OnlyOneGraphManager(common::Coordinator < MyTime,
+    OnlyOneGraphManager(common::Coordinator < common::DoubleTime,
                                               SchedulerHandle >* coordinator,
                         const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
-                                                                  parameters),
+        paradevs::pdevs::GraphManager < common::DoubleTime,
+                                        SchedulerHandle >(coordinator,
+                                                          parameters),
         a("a", common::NoParameters())
     {
         OnlyOneGraphManager < SchedulerHandle >::add_child(&a);
@@ -184,20 +194,22 @@ public:
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, A < SchedulerHandle >,
                                  SchedulerHandle > a;
 };
 
 template < class SchedulerHandle >
 class FlatGraphManager :
-        public paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >
+        public paradevs::pdevs::GraphManager < common::DoubleTime,
+                                               SchedulerHandle >
 {
 public:
-    FlatGraphManager(common::Coordinator < MyTime,
+    FlatGraphManager(common::Coordinator < common::DoubleTime,
                                            SchedulerHandle >* coordinator,
                      const paradevs::common::NoParameters& parameters) :
-        paradevs::pdevs::GraphManager < MyTime, SchedulerHandle >(coordinator,
-                                                                  parameters),
+        paradevs::pdevs::GraphManager < common::DoubleTime,
+                                        SchedulerHandle >(coordinator,
+                                                          parameters),
         a1("a1", common::NoParameters()), b1("b1", common::NoParameters()),
         a2("a2", common::NoParameters()), b2("b2", common::NoParameters())
     {
@@ -222,13 +234,13 @@ public:
     { }
 
 private:
-    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, A < SchedulerHandle >,
                                  SchedulerHandle > a1;
-    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, B < SchedulerHandle >,
                                  SchedulerHandle > b1;
-    paradevs::pdevs::Simulator < MyTime, A < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, A < SchedulerHandle >,
                                  SchedulerHandle > a2;
-    paradevs::pdevs::Simulator < MyTime, B < SchedulerHandle >,
+    paradevs::pdevs::Simulator < common::DoubleTime, B < SchedulerHandle >,
                                  SchedulerHandle > b2;
 };
 

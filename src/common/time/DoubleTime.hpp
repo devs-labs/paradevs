@@ -1,5 +1,5 @@
 /**
- * @file Time.hpp
+ * @file common/time/DoubleTime.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,19 +24,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_TIME
-#define COMMON_TIME 1
+#ifndef COMMON_TIME_DOUBLE_TIME
+#define COMMON_TIME_DOUBLE_TIME 1
+
+#include <common/time/Time.hpp>
+
+#include <limits>
 
 namespace paradevs { namespace common {
 
-template < typename Type, typename Limits >
-struct Time
+template < typename T >
+struct Limits
 {
-    static constexpr Type negative_infinity = Limits::negative_infinity;
-    static constexpr Type infinity = Limits::positive_infinity;
-    static constexpr Type null = Limits::null;
-    typedef Type type;
+    static constexpr T negative_infinity =
+        -std::numeric_limits < T >::infinity();
+    static constexpr T positive_infinity =
+        std::numeric_limits < T >::infinity();
+    static constexpr T null = 0;
 };
+
+typedef Time < double, Limits < double > > DoubleTime;
 
 } } // namespace paradevs common
 

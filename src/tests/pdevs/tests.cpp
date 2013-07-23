@@ -33,45 +33,46 @@
 #include <tests/catch.hpp>
 
 using namespace paradevs::tests::pdevs;
+using namespace paradevs::common;
 
 TEST_CASE("pdevs/only_one", "run")
 {
     paradevs::common::RootCoordinator <
-        MyTime, paradevs::pdevs::Coordinator <
-            MyTime,
+        DoubleTime, paradevs::pdevs::Coordinator <
+            DoubleTime,
             paradevs::common::scheduler::HeapScheduler <
-                MyTime, SchedulerHandle >,
+                DoubleTime, SchedulerHandle >,
             SchedulerHandle,
             OnlyOneGraphManager < SchedulerHandle > >
         > rc(0, 10, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
-    paradevs::common::Trace < MyTime >::trace().clear();
+    paradevs::common::Trace < DoubleTime >::trace().clear();
     rc.run();
 
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a").
             filter_type(paradevs::common::START).size() == 1);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a").
             filter_type(paradevs::common::DELTA_EXT).size() == 0);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a").
             filter_type(paradevs::common::DELTA_CONF).size() == 0);
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
     }
@@ -80,111 +81,111 @@ TEST_CASE("pdevs/only_one", "run")
 TEST_CASE("pdevs/flat", "run")
 {
     paradevs::common::RootCoordinator <
-        MyTime, paradevs::pdevs::Coordinator <
-            MyTime,
+        DoubleTime, paradevs::pdevs::Coordinator <
+            DoubleTime,
             paradevs::common::scheduler::HeapScheduler <
-                MyTime, SchedulerHandle >,
+                DoubleTime, SchedulerHandle >,
             SchedulerHandle,
             FlatGraphManager < SchedulerHandle> >
         > rc(0, 10, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
-    paradevs::common::Trace < MyTime >::trace().clear();
+    paradevs::common::Trace < DoubleTime >::trace().clear();
     rc.run();
 
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a1").
             filter_type(paradevs::common::START).size() == 1);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("b1").
             filter_type(paradevs::common::START).size() == 1);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a2").
             filter_type(paradevs::common::START).size() == 1);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("b2").
             filter_type(paradevs::common::START).size() == 1);
 
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a1").
             filter_type(paradevs::common::DELTA_EXT).size() == 0);
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a1").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a1").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a1").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 1);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 1);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 3);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_CONF).size() == 0);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 4);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 2);
     }
@@ -193,111 +194,111 @@ TEST_CASE("pdevs/flat", "run")
 TEST_CASE("pdevs/hierachical", "run")
 {
     paradevs::common::RootCoordinator <
-        MyTime, paradevs::pdevs::Coordinator <
-            MyTime,
+        DoubleTime, paradevs::pdevs::Coordinator <
+            DoubleTime,
             paradevs::common::scheduler::HeapScheduler <
-                MyTime, SchedulerHandle >,
+                DoubleTime, SchedulerHandle >,
             SchedulerHandle,
             RootGraphManager >
         > rc(0, 10, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
-    paradevs::common::Trace < MyTime >::trace().clear();
+    paradevs::common::Trace < DoubleTime >::trace().clear();
     rc.run();
 
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a1").
             filter_type(paradevs::common::START).size() == 1);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("b1").
             filter_type(paradevs::common::START).size() == 1);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a2").
             filter_type(paradevs::common::START).size() == 1);
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("b2").
             filter_type(paradevs::common::START).size() == 1);
 
     REQUIRE(paradevs::common::Trace <
-                MyTime >::trace().elements().
+                DoubleTime >::trace().elements().
             filter_model_name("a1").
             filter_type(paradevs::common::DELTA_EXT).size() == 0);
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a1").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a1").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a1").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 1);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b1").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 1);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 3);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 1);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("a2").filter_time(t).
                 filter_type(paradevs::common::DELTA_CONF).size() == 0);
     }
 
     for (unsigned int t = 0; t <= 10; ++t) {
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::LAMBDA).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::DELTA_INT).size() == 2);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::TA).size() == 4);
         REQUIRE(paradevs::common::Trace <
-                    MyTime >::trace().elements().
+                    DoubleTime >::trace().elements().
                 filter_model_name("b2").filter_time(t).
                 filter_type(paradevs::common::DELTA_EXT).size() == 2);
     }

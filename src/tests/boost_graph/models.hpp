@@ -27,45 +27,31 @@
 #ifndef __TESTS_BOOST_GRAPH_MODELS_HPP
 #define __TESTS_BOOST_GRAPH_MODELS_HPP 1
 
-#include <common/Time.hpp>
+#include <common/time/DoubleTime.hpp>
 
 #include <pdevs/Dynamics.hpp>
 
-#include <limits>
-
 namespace paradevs { namespace tests { namespace boost_graph {
-
-template < typename T >
-struct Limits
-{
-    static constexpr T negative_infinity =
-        -std::numeric_limits < T >::infinity();
-    static constexpr T positive_infinity =
-        std::numeric_limits < T >::infinity();
-    static constexpr T null = 0;
-};
-
-typedef paradevs::common::Time < double, Limits < double > > MyTime;
 
 struct TopPixelParameters
 { };
 
 template < class SchedulerHandle>
 class TopPixel :
-    public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+    public paradevs::pdevs::Dynamics < common::DoubleTime, SchedulerHandle,
                                        TopPixelParameters >
 {
 public:
     TopPixel(const std::string& name,
              const TopPixelParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+        paradevs::pdevs::Dynamics < common::DoubleTime, SchedulerHandle,
                                     TopPixelParameters >(name, parameters)
     { }
 
     virtual ~TopPixel()
     { }
 
-    virtual void dint(typename MyTime::type t)
+    virtual void dint(typename common::DoubleTime::type t)
     {
 
         std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
@@ -73,23 +59,25 @@ public:
 
     }
 
-    virtual typename MyTime::type start(typename MyTime::type /* t */)
+    virtual typename common::DoubleTime::type start(
+        typename common::DoubleTime::type /* t */)
     { return 0; }
 
-    virtual typename MyTime::type ta(typename MyTime::type /* t */) const
+    virtual typename common::DoubleTime::type ta(
+        typename common::DoubleTime::type /* t */) const
     { return 1; }
 
-    virtual common::Bag < MyTime, SchedulerHandle > lambda(
-        typename MyTime::type t) const
+    virtual common::Bag < common::DoubleTime, SchedulerHandle > lambda(
+        typename common::DoubleTime::type t) const
     {
 
         std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
                   << t << ": lambda" << std::endl;
 
-        common::Bag < MyTime, SchedulerHandle > bag;
+        common::Bag < common::DoubleTime, SchedulerHandle > bag;
 
-        bag.push_back(common::ExternalEvent < MyTime, SchedulerHandle >(
-                          "out", 0.));
+        bag.push_back(common::ExternalEvent < common::DoubleTime,
+                                              SchedulerHandle >("out", 0.));
         return bag;
     }
 };
@@ -104,13 +92,13 @@ struct NormalPixelParameters
 
 template < class SchedulerHandle>
 class NormalPixel :
-    public paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+    public paradevs::pdevs::Dynamics < common::DoubleTime, SchedulerHandle,
                                        NormalPixelParameters >
 {
 public:
     NormalPixel(const std::string& name,
              const NormalPixelParameters& parameters) :
-        paradevs::pdevs::Dynamics < MyTime, SchedulerHandle,
+        paradevs::pdevs::Dynamics < common::DoubleTime, SchedulerHandle,
                                     NormalPixelParameters >(name, parameters),
         _neighbour_number(parameters._neighbour_number)
     { }
@@ -118,7 +106,7 @@ public:
     virtual ~NormalPixel()
     { }
 
-    virtual void dint(typename MyTime::type t)
+    virtual void dint(typename common::DoubleTime::type t)
     {
 
         std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
@@ -130,16 +118,17 @@ public:
         }
     }
 
-    virtual void dext(typename MyTime::type t,
-                      typename MyTime::type /* e */,
-                      const common::Bag < MyTime, SchedulerHandle >& bag)
+    virtual void dext(typename common::DoubleTime::type t,
+                      typename common::DoubleTime::type /* e */,
+                      const common::Bag < common::DoubleTime,
+                                          SchedulerHandle >& bag)
     {
 
         std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
                   << t << ": dext -> "
                   << bag.to_string() << std::endl;
 
-        for (typename common::Bag < MyTime,
+        for (typename common::Bag < common::DoubleTime,
                                     SchedulerHandle >::const_iterator it =
                  bag.begin(); it != bag.end(); ++it) {
             if (it->on_port("in")) {
@@ -157,37 +146,39 @@ public:
 
     }
 
-    virtual typename MyTime::type start(typename MyTime::type /* t */)
+    virtual typename common::DoubleTime::type start(
+        typename common::DoubleTime::type /* t */)
     {
         _phase = WAIT;
         _received = 0;
-        return MyTime::infinity;
+        return common::DoubleTime::infinity;
     }
 
-    virtual typename MyTime::type ta(typename MyTime::type t) const
+    virtual typename common::DoubleTime::type ta(
+        typename common::DoubleTime::type t) const
     {
 
         std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
                   << t << ": ta" << std::endl;
 
         if (_phase == WAIT) {
-            return MyTime::infinity;
+            return common::DoubleTime::infinity;
         } else {
             return 0;
         }
     }
 
-    virtual common::Bag < MyTime, SchedulerHandle > lambda(
-        typename MyTime::type t) const
+    virtual common::Bag < common::DoubleTime, SchedulerHandle > lambda(
+        typename common::DoubleTime::type t) const
     {
 
         std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
                   << t << ": lambda" << std::endl;
 
-        common::Bag < MyTime, SchedulerHandle > bag;
+        common::Bag < common::DoubleTime, SchedulerHandle > bag;
 
         if (_phase == SEND) {
-            bag.push_back(common::ExternalEvent < MyTime,
+            bag.push_back(common::ExternalEvent < common::DoubleTime,
                                                   SchedulerHandle >("out", 0.));
         }
         return bag;
