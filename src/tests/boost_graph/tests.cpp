@@ -27,7 +27,9 @@
 #include <common/RootCoordinator.hpp>
 
 #include <tests/boost_graph/models.hpp>
+#include <tests/boost_graph/graph_builder.hpp>
 #include <tests/boost_graph/graph_manager.hpp>
+#include <tests/boost_graph/graph_partitioning.hpp>
 
 using namespace paradevs::common;
 using namespace paradevs::common::scheduler;
@@ -42,7 +44,9 @@ void flat_test()
             DoubleTime,
             SchedulerType,
             SchedulerHandle,
-            InBuildFlatGraphManager < SchedulerHandle, FlatGraphBuilder >,
+            InBuildFlatGraphManager <
+                SchedulerHandle,
+                FlatGraphBuilder >,
             paradevs::common::NoParameters,
             paradevs::common::NoParameters >
     > rc(0, 100, "root", NoParameters(), NoParameters());
@@ -58,8 +62,9 @@ void hierarchical_test()
             DoubleTime,
             SchedulerType,
             SchedulerHandle,
-            HierarchicalGraphManager < SchedulerHandle,
-                                       HierarchicalGraphBuilder >,
+            HierarchicalGraphManager <
+                SchedulerHandle,
+                HierarchicalGraphBuilder >,
             paradevs::common::NoParameters,
             paradevs::common::NoParameters >
         > rc(0, 100, "root", NoParameters(), NoParameters());
@@ -67,78 +72,28 @@ void hierarchical_test()
     rc.run();
 }
 
+void partitionning_test()
+{
+    RootCoordinator <
+        DoubleTime,
+        paradevs::pdevs::Coordinator <
+            DoubleTime,
+            SchedulerType,
+            SchedulerHandle,
+            HierarchicalGraphManager <
+                SchedulerHandle,
+                PartitioningGraphBuilder >,
+            paradevs::common::NoParameters,
+            paradevs::common::NoParameters >
+        > rc(0, 100, "root", NoParameters(), NoParameters());
+
+//    rc.run();
+}
+
 int main()
 {
-    flat_test();
-    hierarchical_test();
-
-    // class M;
-
-    // struct A
-    // {
-    //     double time;
-    //     M*     model;
-
-    //     A(double _time, M* _model)
-    //     {
-    //         time = _time;
-    //         model = _model;
-    //     }
-    // };
-
-    // struct ACompare
-    //     : std::binary_function < A, A, bool >
-    // {
-    //     bool operator()(const A &left, const A &right) const
-    //     { return left.time > right.time; }
-    // };
-
-    // typedef boost::heap::fibonacci_heap < A, boost::heap::compare <
-    //     ACompare > > Heap;
-
-    // typedef Heap::handle_type HeapHandle;
-
-    // class M
-    // {
-    // public:
-    //     M(int a)
-    //     {
-    //         _a = a;
-    //     }
-
-    //     int a() const
-    //     { return _a; }
-
-    //     HeapHandle heap_id() const
-    //     { return _heap_id; }
-
-    //     void heap_id(HeapHandle id)
-    //     { _heap_id = id; }
-
-    // private:
-    //     int _a;
-    //     HeapHandle _heap_id;
-    // };
-
-    // Heap heap;
-    // M* m1 = new M(1);
-    // M* m2 = new M(2);
-
-    // m1->heap_id(heap.push(A(0, m1)));
-    // m2->heap_id(heap.push(A(0, m2)));
-
-    // (*m1->heap_id()).time = 1;
-    // heap.decrease(m1->heap_id());
-    // (*m2->heap_id()).time = 1;
-    // heap.decrease(m2->heap_id());
-
-    // std::cout << "Scheduler = { ";
-    // while (not heap.empty()) {
-    //     std::cout << "(" << heap.top().time << "," << heap.top().model->a()
-    //               << ") ";
-    //     heap.pop();
-    // }
-    // std::cout << "}" << std::endl;
-
+    // flat_test();
+    // hierarchical_test();
+    partitionning_test();
     return 0;
 }

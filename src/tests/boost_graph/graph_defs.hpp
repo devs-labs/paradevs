@@ -31,6 +31,10 @@
 
 namespace paradevs { namespace tests { namespace boost_graph {
 
+enum DynamicsType {
+    TOP_PIXEL = 0, NORMAL_PIXEL
+};
+
 struct VertexProperties
 {
     int          _index;
@@ -55,8 +59,8 @@ struct EdgeProperties
 };
 
 typedef boost::adjacency_list < boost::vecS, boost::vecS, boost::directedS,
-                                VertexProperties, EdgeProperties> Graph;
-typedef std::vector < Graph > Graphs;
+                                VertexProperties, EdgeProperties> OrientedGraph;
+typedef std::vector < OrientedGraph > OrientedGraphs;
 
 typedef std::pair < int, int > Edge;
 typedef std::vector < Edge > Edges;

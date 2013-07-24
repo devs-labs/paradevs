@@ -111,6 +111,9 @@ public:
         }
     }
 
+    common::Coordinator < Time, SchedulerHandle >* get_coordinator() const
+    { return _coordinator; }
+
     void post_event(typename Time::type t,
                     const common::ExternalEvent < Time,
                                                   SchedulerHandle >& event)

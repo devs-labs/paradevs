@@ -1,9 +1,9 @@
-IF ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-  message("TRACE off")
-ELSE ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+IF ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   message("TRACE on")
   add_definitions(-DWITH_TRACE)
-ENDIF ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+ELSE ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  message("TRACE off")
+ENDIF ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 
 ADD_SUBDIRECTORY(apps)
 ADD_SUBDIRECTORY(common)

@@ -50,6 +50,9 @@ public :
     virtual ~Coordinator()
     { }
 
+    virtual bool is_atomic() const
+    { return false; }
+
 // DEVS methods
     virtual void observation(std::ostream& file) const =0;
     virtual void output(typename Time::type t) =0;

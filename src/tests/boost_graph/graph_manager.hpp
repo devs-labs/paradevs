@@ -35,7 +35,6 @@
 #include <kernel/pdevs/Simulator.hpp>
 
 #include <tests/boost_graph/models.hpp>
-#include <tests/boost_graph/graph_builder.hpp>
 
 namespace paradevs { namespace tests { namespace boost_graph {
 
@@ -64,11 +63,11 @@ struct SchedulerHandle
 
 struct GraphParameters
 {
-    Graph       _graph;
-    InputEdges  _input_edges;
-    OutputEdges _output_edges;
+    OrientedGraph _graph;
+    InputEdges    _input_edges;
+    OutputEdges   _output_edges;
 
-    GraphParameters(const Graph& graph,
+    GraphParameters(const OrientedGraph& graph,
                     const InputEdges& input_edges,
                     const OutputEdges& output_edges) :
         _graph(graph), _input_edges(input_edges), _output_edges(output_edges)
@@ -104,9 +103,9 @@ public:
         }
     }
 
-    void build_flat_graph(const Graph& g, const InputEdges& inputs)
+    void build_flat_graph(const OrientedGraph& g, const InputEdges& inputs)
     {
-        Graph::vertex_iterator vertexIt, vertexEnd;
+        OrientedGraph::vertex_iterator vertexIt, vertexEnd;
 
         boost::tie(vertexIt, vertexEnd) = boost::vertices(g);
 	for (; vertexIt != vertexEnd; ++vertexIt)
@@ -127,7 +126,7 @@ public:
                 break;
             case NORMAL_PIXEL:
                 unsigned int n = 0;
-                Graph::adjacency_iterator neighbourIt, neighbourEnd;
+                OrientedGraph::adjacency_iterator neighbourIt, neighbourEnd;
 
                 boost::tie(neighbourIt, neighbourEnd) =
                     boost::adjacent_vertices(*vertexIt, g);
@@ -154,10 +153,14 @@ public:
             };
         }
 
+        std::cout << FlatGraphManager <
+            SchedulerHandle,
+            Parameters >::get_coordinator()->get_name() << ":" << std::endl;
+
         boost::tie(vertexIt, vertexEnd) = boost::vertices(g);
 	for (; vertexIt != vertexEnd; ++vertexIt)
 	{
-            Graph::adjacency_iterator neighbourIt, neighbourEnd;
+            OrientedGraph::adjacency_iterator neighbourIt, neighbourEnd;
 
             boost::tie(neighbourIt, neighbourEnd) =
                 boost::adjacent_vertices(*vertexIt, g);
@@ -178,8 +181,12 @@ public:
                     b = _normal_simulators[g[*neighbourIt]._index];
                 }
                 FlatGraphManager < SchedulerHandle,
-                                   Parameters >::add_link(b, "out",
-                                                               a, "in");
+                                   Parameters >::add_link(a, "out",
+                                                          b, "in");
+
+                std::cout << "  " << a->get_name() << "::out -> "
+                          << b->get_name() << "::in" << std::endl;
+
             }
 	}
     }
@@ -227,6 +234,13 @@ public:
                 coordinator, ss_in.str(),
                 BuiltFlatGraphManager <
                     SchedulerHandle >::_normal_simulators[it->second], "in");
+
+            std::cout << coordinator->get_name() << "::" << ss_in.str()
+                      << " -> "
+                      << BuiltFlatGraphManager <
+                          SchedulerHandle >::_normal_simulators[
+                              it->second]->get_name() << "::in" << std::endl;
+
         }
         // output
         for (Edges::const_iterator it = parameters._output_edges.begin();
@@ -241,6 +255,12 @@ public:
                 BuiltFlatGraphManager <
                     SchedulerHandle >::_normal_simulators[it->first], "out",
                 coordinator, ss_out.str());
+
+            std::cout << BuiltFlatGraphManager <
+                SchedulerHandle >::_normal_simulators[it->first]->get_name()
+                      << "::out -> " << coordinator->get_name()
+                      << "::" << ss_out.str() << std::endl;
+
         }
     }
 
@@ -262,7 +282,7 @@ public:
             coordinator, parameters)
     {
         GraphBuilder   builder;
-        Graphs         graphs;
+        OrientedGraphs graphs;
         InputEdgeList  input_edges;
         OutputEdgeList output_edges;
         Connections    parent_connections;
@@ -293,7 +313,7 @@ public:
                                             coordinator, parameters)
     {
         GraphBuilder   graph_builder;
-        Graphs         graphs;
+        OrientedGraphs graphs;
         InputEdgeList  input_edges;
         OutputEdgeList output_edges;
         Connections    parent_connections;
@@ -318,6 +338,15 @@ public:
         }
 
         // builds internal connections (edges)
+        std::cout << "parent connections:" << std::endl;
+        for (unsigned int i = 0; i < parent_connections.size(); i++) {
+            std::cout << "  (" << parent_connections.at(i).first.first << ","
+                      << parent_connections.at(i).first.second << ") -> ("
+                      << parent_connections.at(i).second.first << ","
+                      << parent_connections.at(i).second.second << ")"
+                      << std::endl;
+        }
+
         for (Connections::const_iterator it = parent_connections.begin();
              it != parent_connections.end(); ++it) {
             const Connection& connection = *it;
@@ -330,6 +359,12 @@ public:
                 SchedulerHandle, GraphBuilder >::add_link(
                     _coordinators[connection.first.first - 1], ss_out.str(),
                     _coordinators[connection.second.first - 1], ss_in.str());
+
+            std::cout << _coordinators[connection.first.first - 1]->get_name()
+                      << "::" << ss_out.str() << " -> "
+                      << _coordinators[connection.second.first - 1]->get_name()
+                      << "::" << ss_in.str() << std::endl;
+
         }
     }
 

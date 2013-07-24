@@ -115,6 +115,7 @@ public:
     Model < Time, SchedulerHandle >* get_parent() const
     { return _parent; }
 
+    virtual bool is_atomic() const = 0;
 
     void set_parent(Model < Time, SchedulerHandle >* parent)
     { _parent = parent; }

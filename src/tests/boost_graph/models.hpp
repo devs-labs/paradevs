@@ -193,10 +193,6 @@ private:
     unsigned int _received;
 };
 
-enum DynamicsType {
-    TOP_PIXEL = 0, NORMAL_PIXEL
-};
-
 } } } // namespace paradevs tests boost_graph
 
 #endif

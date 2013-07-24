@@ -162,3 +162,102 @@ int main()
     std::cout << "... OK -> "  << (t4 - t3) << std::endl;
     return 0;
 }
+
+// #include <condition_variable>
+// #include <iostream>
+// #include <mutex>
+// #include <thread>
+// #include <unistd.h>
+
+// struct _sb
+// {
+//     std::condition_variable wait_cv;
+//     std::mutex              wait_lk;
+//     int                     runners;
+// };
+
+// class Barrier
+// {
+// public:
+//     Barrier(int count)
+//     {
+//         maxcnt = count;
+//         CurrentSb = &sb[0];
+//         for (int i = 0; i < 2; ++i) {
+//             _sb *CurrentSb = &sb[i];
+
+//             CurrentSb->runners = count;
+//         }
+//     }
+
+//     virtual ~Barrier()
+//     { }
+
+//     int wait()
+//     {
+//         _sb *TempSb = CurrentSb;
+
+//         std::unique_lock < std::mutex > lck(TempSb->wait_lk);
+
+//         if (TempSb->runners == 1) {
+//             if (maxcnt != 1) {
+//                 TempSb->runners = maxcnt;
+//                 CurrentSb = (CurrentSb == &sb[0]) ? &sb[1] : &sb[0];
+//                 TempSb->wait_cv.notify_all();
+//             }
+//         } else {
+//             TempSb->runners--;
+//             while (TempSb->runners != maxcnt)
+//                 TempSb->wait_cv.wait(lck);
+//         }
+//         return 0;
+//     }
+
+// private:
+//     int maxcnt;
+//     _sb sb[2];
+//     _sb *CurrentSb;
+// };
+
+// Barrier ba(2);
+
+// void f1()
+// {
+//     for (unsigned int i = 1; i < 20; ++i) {
+//         std::cout << "*";
+//         usleep(50);
+//     }
+//     ba.wait();
+//     std::cout << std::endl;
+//     for (unsigned int i = 1; i < 20; ++i) {
+//         std::cout << "x";
+//         usleep(50);
+//     }
+//     std::cout << std::endl;
+// }
+
+// void f2()
+// {
+//     for (unsigned int i = 1; i < 20; ++i) {
+//         std::cout << "O";
+//         usleep(10);
+//     }
+//     ba.wait();
+//     std::cout << std::endl;
+//     for (unsigned int i = 1; i < 20; ++i) {
+//         std::cout << "o";
+//         usleep(10);
+//     }
+//     std::cout << std::endl;
+// }
+
+// int main()
+// {
+//     std::thread th1(f1);
+//     std::thread th2(f2);
+
+//     th1.join();
+//     th2.join();
+
+//     return 0;
+// }

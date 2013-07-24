@@ -12,3 +12,5 @@ LINK_DIRECTORIES(
 SET(PDEVS_HPP Coordinator.hpp Dynamics.hpp GraphManager.hpp Simulator.hpp)
 
 INSTALL(FILES ${PDEVS_HPP} DESTINATION ${PARADEVS_INCLUDE_DIRS}/pdevs)
+
+ADD_SUBDIRECTORY(multithreading)

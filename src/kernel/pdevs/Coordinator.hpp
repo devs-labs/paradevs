@@ -294,7 +294,7 @@ public:
         }
     }
 
-private:
+protected:
     GraphManager _graph_manager;
     Scheduler    _event_table;
 };

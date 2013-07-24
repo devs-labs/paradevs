@@ -40,6 +40,10 @@ public :
     virtual ~Simulator()
     { }
 
+    virtual bool is_atomic() const
+    { return true; }
+
+// DEVS methods
     virtual void observation(std::ostream& file) const =0;
     virtual void output(typename Time::type t) =0;
     virtual void post_event(typename Time::type t,
