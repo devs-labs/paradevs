@@ -51,11 +51,11 @@ public:
     virtual ~TopPixel()
     { }
 
-    virtual void dint(typename common::DoubleTime::type t)
+    virtual void dint(typename common::DoubleTime::type /* t */)
     {
 
-        std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
-                  << t << ": dint" << std::endl;
+        // std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
+        //           << t << ": dint" << std::endl;
 
     }
 
@@ -68,11 +68,11 @@ public:
     { return 1; }
 
     virtual common::Bag < common::DoubleTime, SchedulerHandle > lambda(
-        typename common::DoubleTime::type t) const
+        typename common::DoubleTime::type /* t */) const
     {
 
-        std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
-                  << t << ": lambda" << std::endl;
+        // std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
+        //           << t << ": lambda" << std::endl;
 
         common::Bag < common::DoubleTime, SchedulerHandle > bag;
 
@@ -106,11 +106,11 @@ public:
     virtual ~NormalPixel()
     { }
 
-    virtual void dint(typename common::DoubleTime::type t)
+    virtual void dint(typename common::DoubleTime::type /* t */)
     {
 
-        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
-                  << t << ": dint" << std::endl;
+        // std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+        //           << t << ": dint" << std::endl;
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -118,15 +118,15 @@ public:
         }
     }
 
-    virtual void dext(typename common::DoubleTime::type t,
+    virtual void dext(typename common::DoubleTime::type /* t */,
                       typename common::DoubleTime::type /* e */,
                       const common::Bag < common::DoubleTime,
                                           SchedulerHandle >& bag)
     {
 
-        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
-                  << t << ": dext -> "
-                  << bag.to_string() << std::endl;
+        // std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+        //           << t << ": dext -> "
+        //           << bag.to_string() << std::endl;
 
         for (typename common::Bag < common::DoubleTime,
                                     SchedulerHandle >::const_iterator it =
@@ -139,10 +139,10 @@ public:
             }
         }
 
-        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
-                  << t << ": dext -> "
-                  << _received << "/" << _neighbour_number
-                  << std::endl;
+        // std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+        //           << t << ": dext -> "
+        //           << _received << "/" << _neighbour_number
+        //           << std::endl;
 
     }
 
@@ -155,11 +155,11 @@ public:
     }
 
     virtual typename common::DoubleTime::type ta(
-        typename common::DoubleTime::type t) const
+        typename common::DoubleTime::type /* t */) const
     {
 
-        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
-                  << t << ": ta" << std::endl;
+        // std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+        //           << t << ": ta" << std::endl;
 
         if (_phase == WAIT) {
             return common::DoubleTime::infinity;
@@ -169,11 +169,11 @@ public:
     }
 
     virtual common::Bag < common::DoubleTime, SchedulerHandle > lambda(
-        typename common::DoubleTime::type t) const
+        typename common::DoubleTime::type /* t */) const
     {
 
-        std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
-                  << t << ": lambda" << std::endl;
+        // std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
+        //           << t << ": lambda" << std::endl;
 
         common::Bag < common::DoubleTime, SchedulerHandle > bag;
 

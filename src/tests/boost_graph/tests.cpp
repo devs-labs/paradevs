@@ -24,6 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/timer.hpp>
+
 #include <common/RootCoordinator.hpp>
 
 #include <tests/boost_graph/models.hpp>
@@ -49,7 +51,7 @@ void flat_test()
                 FlatGraphBuilder >,
             paradevs::common::NoParameters,
             paradevs::common::NoParameters >
-    > rc(0, 100, "root", NoParameters(), NoParameters());
+    > rc(0, 100000, "root", NoParameters(), NoParameters());
 
     rc.run();
 }
@@ -85,15 +87,29 @@ void partitionning_test()
                 PartitioningGraphBuilder >,
             paradevs::common::NoParameters,
             paradevs::common::NoParameters >
-        > rc(0, 100, "root", NoParameters(), NoParameters());
+        > rc(0, 100000, "root", NoParameters(), NoParameters());
 
     rc.run();
 }
 
 int main()
 {
-    // flat_test();
+    boost::timer t;
+
+    std::cout << "flat graph ..." << std::endl;
+    flat_test();
+
+    double t2 = t.elapsed();
+
+    std::cout << "... OK -> " << t2 << std::endl;
+
     // hierarchical_test();
+
+    std::cout << "partitioning graph ..." << std::endl;
     partitionning_test();
+
+    double t3 = t.elapsed();
+
+    std::cout << "... OK -> " << (t3 - t2) << std::endl;
     return 0;
 }
