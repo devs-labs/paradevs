@@ -56,34 +56,34 @@ public:
         OrientedGraph::vertex_descriptor v10 = boost::add_vertex(graph);
 
         boost::add_edge(v1, v0, 1., graph);
-	boost::add_edge(v2, v0, 1., graph);
-	boost::add_edge(v3, v0, 1., graph);
-	boost::add_edge(v2, v1, 1., graph);
-	boost::add_edge(v4, v1, 1., graph);
-	boost::add_edge(v5, v1, 1., graph);
-	boost::add_edge(v6, v1, 1., graph);
-	boost::add_edge(v6, v2, 1., graph);
-	boost::add_edge(v3, v2, 1., graph);
-	boost::add_edge(v9, v3, 1., graph);
-	boost::add_edge(v10, v3 , 1., graph);
-	boost::add_edge(v5, v4, 1., graph);
-	boost::add_edge(v6, v5, 1., graph);
-	boost::add_edge(v7, v4, 1., graph);
-	boost::add_edge(v8, v4, 1., graph);
-	boost::add_edge(v8, v7, 1., graph);
-	boost::add_edge(v10, v9 , 1., graph);
+        boost::add_edge(v2, v0, 1., graph);
+        boost::add_edge(v3, v0, 1., graph);
+        boost::add_edge(v1, v2, 1., graph);
+        boost::add_edge(v4, v1, 1., graph);
+        boost::add_edge(v5, v1, 1., graph);
+        boost::add_edge(v6, v1, 1., graph);
+        boost::add_edge(v6, v2, 1., graph);
+        boost::add_edge(v2, v3, 1., graph);
+        boost::add_edge(v9, v3, 1., graph);
+        boost::add_edge(v10, v3 , 1., graph);
+        boost::add_edge(v4, v5, 1., graph);
+        boost::add_edge(v5, v6, 1., graph);
+        boost::add_edge(v7, v4, 1., graph);
+        boost::add_edge(v8, v4, 1., graph);
+        boost::add_edge(v7, v8, 1., graph);
+        boost::add_edge(v9, v10 , 1., graph);
 
-        graph[v6] = VertexProperties(6, 1., TOP_PIXEL);
-        graph[v8] = VertexProperties(8, 1., TOP_PIXEL);
-        graph[v10] = VertexProperties(10, 1., TOP_PIXEL);
+        graph[v6] = VertexProperties(6, 1., NORMAL_PIXEL);
+        graph[v8] = VertexProperties(8, 1., NORMAL_PIXEL);
+        graph[v10] = VertexProperties(10, 1., NORMAL_PIXEL);
         graph[v0] = VertexProperties(0, 1., NORMAL_PIXEL);
         graph[v1] = VertexProperties(1, 1., NORMAL_PIXEL);
         graph[v2] = VertexProperties(2, 1., NORMAL_PIXEL);
         graph[v3] = VertexProperties(3, 1., NORMAL_PIXEL);
         graph[v4] = VertexProperties(4, 1., NORMAL_PIXEL);
         graph[v5] = VertexProperties(5, 1., NORMAL_PIXEL);
-        graph[v7] = VertexProperties(7, 1., NORMAL_PIXEL);
-        graph[v9] = VertexProperties(9, 1., NORMAL_PIXEL);
+        graph[v7] = VertexProperties(7, 1., TOP_PIXEL);
+        graph[v9] = VertexProperties(9, 1., TOP_PIXEL);
 
         graphs.push_back(graph);
     }
@@ -110,16 +110,16 @@ public:
             OrientedGraph::vertex_descriptor v7 = boost::add_vertex(graph);
             OrientedGraph::vertex_descriptor v8 = boost::add_vertex(graph);
 
-            boost::add_edge(v2, v1, 1., graph);
+            boost::add_edge(v1, v2, 1., graph);
             boost::add_edge(v4, v1, 1., graph);
             boost::add_edge(v5, v1, 1., graph);
             boost::add_edge(v6, v1, 1., graph);
             boost::add_edge(v6, v2, 1., graph);
-            boost::add_edge(v5, v4, 1., graph);
-            boost::add_edge(v6, v5, 1., graph);
+            boost::add_edge(v4, v5, 1., graph);
+            boost::add_edge(v5, v6, 1., graph);
             boost::add_edge(v7, v4, 1., graph);
             boost::add_edge(v8, v4, 1., graph);
-            boost::add_edge(v8, v7, 1., graph);
+            boost::add_edge(v7, v8, 1., graph);
 
             graph[v6] = VertexProperties(6, 1., TOP_PIXEL);
             graph[v8] = VertexProperties(8, 1., TOP_PIXEL);
@@ -142,7 +142,7 @@ public:
 
             boost::add_edge(v3, v0, 1., graph);
             boost::add_edge(v10, v3, 1., graph);
-            boost::add_edge(v10, v9, 1., graph);
+            boost::add_edge(v9, v10, 1., graph);
             boost::add_edge(v9, v3, 1., graph);
 
             graph[v10] = VertexProperties(10, 1., TOP_PIXEL);
@@ -154,25 +154,25 @@ public:
         }
         {
             // input S1
-            input_edges.push_back(InputEdges());
-            input_edges[0].push_back(Edge(3, 2));
+        	input_edges.push_back(InputEdges());
             // input S2
             input_edges.push_back(InputEdges());
             input_edges[1].push_back(Edge(1, 0));
             input_edges[1].push_back(Edge(2, 0));
+            input_edges[1].push_back(Edge(2, 3));
 
             // output S1
             output_edges.push_back(OutputEdges());
             output_edges[0].push_back(Edge(1, 0));
             output_edges[0].push_back(Edge(2, 0));
+            output_edges[0].push_back(Edge(2, 3));
             // output S2
             output_edges.push_back(OutputEdges());
-            output_edges[1].push_back(Edge(3, 2));
 
             // parent
             parent_connections.push_back(Connection(Port(1,1),Port(2,0)));
             parent_connections.push_back(Connection(Port(1,2),Port(2,0)));
-            parent_connections.push_back(Connection(Port(2,3),Port(1,2)));
+            parent_connections.push_back(Connection(Port(1,2),Port(2,3)));
         }
     }
 };
