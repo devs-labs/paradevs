@@ -55,35 +55,35 @@ public:
         OrientedGraph::vertex_descriptor v9 = boost::add_vertex(graph);
         OrientedGraph::vertex_descriptor v10 = boost::add_vertex(graph);
 
-        boost::add_edge(v1, v0, 1, graph);
-	boost::add_edge(v2, v0, 1, graph);
-	boost::add_edge(v3, v0, 1, graph);
-	boost::add_edge(v2, v1, 1, graph);
-	boost::add_edge(v4, v1, 1, graph);
-	boost::add_edge(v5, v1, 1, graph);
-	boost::add_edge(v6, v1, 1, graph);
-	boost::add_edge(v6, v2, 1, graph);
-	boost::add_edge(v3, v2, 1, graph);
-	boost::add_edge(v9, v3, 1, graph);
-	boost::add_edge(v10, v3 , 1, graph);
-	boost::add_edge(v5, v4, 1, graph);
-	boost::add_edge(v6, v5, 1, graph);
-	boost::add_edge(v7, v4, 1, graph);
-	boost::add_edge(v8, v4, 1, graph);
-	boost::add_edge(v8, v7, 1, graph);
-	boost::add_edge(v10, v9 , 1, graph);
+        boost::add_edge(v1, v0, 1., graph);
+	boost::add_edge(v2, v0, 1., graph);
+	boost::add_edge(v3, v0, 1., graph);
+	boost::add_edge(v2, v1, 1., graph);
+	boost::add_edge(v4, v1, 1., graph);
+	boost::add_edge(v5, v1, 1., graph);
+	boost::add_edge(v6, v1, 1., graph);
+	boost::add_edge(v6, v2, 1., graph);
+	boost::add_edge(v3, v2, 1., graph);
+	boost::add_edge(v9, v3, 1., graph);
+	boost::add_edge(v10, v3 , 1., graph);
+	boost::add_edge(v5, v4, 1., graph);
+	boost::add_edge(v6, v5, 1., graph);
+	boost::add_edge(v7, v4, 1., graph);
+	boost::add_edge(v8, v4, 1., graph);
+	boost::add_edge(v8, v7, 1., graph);
+	boost::add_edge(v10, v9 , 1., graph);
 
-        graph[v6] = VertexProperties(6, 1, TOP_PIXEL);
-        graph[v8] = VertexProperties(8, 1, TOP_PIXEL);
-        graph[v10] = VertexProperties(10, 1, TOP_PIXEL);
-        graph[v0] = VertexProperties(0, 1, NORMAL_PIXEL);
-        graph[v1] = VertexProperties(1, 1, NORMAL_PIXEL);
-        graph[v2] = VertexProperties(2, 1, NORMAL_PIXEL);
-        graph[v3] = VertexProperties(3, 1, NORMAL_PIXEL);
-        graph[v4] = VertexProperties(4, 1, NORMAL_PIXEL);
-        graph[v5] = VertexProperties(5, 1, NORMAL_PIXEL);
-        graph[v7] = VertexProperties(7, 1, NORMAL_PIXEL);
-        graph[v9] = VertexProperties(9, 1, NORMAL_PIXEL);
+        graph[v6] = VertexProperties(6, 1., TOP_PIXEL);
+        graph[v8] = VertexProperties(8, 1., TOP_PIXEL);
+        graph[v10] = VertexProperties(10, 1., TOP_PIXEL);
+        graph[v0] = VertexProperties(0, 1., NORMAL_PIXEL);
+        graph[v1] = VertexProperties(1, 1., NORMAL_PIXEL);
+        graph[v2] = VertexProperties(2, 1., NORMAL_PIXEL);
+        graph[v3] = VertexProperties(3, 1., NORMAL_PIXEL);
+        graph[v4] = VertexProperties(4, 1., NORMAL_PIXEL);
+        graph[v5] = VertexProperties(5, 1., NORMAL_PIXEL);
+        graph[v7] = VertexProperties(7, 1., NORMAL_PIXEL);
+        graph[v9] = VertexProperties(9, 1., NORMAL_PIXEL);
 
         graphs.push_back(graph);
     }
@@ -110,24 +110,24 @@ public:
             OrientedGraph::vertex_descriptor v7 = boost::add_vertex(graph);
             OrientedGraph::vertex_descriptor v8 = boost::add_vertex(graph);
 
-            boost::add_edge(v2, v1, 1, graph);
-            boost::add_edge(v4, v1, 1, graph);
-            boost::add_edge(v5, v1, 1, graph);
-            boost::add_edge(v6, v1, 1, graph);
-            boost::add_edge(v6, v2, 1, graph);
-            boost::add_edge(v5, v4, 1, graph);
-            boost::add_edge(v6, v5, 1, graph);
-            boost::add_edge(v7, v4, 1, graph);
-            boost::add_edge(v8, v4, 1, graph);
-            boost::add_edge(v8, v7, 1, graph);
+            boost::add_edge(v2, v1, 1., graph);
+            boost::add_edge(v4, v1, 1., graph);
+            boost::add_edge(v5, v1, 1., graph);
+            boost::add_edge(v6, v1, 1., graph);
+            boost::add_edge(v6, v2, 1., graph);
+            boost::add_edge(v5, v4, 1., graph);
+            boost::add_edge(v6, v5, 1., graph);
+            boost::add_edge(v7, v4, 1., graph);
+            boost::add_edge(v8, v4, 1., graph);
+            boost::add_edge(v8, v7, 1., graph);
 
-            graph[v6] = VertexProperties(6, 1, TOP_PIXEL);
-            graph[v8] = VertexProperties(8, 1, TOP_PIXEL);
-            graph[v1] = VertexProperties(1, 1, NORMAL_PIXEL);
-            graph[v2] = VertexProperties(2, 1, NORMAL_PIXEL);
-            graph[v4] = VertexProperties(4, 1, NORMAL_PIXEL);
-            graph[v5] = VertexProperties(5, 1, NORMAL_PIXEL);
-            graph[v7] = VertexProperties(7, 1, NORMAL_PIXEL);
+            graph[v6] = VertexProperties(6, 1., TOP_PIXEL);
+            graph[v8] = VertexProperties(8, 1., TOP_PIXEL);
+            graph[v1] = VertexProperties(1, 1., NORMAL_PIXEL);
+            graph[v2] = VertexProperties(2, 1., NORMAL_PIXEL);
+            graph[v4] = VertexProperties(4, 1., NORMAL_PIXEL);
+            graph[v5] = VertexProperties(5, 1., NORMAL_PIXEL);
+            graph[v7] = VertexProperties(7, 1., NORMAL_PIXEL);
 
             graphs.push_back(graph);
         }
@@ -140,15 +140,15 @@ public:
             OrientedGraph::vertex_descriptor v9 = boost::add_vertex(graph);
             OrientedGraph::vertex_descriptor v10 = boost::add_vertex(graph);
 
-            boost::add_edge(v3, v0, 1, graph);
-            boost::add_edge(v10, v3, 1, graph);
-            boost::add_edge(v10, v9, 1, graph);
-            boost::add_edge(v9, v3, 1, graph);
+            boost::add_edge(v3, v0, 1., graph);
+            boost::add_edge(v10, v3, 1., graph);
+            boost::add_edge(v10, v9, 1., graph);
+            boost::add_edge(v9, v3, 1., graph);
 
-            graph[v10] = VertexProperties(10, 1, TOP_PIXEL);
-            graph[v0] = VertexProperties(0, 1, NORMAL_PIXEL);
-            graph[v3] = VertexProperties(3, 1, NORMAL_PIXEL);
-            graph[v9] = VertexProperties(9, 1, NORMAL_PIXEL);
+            graph[v10] = VertexProperties(10, 1., TOP_PIXEL);
+            graph[v0] = VertexProperties(0, 1., NORMAL_PIXEL);
+            graph[v3] = VertexProperties(3, 1., NORMAL_PIXEL);
+            graph[v9] = VertexProperties(9, 1., NORMAL_PIXEL);
 
             graphs.push_back(graph);
         }
