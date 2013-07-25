@@ -107,12 +107,6 @@ public:
     {
         OrientedGraph::vertex_iterator vertexIt, vertexEnd;
 
-        std::cout << "CREATE flat graph "
-                  << FlatGraphManager <
-                      SchedulerHandle, Parameters >::get_coordinator()
-            ->get_name()
-                  << std::endl;
-
         boost::tie(vertexIt, vertexEnd) = boost::vertices(g);
         for (; vertexIt != vertexEnd; ++vertexIt) {
             std::ostringstream ss;
@@ -137,15 +131,9 @@ public:
                 for (; vertexIt2 != vertexEnd2; ++vertexIt2) {
                     OrientedGraph::adjacency_iterator neighbourIt, neighbourEnd;
 
-                    std::cout << "CHECKING ... " << *vertexIt << " "
-                              << g[*vertexIt2]._index << std::endl;
-
                     boost::tie(neighbourIt, neighbourEnd) =
                         boost::adjacent_vertices(*vertexIt2, g);
                     for (; neighbourIt != neighbourEnd; ++neighbourIt) {
-
-                        std::cout << "CHECK " << *neighbourIt << std::endl;
-
                         if (g[*neighbourIt]._index == g[*vertexIt]._index) {
                             ++n;
                         }
@@ -154,18 +142,10 @@ public:
 
                 for (InputEdges::const_iterator it = inputs.begin();
                      it != inputs.end(); ++it) {
-
-                    std::cout << "CHECK (" << it->first << "," << it->second
-                              << ")" << std::endl;
-
                     if (g[*vertexIt]._index == it->second) {
                         ++n;
                     }
                 }
-
-                std::cout << "create normal : " << ss.str() << " => "
-                          << n << std::endl;
-
                 _normal_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
                         common::DoubleTime, NormalPixel < SchedulerHandle >,
@@ -178,10 +158,6 @@ public:
                 break;
             };
         }
-
-        std::cout << FlatGraphManager <
-            SchedulerHandle,
-            Parameters >::get_coordinator()->get_name() << ":" << std::endl;
 
         boost::tie(vertexIt, vertexEnd) = boost::vertices(g);
         for (; vertexIt != vertexEnd; ++vertexIt)
@@ -209,10 +185,6 @@ public:
                 FlatGraphManager < SchedulerHandle,
                                    Parameters >::add_link(a, "out",
                                                           b, "in");
-
-                std::cout << "  " << a->get_name() << "::out -> "
-                          << b->get_name() << "::in" << std::endl;
-
             }
         }
     }
@@ -260,13 +232,6 @@ public:
                 coordinator, ss_in.str(),
                 BuiltFlatGraphManager <
                     SchedulerHandle >::_normal_simulators[it->second], "in");
-
-            std::cout << coordinator->get_name() << "::" << ss_in.str()
-                      << " -> "
-                      << BuiltFlatGraphManager <
-                          SchedulerHandle >::_normal_simulators[
-                              it->second]->get_name() << "::in" << std::endl;
-
         }
         // output
         for (Edges::const_iterator it = parameters._output_edges.begin();
@@ -285,11 +250,6 @@ public:
                     BuiltFlatGraphManager <
                         SchedulerHandle >::_normal_simulators[it->first], "out",
                     coordinator, ss_out.str());
-
-                std::cout << BuiltFlatGraphManager <
-                    SchedulerHandle >::_normal_simulators[it->first]->get_name()
-                          << "::out -> " << coordinator->get_name()
-                          << "::" << ss_out.str() << std::endl;
             }
         }
     }
@@ -368,15 +328,6 @@ public:
         }
 
         // builds internal connections (edges)
-        std::cout << "parent connections:" << std::endl;
-        for (unsigned int i = 0; i < parent_connections.size(); i++) {
-            std::cout << "  (" << parent_connections.at(i).first.first << ","
-                      << parent_connections.at(i).first.second << ") -> ("
-                      << parent_connections.at(i).second.first << ","
-                      << parent_connections.at(i).second.second << ")"
-                      << std::endl;
-        }
-
         for (Connections::const_iterator it = parent_connections.begin();
              it != parent_connections.end(); ++it) {
             const Connection& connection = *it;
@@ -398,13 +349,6 @@ public:
                         ss_out.str(),
                         _coordinators[connection.second.first - 1],
                         ss_in.str());
-
-                std::cout << _coordinators[connection.first.first - 1]
-                    ->get_name()
-                          << "::" << ss_out.str() << " -> "
-                          << _coordinators[connection.second.first - 1]
-                    ->get_name()
-                          << "::" << ss_in.str() << std::endl;
             }
         }
     }
