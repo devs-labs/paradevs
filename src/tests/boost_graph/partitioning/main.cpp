@@ -43,7 +43,7 @@ int main()
 {
     boost::timer t;
 
-    srand((unsigned)time(NULL));
+    srand(7266);
 
     UnorientedGraph* g = new UnorientedGraph();
     OrientedGraph* go = new OrientedGraph();

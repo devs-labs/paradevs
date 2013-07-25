@@ -67,6 +67,26 @@ public:
                                                 in_model, in_port_name)));
     }
 
+    bool exist(Model < Time, SchedulerHandle >* out_model,
+               const std::string& out_port_name,
+               Model < Time, SchedulerHandle >* in_model,
+               const std::string& in_port_name) const
+    {
+        typename Links < Time, SchedulerHandle >::const_iterator it =
+            std::multimap < Node < Time, SchedulerHandle >,
+                            Node < Time, SchedulerHandle > >::find(
+                                Node < Time, SchedulerHandle >(out_model,
+                                                               out_port_name));
+        bool found = false;
+
+        while (not found and it != Links < Time, SchedulerHandle >::end()) {
+            found = it->second == Node < Time, SchedulerHandle >(
+                in_model, in_port_name);
+            ++it;
+        }
+        return found;
+    }
+
     Links::Result find(Model < Time, SchedulerHandle >* out_model,
                        const std::string& out_port_name) const
     {

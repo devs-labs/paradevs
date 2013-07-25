@@ -87,7 +87,7 @@ void partitionning_test()
             paradevs::common::NoParameters >
         > rc(0, 100, "root", NoParameters(), NoParameters());
 
-//    rc.run();
+    rc.run();
 }
 
 int main()

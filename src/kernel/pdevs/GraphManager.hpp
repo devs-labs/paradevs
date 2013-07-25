@@ -111,6 +111,15 @@ public:
         }
     }
 
+    bool exist_link(common::Model < Time, SchedulerHandle >* src_model,
+                    const std::string& src_port_name,
+                    common::Model < Time, SchedulerHandle >* dst_model,
+                    const std::string& dst_port_name) const
+    {
+        return _link_list.exist(src_model, src_port_name, dst_model,
+                                dst_port_name);
+    }
+
     common::Coordinator < Time, SchedulerHandle >* get_coordinator() const
     { return _coordinator; }
 

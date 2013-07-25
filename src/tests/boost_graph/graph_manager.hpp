@@ -107,9 +107,14 @@ public:
     {
         OrientedGraph::vertex_iterator vertexIt, vertexEnd;
 
+        std::cout << "CREATE flat graph "
+                  << FlatGraphManager <
+                      SchedulerHandle, Parameters >::get_coordinator()
+            ->get_name()
+                  << std::endl;
+
         boost::tie(vertexIt, vertexEnd) = boost::vertices(g);
-	for (; vertexIt != vertexEnd; ++vertexIt)
-	{
+        for (; vertexIt != vertexEnd; ++vertexIt) {
             std::ostringstream ss;
 
             ss << "a" << g[*vertexIt]._index;
@@ -126,19 +131,40 @@ public:
                 break;
             case NORMAL_PIXEL:
                 unsigned int n = 0;
-                OrientedGraph::adjacency_iterator neighbourIt, neighbourEnd;
+                OrientedGraph::vertex_iterator vertexIt2, vertexEnd2;
 
-                boost::tie(neighbourIt, neighbourEnd) =
-                    boost::adjacent_vertices(*vertexIt, g);
-                for (; neighbourIt != neighbourEnd; ++neighbourIt) {
-                    ++n;
+                boost::tie(vertexIt2, vertexEnd2) = boost::vertices(g);
+                for (; vertexIt2 != vertexEnd2; ++vertexIt2) {
+                    OrientedGraph::adjacency_iterator neighbourIt, neighbourEnd;
+
+                    std::cout << "CHECKING ... " << *vertexIt << " "
+                              << g[*vertexIt2]._index << std::endl;
+
+                    boost::tie(neighbourIt, neighbourEnd) =
+                        boost::adjacent_vertices(*vertexIt2, g);
+                    for (; neighbourIt != neighbourEnd; ++neighbourIt) {
+
+                        std::cout << "CHECK " << *neighbourIt << std::endl;
+
+                        if (g[*neighbourIt]._index == g[*vertexIt]._index) {
+                            ++n;
+                        }
+                    }
                 }
+
                 for (InputEdges::const_iterator it = inputs.begin();
                      it != inputs.end(); ++it) {
+
+                    std::cout << "CHECK (" << it->first << "," << it->second
+                              << ")" << std::endl;
+
                     if (g[*vertexIt]._index == it->second) {
                         ++n;
                     }
                 }
+
+                std::cout << "create normal : " << ss.str() << " => "
+                          << n << std::endl;
 
                 _normal_simulators[g[*vertexIt]._index] =
                     new pdevs::Simulator <
@@ -148,7 +174,7 @@ public:
                 _normal_simulators[g[*vertexIt]._index]->add_in_port("in");
                 _normal_simulators[g[*vertexIt]._index]->add_out_port("out");
                 FlatGraphManager < SchedulerHandle, Parameters >::add_child(
-                        _normal_simulators[g[*vertexIt]._index]);
+                    _normal_simulators[g[*vertexIt]._index]);
                 break;
             };
         }
@@ -158,8 +184,8 @@ public:
             Parameters >::get_coordinator()->get_name() << ":" << std::endl;
 
         boost::tie(vertexIt, vertexEnd) = boost::vertices(g);
-	for (; vertexIt != vertexEnd; ++vertexIt)
-	{
+        for (; vertexIt != vertexEnd; ++vertexIt)
+        {
             OrientedGraph::adjacency_iterator neighbourIt, neighbourEnd;
 
             boost::tie(neighbourIt, neighbourEnd) =
@@ -188,7 +214,7 @@ public:
                           << b->get_name() << "::in" << std::endl;
 
             }
-	}
+        }
     }
 
 protected:
@@ -251,16 +277,20 @@ public:
             if (not coordinator->exist_out_port(ss_out.str())) {
                 coordinator->add_out_port(ss_out.str());
             }
-            BuiltFlatGraphManager < SchedulerHandle>::add_link(
+            if (not BuiltFlatGraphManager < SchedulerHandle>::exist_link(
                 BuiltFlatGraphManager <
                     SchedulerHandle >::_normal_simulators[it->first], "out",
-                coordinator, ss_out.str());
+                coordinator, ss_out.str())) {
+                BuiltFlatGraphManager < SchedulerHandle>::add_link(
+                    BuiltFlatGraphManager <
+                        SchedulerHandle >::_normal_simulators[it->first], "out",
+                    coordinator, ss_out.str());
 
-            std::cout << BuiltFlatGraphManager <
-                SchedulerHandle >::_normal_simulators[it->first]->get_name()
-                      << "::out -> " << coordinator->get_name()
-                      << "::" << ss_out.str() << std::endl;
-
+                std::cout << BuiltFlatGraphManager <
+                    SchedulerHandle >::_normal_simulators[it->first]->get_name()
+                          << "::out -> " << coordinator->get_name()
+                          << "::" << ss_out.str() << std::endl;
+            }
         }
     }
 
@@ -355,16 +385,27 @@ public:
 
             ss_out << "out_" << connection.first.second;
             ss_in << "in_" << connection.first.second;
-            HierarchicalGraphManager <
-                SchedulerHandle, GraphBuilder >::add_link(
-                    _coordinators[connection.first.first - 1], ss_out.str(),
-                    _coordinators[connection.second.first - 1], ss_in.str());
 
-            std::cout << _coordinators[connection.first.first - 1]->get_name()
-                      << "::" << ss_out.str() << " -> "
-                      << _coordinators[connection.second.first - 1]->get_name()
-                      << "::" << ss_in.str() << std::endl;
+            if (not HierarchicalGraphManager <
+                    SchedulerHandle, GraphBuilder >::exist_link(
+                        _coordinators[connection.first.first - 1],
+                        ss_out.str(),
+                        _coordinators[connection.second.first - 1],
+                        ss_in.str())) {
+                HierarchicalGraphManager <
+                    SchedulerHandle, GraphBuilder >::add_link(
+                        _coordinators[connection.first.first - 1],
+                        ss_out.str(),
+                        _coordinators[connection.second.first - 1],
+                        ss_in.str());
 
+                std::cout << _coordinators[connection.first.first - 1]
+                    ->get_name()
+                          << "::" << ss_out.str() << " -> "
+                          << _coordinators[connection.second.first - 1]
+                    ->get_name()
+                          << "::" << ss_in.str() << std::endl;
+            }
         }
     }
 

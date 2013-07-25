@@ -154,7 +154,7 @@ public:
         }
         {
             // input S1
-        	input_edges.push_back(InputEdges());
+            input_edges.push_back(InputEdges());
             // input S2
             input_edges.push_back(InputEdges());
             input_edges[1].push_back(Edge(1, 0));

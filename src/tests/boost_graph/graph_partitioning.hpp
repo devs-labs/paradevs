@@ -44,7 +44,7 @@ public:
                OutputEdgeList& output_edges,
                Connections& parent_connections)
     {
-        srand(time(NULL));
+        srand(7266);
 
         UnorientedGraph* g = new UnorientedGraph();
         OrientedGraph* go = new OrientedGraph();

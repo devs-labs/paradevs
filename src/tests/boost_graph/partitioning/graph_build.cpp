@@ -64,17 +64,17 @@ void build_graph(UnorientedGraph& ug, OrientedGraph& og)
     add_edge(v7, v8, EdgeProperties(1.), og);
     add_edge(v9, v10, EdgeProperties(1.), og);
 
-    og[v6] = VertexProperties(6, 1.5, TOP_PIXEL);
-    og[v8] = VertexProperties(8, 1., TOP_PIXEL);
-    og[v10] = VertexProperties(10, 1.5, TOP_PIXEL);
+    og[v6] = VertexProperties(6, 1.5, NORMAL_PIXEL);
+    og[v8] = VertexProperties(8, 1., NORMAL_PIXEL);
+    og[v10] = VertexProperties(10, 1.5, NORMAL_PIXEL);
     og[v0] = VertexProperties(0, 3, NORMAL_PIXEL);
     og[v1] = VertexProperties(1, 2, NORMAL_PIXEL);
     og[v2] = VertexProperties(2, 2, NORMAL_PIXEL);
     og[v3] = VertexProperties(3, 2, NORMAL_PIXEL);
     og[v4] = VertexProperties(4, 1.5, NORMAL_PIXEL);
     og[v5] = VertexProperties(5, 1.5, NORMAL_PIXEL);
-    og[v7] = VertexProperties(7, 1., NORMAL_PIXEL);
-    og[v9] = VertexProperties(9, 1.5, NORMAL_PIXEL);
+    og[v7] = VertexProperties(7, 1., TOP_PIXEL);
+    og[v9] = VertexProperties(9, 1.5, TOP_PIXEL);
 
     /*
      * construction graphe Non Oriente
@@ -110,17 +110,17 @@ void build_graph(UnorientedGraph& ug, OrientedGraph& og)
     boost::add_edge(v71, v81, EdgeProperties(1.), ug);
     boost::add_edge(v91, v101, EdgeProperties(1.), ug);
 
-    ug[v61] = VertexProperties(60, 1.5, TOP_PIXEL);
-    ug[v81] = VertexProperties(80, 1, TOP_PIXEL);
-    ug[v101] = VertexProperties(100, 1.5, TOP_PIXEL);
+    ug[v61] = VertexProperties(60, 1.5, NORMAL_PIXEL);
+    ug[v81] = VertexProperties(80, 1, NORMAL_PIXEL);
+    ug[v101] = VertexProperties(100, 1.5, NORMAL_PIXEL);
     ug[v01] = VertexProperties(0, 3, NORMAL_PIXEL);
     ug[v11] = VertexProperties(10, 2, NORMAL_PIXEL);
     ug[v21] = VertexProperties(20, 2, NORMAL_PIXEL);
     ug[v31] = VertexProperties(30, 2, NORMAL_PIXEL);
     ug[v41] = VertexProperties(40, 1.5, NORMAL_PIXEL);
     ug[v51] = VertexProperties(50, 1.5, NORMAL_PIXEL);
-    ug[v71] = VertexProperties(70, 1, NORMAL_PIXEL);
-    ug[v91] = VertexProperties(90, 1.5, NORMAL_PIXEL);
+    ug[v71] = VertexProperties(70, 1, TOP_PIXEL);
+    ug[v91] = VertexProperties(90, 1.5, TOP_PIXEL);
 
 }
 
