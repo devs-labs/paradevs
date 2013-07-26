@@ -28,6 +28,7 @@
 #define COMMON_LINKS 1
 
 #include <common/Node.hpp>
+#include <common/utils/String.hpp>
 
 #include <map>
 #include <sstream>
@@ -44,8 +45,9 @@ class Links : public std::multimap < Node < Time, SchedulerHandle >,
 public:
 
     typedef std::pair <
-    typename Links < Time, SchedulerHandle >::const_iterator,
-    typename Links < Time, SchedulerHandle >::const_iterator > Result;
+        typename Links < Time, SchedulerHandle >::const_iterator,
+        typename Links < Time, SchedulerHandle >::const_iterator
+    > Result;
 
     Links()
     { }
@@ -96,22 +98,21 @@ public:
                                        out_model, out_port_name));
     }
 
-    std::string to_string() const
+    std::string to_string(int level = 0) const
     {
         std::stringstream ss;
 
-        ss << "Graph = { ";
-        for (typename Node < Time, SchedulerHandle >::const_iterator it =
-                 Node < Time, SchedulerHandle >::begin();
-             it != Node < Time, SchedulerHandle >::end(); ++it) {
-            ss << "(" << it->first.get_model()->get_name() << ":"
+        ss << common::spaces(level * 2) << "Links:" << std::endl;
+        for (typename Links < Time, SchedulerHandle >::const_iterator it =
+                 Links < Time, SchedulerHandle >::begin();
+             it != Links < Time, SchedulerHandle >::end(); ++it) {
+            ss << common::spaces((level + 1) * 2)
+               << it->first.get_model()->get_name() << "::"
                << it->first.get_port_name()
                << " -> "
-               << it->second.get_model()->get_name() << ":"
-               << it->second.get_port_name()
-               << ") ";
+               << it->second.get_model()->get_name() << "::"
+               << it->second.get_port_name() << std::endl;
         }
-        ss << "}";
         return ss.str();
     }
 };

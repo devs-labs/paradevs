@@ -29,6 +29,7 @@
 
 #include <common/Parameters.hpp>
 
+#include <sstream>
 #include <string>
 
 namespace paradevs { namespace common {
@@ -72,6 +73,14 @@ public :
             _root.output(_tn);
             _tn = _root.transition(_tn);
         }
+    }
+
+    std::string to_string() const
+    {
+        std::ostringstream ss;
+
+        ss << _root.to_string(0);
+        return ss.str();
     }
 
 private :

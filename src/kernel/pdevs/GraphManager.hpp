@@ -31,6 +31,9 @@
 #include <common/Links.hpp>
 #include <common/Model.hpp>
 #include <common/Parameters.hpp>
+#include <common/utils/String.hpp>
+
+#include <sstream>
 
 namespace paradevs { namespace pdevs {
 
@@ -138,6 +141,18 @@ public:
                          Time, SchedulerHandle >(it_r->second,
                                                  event.get_content()));
         }
+    }
+
+    virtual std::string to_string(int level) const
+    {
+        std::ostringstream ss;
+
+        ss << common::spaces(level * 2) << "Childs:" << std::endl;
+        for (auto & child : _child_list) {
+            ss << child->to_string(level + 1);
+        }
+        ss << _link_list.to_string(level);
+        return ss.str();
     }
 
 private:

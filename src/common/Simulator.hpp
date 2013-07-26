@@ -29,6 +29,8 @@
 
 #include <common/Model.hpp>
 
+#include <sstream>
+
 namespace paradevs { namespace common {
 
 template < class Time, class SchedulerHandle >
@@ -42,6 +44,14 @@ public :
 
     virtual bool is_atomic() const
     { return true; }
+
+    virtual std::string to_string(int /* level */) const
+    {
+        std::ostringstream ss;
+
+        ss << "Simulator " << Simulator < Time, SchedulerHandle >::get_name();
+        return ss.str();
+    }
 
 // DEVS methods
     virtual void observation(std::ostream& file) const =0;

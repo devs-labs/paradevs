@@ -89,6 +89,8 @@ void partitionning_test()
             paradevs::common::NoParameters >
         > rc(0, 100000, "root", NoParameters(), NoParameters());
 
+    std::cout << rc.to_string() << std::endl;
+
     rc.run();
 }
 

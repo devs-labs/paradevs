@@ -73,7 +73,7 @@ public :
 
 private :
     Model < Time, SchedulerHandle >* _model;
-    std::string     _port_name;
+    std::string                      _port_name;
 };
 
 } } // namespace paradevs common

@@ -33,7 +33,7 @@
 #include <common/Model.hpp>
 #include <common/Node.hpp>
 
-#include <iostream>
+#include <sstream>
 
 namespace paradevs { namespace common {
 
@@ -52,6 +52,15 @@ public :
 
     virtual bool is_atomic() const
     { return false; }
+
+    virtual std::string to_string(int /* level */) const
+    {
+        std::ostringstream ss;
+
+        ss << "Coordinator "
+           << Coordinator < Time, SchedulerHandle >::get_name();
+        return ss.str();
+    }
 
 // DEVS methods
     virtual void observation(std::ostream& file) const =0;

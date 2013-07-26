@@ -29,6 +29,7 @@
 
 #include <common/Coordinator.hpp>
 #include <common/Parameters.hpp>
+#include <common/utils/String.hpp>
 #include <common/utils/Trace.hpp>
 
 #include <cassert>
@@ -60,6 +61,16 @@ public:
 
     virtual ~Coordinator()
     { }
+
+    virtual std::string to_string(int level) const
+    {
+        std::ostringstream ss;
+
+        ss << common::spaces(level * 2) << "p-devs coordinator \""
+           << type::get_name() << "\":" << std::endl;
+        ss << _graph_manager.to_string(level + 1);
+        return ss.str();
+    }
 
     typename Time::type start(typename Time::type t)
     {

@@ -120,6 +120,8 @@ public:
     void set_parent(Model < Time, SchedulerHandle >* parent)
     { _parent = parent; }
 
+    virtual std::string to_string(int /* level */) const =0;
+
     // event
     void add_event(const common::ExternalEvent < Time, SchedulerHandle >&
                    message)

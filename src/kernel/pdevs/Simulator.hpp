@@ -30,6 +30,7 @@
 #include <common/Coordinator.hpp>
 #include <common/Parameters.hpp>
 #include <common/Simulator.hpp>
+#include <common/utils/String.hpp>
 #include <common/utils/Trace.hpp>
 
 #include <cassert>
@@ -50,6 +51,15 @@ public :
 
     ~Simulator()
     { }
+
+    virtual std::string to_string(int level) const
+    {
+        std::ostringstream ss;
+
+        ss << common::spaces(level * 2) << "p-devs simulator \""
+           << type::get_name() << "\""<< std::endl;
+        return ss.str();
+    }
 
 /*************************************************
  * when i-message(t)
