@@ -51,13 +51,19 @@ public:
 
         build_graph(*g, *go);
 
-        int nbr_parties = 3;
+        int nbr_parties = 4;
         Edges edge_partie;
         Connections connections;
 
+        /*
+         * teste sur la fonction gggp_pond amélioration + validation complete
+         * sur un nombre de parties supérieur à 6. Recherche de l'origine de
+         * l'erreur de segmentation et la corriger
+         */
+
         output_edges = OutputEdgeList(nbr_parties);
 
-        graphs = Multiniveau(4, g, go, nbr_parties, "gggp_pond",
+        graphs = Multiniveau(6, g, go, nbr_parties, "gggp_pond",
                              "cut_norm", "norm", edge_partie ,
                              output_edges, input_edges,
                              parent_connections);

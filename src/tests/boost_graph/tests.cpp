@@ -105,7 +105,7 @@ int main()
 
     std::cout << "... OK -> " << t2 << std::endl;
 
-    // hierarchical_test();
+    //hierarchical_test();
 
     std::cout << "partitioning graph ..." << std::endl;
     partitionning_test();

@@ -185,10 +185,7 @@ void gggp_pond(UnorientedGraph *g, Entiers *sommetsSource,
     {
         for (uint j=0; j<sommetsDestination->size();j++)
         {
-            //tie(e1,found)=edge(vertex(sommetsSource->at(i),*g),vertex(sommetsDestination->at(j),*g),*g);
-            //if((*g)[e1]._weight!=0){
             remove_edge(sommetsSource->at(i),sommetsDestination->at(j),*g);
-            //}
         }
     }
     sort(sommetsDestination->begin(), sommetsDestination->end());
@@ -210,16 +207,6 @@ void Iter_2l(EntiersEntiers &part, int nbr_parties, UnorientedGraph *g,
                 part.push_back(Q);
             }
 
-            /*std::cout<<"affichage de la partiton en cours : "<<std::endl;
-              for(int k=0; k<part.size(); k++)
-              {
-              for(int j=0; j<part[k].size(); j++)
-              {
-              std::cout<<part[k][j]<<std::endl;
-              }
-              std::cout<<"\n"<<std::endl;
-              }*/
-            //std::cout<<"taille du tableau : "<<part.size()<<std::endl;
         }
     } else {
         //std::cout<<"je jsuis dans gggp_pond"<<std::endl;
@@ -235,17 +222,6 @@ void Iter_2l(EntiersEntiers &part, int nbr_parties, UnorientedGraph *g,
                 part.push_back(Q);
             }
 
-            std::cout<<"****"<<std::endl;
-            for(uint k=0; k<part.size(); k++)
-            {
-                for(uint j=0; j<part[k]->size(); j++)
-                {
-                    std::cout<<part.at(k)->at(j)<<std::endl;
-                }
-                std::cout<<"\n"<<std::endl;
-            }
-            std::cout<<"****"<<std::endl;
-            std::cout<<"taille du tableau : "<<part.size()<<std::endl;
         }
     }
 }
@@ -433,6 +409,16 @@ OrientedGraphs Multiniveau(uint niveau_contraction,
 
     bissectionRec(baseg.at(baseg.size()-1),Partition,nbr_parties,type_methode);
 
+    std::clog<<"Partition : "<<std::endl;
+    for(uint i = 0; i< Partition.size() ; i++)
+    {
+    for(uint j = 0 ; j<Partition.at(i)->size() ; j++)
+    {
+    std::cout<<(*baseg.at(baseg.size()-1))[Partition.at(i)->at(j)]._index<<std::endl;
+    }
+    std::cout<<"\n"<<std::endl;
+    }
+
     ListEntiersEntiers::iterator lit(liste_corr.end());
     lit--;
     for(uint y =0; y<liste_corr.size();y++){
@@ -451,6 +437,16 @@ OrientedGraphs Multiniveau(uint niveau_contraction,
 
     OrientedGraphs Graphes = Graph_Partition(Partition, go, g, outputedgeslist,
                                              inputedgelist, connections);
+
+    for(int k=0; k<Partition.size(); k++)
+    {
+    	for(int j=0; j<Partition[k]->size(); j++)
+    	{
+    		std::cout<<Partition[k]->at(j)<<std::endl;
+    	}
+    	std::cout<<"\n"<<std::endl;
+    }
+    std::cout<<"****"<<std::endl;
 
     for(EntiersEntiers::iterator it = Partition.begin(); it != Partition.end(); it++)
     {
