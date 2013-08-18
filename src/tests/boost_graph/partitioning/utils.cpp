@@ -422,7 +422,7 @@ void Affinage_recherche_locale(UnorientedGraph *g, EntiersEntiers &Partition, do
 
     Entiers random_orders(num_vertices(*g)); //gestion d'un tableau contenant tout les sommets et ranger de façon aléatoire
 
-    for (uint i=0 ; i<random_orders.size() ; i++)
+    for (uint i=0 ; i<num_vertices(*g) ; i++)
         random_orders.at(i)=i;
 
     for (uint j=0 ; j<num_vertices(*g)-1 ; j++) {
@@ -433,11 +433,12 @@ void Affinage_recherche_locale(UnorientedGraph *g, EntiersEntiers &Partition, do
     }
     uint size = random_orders.size();
 
-    if(random_orders.size()>500)
+    if(num_vertices(*g)>500)
         size=500;
 
     std::vector<std::vector<double> > tabe_cut;
 
+    //std::cout<<"Passage : "<<Partition.size()<<std::endl;
     for(uint k = 0; k < Partition.size();k++){
         std::vector<double> tmp;
         double vol = 0.;
@@ -447,21 +448,20 @@ void Affinage_recherche_locale(UnorientedGraph *g, EntiersEntiers &Partition, do
         tabe_cut.push_back(tmp);
     }
 
-
     for(uint i = 0; i < size; i++){
         if(random_orders.at(i)!=-1){
             int vertex = random_orders.at(i);
-
+            //std::cout<<vertex<<std::endl;
             int comm = In_community_dichotomie(Partition, vertex);
             Entiers community = Neigh_community(g,Partition,vertex,comm);
             std::vector<double> tmp_cut;
 
             if(community.size()!=0 && Partition.at(comm)->size()!=1){
                 tmp_cut = modif_cut_tmp(g,Partition,tabe_cut,vertex,comm,community,cut,name);
-                for(uint z = 0; z<tmp_cut.size(); z++){
+                /*for(uint z = 0; z<tmp_cut.size(); z++){
                     std::cout<<tmp_cut.at(z)<<std::endl;
                 }
-                std::cout<<"\n"<<std::endl;
+                std::cout<<"\n"<<std::endl;*/
                 double cut_min = *min_element(tmp_cut.begin(),tmp_cut.end());
                 std::cout<<"cout de coupe minimum de la liste : "<<cut_min<<std::endl;
                 if(cut_min<cut){
@@ -521,7 +521,7 @@ double Modif_Cut_one_cluster(Entiers &cluster, UnorientedGraph &g, double &vol)
 std::vector<double> modif_cut_tmp(UnorientedGraph *g, EntiersEntiers &Partition, std::vector<std::vector<double> > tabe_cut, int vertexs, int comm_in, Entiers community, double cut,std::string name){
 	edge_t e1;
 	bool found;
-	std::cout<<"le sommet tiré est : "<<vertexs<<std::endl;
+	//std::cout<<"le sommet tiré est : "<<vertexs<<std::endl;
 
 	if(name!="norm")
 	{
@@ -814,6 +814,158 @@ void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 	baseg.push_back(gtmp); // Ajout du graphe modifié à la "base des graphe"
 }
 
+void contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &liste_corr){
+	UnorientedGraph *gtmp = new UnorientedGraph();
+	*gtmp=*g;
+	Entiers Random_list_vertices; // Initialisation du tableau de sommets rangés aléatoirements
+	EntiersEntiers *tableau_de_correspondance = new EntiersEntiers();
+	edge_t e1,e2; // Iterateurs sur les arcs
+	bool found;
+	uint nbr_vertex = num_vertices(*gtmp);
+	Entiers sommets_a_detruire; // Initialisation d'un tableau pret à recevoir les "sommets à détruire"
+	/*
+	 * Création d'un vecteur contenant l'ensemble des sommets du graphe. Ces sommets sont rangés
+	 * aléatoirement afin de simuler un tirage aléatoire
+	 */
+	for (uint i=0 ; i<nbr_vertex ; i++)
+		Random_list_vertices.push_back(i);
+	for (uint j=0 ; j<nbr_vertex-1 ; j++) {
+		int rand_pos = rand()%(nbr_vertex-j)+j;
+		int tmp      = Random_list_vertices[j];
+		Random_list_vertices[j] = Random_list_vertices[rand_pos];
+		Random_list_vertices[rand_pos] = tmp;
+	}
+
+	/*
+	 * Pour chaque sommet non verrouiller faire ....
+	 */
+	for(uint i=0; i<nbr_vertex; i++){
+		int vertexs = Random_list_vertices[i];
+		if(vertexs!=-1){
+			Entiers liste_voisin = Liste_adjacence(*gtmp,vertexs,Random_list_vertices); // Recherche des sommets adjacents au sommets  tiré
+			if(liste_voisin.size()!=0){
+				/*
+				 * S'il en existe au mois un sommet adjacent au sommet tiré qui n'est pas verrouillé, on
+				 * choisi celui dont l'arc les reliants est le plus fort. Dans le cas où les arcs ont tous
+				 * le même poids, on selectionne le sommet d'identifiant le plus petit
+				 */
+				int tmp;
+				if(liste_voisin.size()==1)
+					tmp = 0;
+				else
+					tmp = rand_fini(0,liste_voisin.size()-1);
+
+				int best_vertexs = liste_voisin.at(tmp);
+
+				Entiers * couple = new Entiers(); // Initialisation du vecteur contenant le couple de sommet fusionné
+				int vertex_delete = std::max(vertexs, best_vertexs); // Sommet d'indentifiant le plus grand (qui sera détruit)
+				//std::cout<<"sommet détruit : "<<vertex_delete<<std::endl;
+				int vertex_save = std::min(vertexs,best_vertexs); // Sommet d'identifiant le plus petit (qui sera conservé)
+				//std::cout<<"sommet sauvé : "<<vertex_save<<std::endl;
+
+				sommets_a_detruire.push_back(vertex_delete); // On ajoute le sommet détruit au tableau des sommets à détruire
+				/*
+				 * On ajoute au tableau "couple" le couple de sommet à fusionner
+				 */
+				couple->push_back(vertex_save);
+				couple->push_back(vertex_delete);
+				tableau_de_correspondance->push_back(couple); // Ajout du "couple" à la liste de correspondance
+
+				remove_edge(vertex_save,vertex_delete,*gtmp); // Suppression de l'arc reliant le couple de sommets
+
+				Entiers neigh_vertex_save; // Initialisation du vecteur contenant les somemts adjacents au "sommet sauvegardé"
+				Entiers neigh_vertex_delete; // Initialisation du vecteur contenant les somemts adjacents au "sommet à détruire"
+				tie(neighbourIt, neighbourEnd) = adjacent_vertices(vertex_save,*gtmp);
+
+				/*
+				 * Remplissage de ces deux tableaux à l'aide de la fonction adjacent_vertices de boost graph
+				 * [La création de ces tableaux est nécéssaire du fait que certains arcs sont détruit au cours
+				 * du processus]
+				 */
+				for (; neighbourIt != neighbourEnd; ++neighbourIt){
+					neigh_vertex_save.push_back(*neighbourIt);
+				}
+
+				tie(neighbourIt, neighbourEnd) = adjacent_vertices(vertex_delete,*gtmp);
+				for (; neighbourIt != neighbourEnd; ++neighbourIt){
+					neigh_vertex_delete.push_back(*neighbourIt);
+				}
+
+				/*
+				 * Recherche de sommets communs entre le "sommet sauvegardé" et le "sommet à détruire"
+				 * S'il existe un tel sommet "v" alors on ajoute le poids de l'arcs (vertex_delet,v)
+				 * à celui de l'arcs (vertex_save,v) et on détruit l'arcs reliant "v" au "sommet à détruire"
+				 */
+				for(uint j=0;j<neigh_vertex_delete.size();j++){
+					if(In_tab(neigh_vertex_save,neigh_vertex_delete[j])==1){
+						tie(e2,found)=edge(vertex(vertex_save,*gtmp),vertex(neigh_vertex_delete[j],*gtmp),*gtmp);
+						tie(e1,found)=edge(vertex(vertex_delete,*gtmp),vertex(neigh_vertex_delete[j],*gtmp),*gtmp);
+						(*gtmp)[e2]._weight+=(*gtmp)[e1]._weight;
+						remove_edge(vertex_delete,neigh_vertex_delete[j],*gtmp);
+					}
+					else
+					{
+						tie(e1,found)=edge(vertex(vertex_delete,*gtmp),vertex(neigh_vertex_delete[j],*gtmp),*gtmp);
+						add_edge(vertex_save,neigh_vertex_delete[j],EdgeProperties((*gtmp)[e1]._weight),*gtmp);
+						remove_edge(vertex_delete,neigh_vertex_delete[j],*gtmp);
+					}
+				}
+
+				(*gtmp)[vertex_save]._weight+=(*gtmp)[vertex_delete]._weight; // ajout du poids du sommet détruit au sommet conservé
+				/*
+				 * Vérouillage du "sommet sauvegardé" et du "sommet à détruire"
+				 */
+				Random_list_vertices[i]=-1;
+				Random_list_vertices[recherche_val(Random_list_vertices,best_vertexs)]=-1;
+			}
+			else{
+				/*
+				 * Et si le sommet tiré ne possède pas de sommet adjacent non verrouillé
+				 * alors on l'ajoute à la liste de correspondance des sommets et on
+				 * le verrouille
+				 */
+				Entiers *couple = new Entiers();
+				couple->push_back(Random_list_vertices.at(i));
+				tableau_de_correspondance->push_back(couple);
+				Random_list_vertices[i]=-1;
+			}
+		}
+	}
+
+	std::sort(sommets_a_detruire.begin(), sommets_a_detruire.end()); // Trie dans l'ordre croissant des "sommets à détruire"
+	//std::cout<<"\n"<<std::endl;
+	/*
+	 * Suppression des sommets de la liste "sommets à détruire". Cette suppression est
+	 * effectuée dans l'ordre décroissant afin à maintenir à jour la renumérotation
+	 * des sommets
+	 */
+	for(int j=(sommets_a_detruire.size()-1);j>-1;j--){
+		//std::cout<<"Noeuds a supprimer : "<<sommets_a_detruire.at(j)<<std::endl;
+		remove_vertex(sommets_a_detruire[j],*gtmp);
+	}
+
+	/**std::clog<<"Affichage avant tri "<<std::endl;
+	for(uint k = 0;k<tableau_de_correspondance->size();k++){
+		for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
+			std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
+		}
+		std::cout<<"\n"<<std::endl;
+	}*/
+	std::sort(tableau_de_correspondance->begin(),tableau_de_correspondance->end(),myobject); // Trie dans l'ordre croissant des couples de sommets de la liste de correspondance
+
+	std::clog<<"Tableau de correspondance "<<std::endl;
+	for(uint k = 0;k<tableau_de_correspondance->size();k++){
+		for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
+			std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
+		}
+		std::cout<<"\n"<<std::endl;
+	}
+
+	liste_corr.push_back(tableau_de_correspondance);
+	std::cout<<"\n"<<std::endl;
+	baseg.push_back(gtmp); // Ajout du graphe modifié à la "base des graphe"
+}
+
 Entiers Liste_adjacence(UnorientedGraph &g, int vertexs,const Entiers &random_vertices){ // a revoir !!!!
 	Entiers liste_voisin;
 	tie(neighbourIt, neighbourEnd) = adjacent_vertices(vertexs, g);
@@ -915,9 +1067,9 @@ bool In_tab_dichotomie(const Entiers &tab, int val)
 }
 
 
-void Liste_Voisin(Entiers &P,Entiers &tab,const UnorientedGraph &g)
+void Liste_Voisin(const Entiers &P,Entiers &tab,const UnorientedGraph &g)
 {
-	tie(neighbourIt, neighbourEnd) = adjacent_vertices(P[P.size()-1], g);
+	tie(neighbourIt, neighbourEnd) = adjacent_vertices(P.at(P.size()-1), g);
 	for (; neighbourIt != neighbourEnd; ++neighbourIt)
 	{
 		if((In_tab(tab,*neighbourIt) == false ) && (In_tab(P,*neighbourIt) == false ))

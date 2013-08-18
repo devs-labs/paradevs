@@ -46,8 +46,12 @@ void bissectionRec(UnorientedGraph *g, EntiersEntiers &Partition,
 void Pseudo_random_partitioning(UnorientedGraph *g, EntiersEntiers &Partition,
                                 uint nbr_parties);
 
-OrientedGraphs Multiniveau(uint niveau_contraction, UnorientedGraph *g,
+EntiersEntiers Random_partitioning(UnorientedGraph *g,
+                                uint nbr_parties);
+
+OrientedGraphs Multiniveau(uint niveau_contraction, UnorientedGraph *g, UnorientedGraph *graph_origin,
                            OrientedGraph *go, int nbr_parties,
+                           std::string contraction,
                            std::string type_methode,
                            std::string choix_affinage,
                            std::string type_cut,

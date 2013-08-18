@@ -75,6 +75,8 @@ void projection(EntiersEntiers &Partition,ListEntiersEntiers::iterator lit);
 
 void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg,
                      ListEntiersEntiers &liste_corr);
+void contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg,
+								ListEntiersEntiers &liste_corr);
 
 Entiers Liste_adjacence(UnorientedGraph &g, int vertexs,
                         const Entiers &random_vertices);
@@ -92,7 +94,7 @@ double Cut_cluster(const EntiersEntiers &tab_cluster,UnorientedGraph &g,
 void Modif_fonction_Gain_Cut(EntiersEntiers &Partition,UnorientedGraph *g,
                              int community_out,int community_in,int val,
                              double &cut);
-void Liste_Voisin(Entiers &P,Entiers &tab,const UnorientedGraph &g);
+void Liste_Voisin(const Entiers &P,Entiers &tab,const UnorientedGraph &g);
 int Cout_coupe(Entiers P,int val, UnorientedGraph &g);
 double Cout_coupe_pond(Entiers P,int val, UnorientedGraph &g);
 int In_community_dichotomie(const EntiersEntiers &part, int val);

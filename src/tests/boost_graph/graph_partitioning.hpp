@@ -48,10 +48,15 @@ public:
 
         UnorientedGraph* g = new UnorientedGraph();
         OrientedGraph* go = new OrientedGraph();
+        UnorientedGraph* graph_origin = new UnorientedGraph();
+        OrientedGraph* gop = new OrientedGraph();
 
         build_graph(*g, *go);
+        build_graph(*graph_origin, *gop);
 
-        int nbr_parties = 4;
+        delete gop;
+
+        int nbr_parties = 8;
         Edges edge_partie;
         Connections connections;
 
@@ -63,10 +68,13 @@ public:
 
         output_edges = OutputEdgeList(nbr_parties);
 
-        graphs = Multiniveau(6, g, go, nbr_parties, "gggp_pond",
+        graphs = Multiniveau(num_vertices(*g)/4, g, graph_origin, go, nbr_parties,"rand", "gggp_pond",
                              "cut_norm", "norm", edge_partie ,
                              output_edges, input_edges,
                              parent_connections);
+        //std::cout<<"Sorti ! "<<std::endl;
+
+        delete graph_origin;
 
     }
 };
