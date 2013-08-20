@@ -125,6 +125,7 @@ void build_graph(UnorientedGraph& ug, OrientedGraph& og)
     add_edge(v29, v27, EdgeProperties(1.), og);
     add_edge(v29, v28, EdgeProperties(1.), og);
     add_edge(v30, v27, EdgeProperties(1.), og);
+    add_edge(v30, v28, EdgeProperties(1.), og);
     add_edge(v31, v32, EdgeProperties(1.), og);
     add_edge(v31, v10, EdgeProperties(1.), og);
     add_edge(v32, v33, EdgeProperties(1.), og);
@@ -264,7 +265,6 @@ void build_graph(UnorientedGraph& ug, OrientedGraph& og)
     boost::add_edge(v151, v161, EdgeProperties(1.), ug);
     boost::add_edge(v161, v171, EdgeProperties(1.), ug);
     boost::add_edge(v81, v111, EdgeProperties(1.), ug);
-    boost::add_edge(v121, v131, EdgeProperties(1.), ug);
     boost::add_edge(v81, v181, EdgeProperties(1.), ug);
     boost::add_edge(v81, v191, EdgeProperties(1.), ug);
     boost::add_edge(v81, v201, EdgeProperties(1.), ug);

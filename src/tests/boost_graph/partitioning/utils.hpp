@@ -73,10 +73,10 @@ void Affinage_recherche_locale(UnorientedGraph *g, EntiersEntiers &Partition,
 
 void projection(EntiersEntiers &Partition,ListEntiersEntiers::iterator lit);
 
-void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg,
-                     ListEntiersEntiers &liste_corr);
-void contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg,
-								ListEntiersEntiers &liste_corr);
+bool contraction_HEM(UnorientedGraph *g, Base_Graph &baseg,
+                     ListEntiersEntiers &liste_corr, int val_reduc, int &val_cpt);
+bool contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg,
+								ListEntiersEntiers &liste_corr, int val_reduc, int &val_cpt);
 
 Entiers Liste_adjacence(UnorientedGraph &g, int vertexs,
                         const Entiers &random_vertices);

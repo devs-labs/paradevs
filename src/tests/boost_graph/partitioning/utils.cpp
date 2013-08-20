@@ -463,7 +463,7 @@ void Affinage_recherche_locale(UnorientedGraph *g, EntiersEntiers &Partition, do
                 }
                 std::cout<<"\n"<<std::endl;*/
                 double cut_min = *min_element(tmp_cut.begin(),tmp_cut.end());
-                std::cout<<"cout de coupe minimum de la liste : "<<cut_min<<std::endl;
+                //std::cout<<"cout de coupe minimum de la liste : "<<cut_min<<std::endl;
                 if(cut_min<cut){
                     std::clog<<"Changement ! "<<std::endl;
                     int tmp = recherche_val_double(tmp_cut,cut_min);
@@ -659,7 +659,7 @@ void Modif_fonction_Gain_Cut(EntiersEntiers &Partition,UnorientedGraph *g, Entie
 	}
 }
 
-void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &liste_corr){
+bool contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &liste_corr, int val_reduc, int &val_cpt){
 	UnorientedGraph *gtmp = new UnorientedGraph();
 	*gtmp=*g;
 	Entiers Random_list_vertices; // Initialisation du tableau de sommets rangés aléatoirements
@@ -686,6 +686,7 @@ void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 	 */
 	for(uint i=0; i<nbr_vertex; i++){
 		int vertexs = Random_list_vertices[i];
+		//std::cout<<"Le sommet tiré est : "<<vertexs<<std::endl;
 		if(vertexs!=-1){
 			Entiers liste_voisin = Liste_adjacence(*gtmp,vertexs,Random_list_vertices); // Recherche des sommets adjacents au sommets  tiré
 			if(liste_voisin.size()!=0){
@@ -721,7 +722,7 @@ void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 
 				remove_edge(vertex_save,vertex_delete,*gtmp); // Suppression de l'arc reliant le couple de sommets
 
-				Entiers neigh_vertex_save; // Initialisation du vecteur contenant les somemts adjacents au "sommet sauvegardé"
+				Entiers neigh_vertex_save; // Initialisation du vecteur contenant les sommets adjacents au "sommet sauvegardé"
 				Entiers neigh_vertex_delete; // Initialisation du vecteur contenant les somemts adjacents au "sommet à détruire"
 				tie(neighbourIt, neighbourEnd) = adjacent_vertices(vertex_save,*gtmp);
 
@@ -765,6 +766,8 @@ void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 				 */
 				Random_list_vertices[i]=-1;
 				Random_list_vertices[recherche_val(Random_list_vertices,best_vertexs)]=-1;
+				val_cpt--;
+				std::cout<<val_cpt<<std::endl;
 			}
 			else{
 				/*
@@ -777,11 +780,36 @@ void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 				tableau_de_correspondance->push_back(couple);
 				Random_list_vertices[i]=-1;
 			}
+
+
+
+			/*std::cout<<"Graphe contracté : "<<std::endl;
+			tie(vertexIt, vertexEnd) = vertices(*gtmp);
+			for (; vertexIt != vertexEnd; ++vertexIt) {
+				std::cout << (*gtmp)[*vertexIt]._index
+						<< " est connecté avec ";
+				tie(neighbourIt, neighbourEnd) = adjacent_vertices(*vertexIt,
+						*gtmp);
+				for (; neighbourIt != neighbourEnd; ++neighbourIt)
+					std::cout << (*gtmp)[*neighbourIt]._index << " ";
+				std::cout << " et son poids est de "
+						<< (*gtmp)[*vertexIt]._weight<<std::endl;
+			}
+			std::cout << std::endl;*/
+		}
+		if(val_cpt == val_reduc){
+			for(uint j=i+1; j <nbr_vertex; j++){
+				if(Random_list_vertices[j] !=-1){
+				Entiers *couple = new Entiers();
+				couple->push_back(Random_list_vertices.at(j));
+				tableau_de_correspondance->push_back(couple);}
+			}
+			break;
 		}
 	}
 
 	std::sort(sommets_a_detruire.begin(), sommets_a_detruire.end()); // Trie dans l'ordre croissant des "sommets à détruire"
-	//std::cout<<"\n"<<std::endl;
+	std::cout<<"\n"<<std::endl;
 	/*
 	 * Suppression des sommets de la liste "sommets à détruire". Cette suppression est
 	 * effectuée dans l'ordre décroissant afin à maintenir à jour la renumérotation
@@ -792,13 +820,13 @@ void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 		remove_vertex(sommets_a_detruire[j],*gtmp);
 	}
 
-	/**std::clog<<"Affichage avant tri "<<std::endl;
+	std::clog<<"Affichage avant tri "<<std::endl;
 	for(uint k = 0;k<tableau_de_correspondance->size();k++){
 		for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
 			std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
 		}
 		std::cout<<"\n"<<std::endl;
-	}*/
+	}
 	std::sort(tableau_de_correspondance->begin(),tableau_de_correspondance->end(),myobject); // Trie dans l'ordre croissant des couples de sommets de la liste de correspondance
 
 	std::clog<<"Tableau de correspondance "<<std::endl;
@@ -812,9 +840,15 @@ void contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 	liste_corr.push_back(tableau_de_correspondance);
 	std::cout<<"\n"<<std::endl;
 	baseg.push_back(gtmp); // Ajout du graphe modifié à la "base des graphe"
+
+	if(val_cpt == val_reduc)
+		return true;
+	else
+		return false;
+
 }
 
-void contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &liste_corr){
+bool contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &liste_corr, int val_reduc, int &val_cpt){
 	UnorientedGraph *gtmp = new UnorientedGraph();
 	*gtmp=*g;
 	Entiers Random_list_vertices; // Initialisation du tableau de sommets rangés aléatoirements
@@ -917,6 +951,8 @@ void contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntie
 				 */
 				Random_list_vertices[i]=-1;
 				Random_list_vertices[recherche_val(Random_list_vertices,best_vertexs)]=-1;
+				val_cpt--;
+				std::cout<<val_cpt<<std::endl;
 			}
 			else{
 				/*
@@ -929,6 +965,15 @@ void contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntie
 				tableau_de_correspondance->push_back(couple);
 				Random_list_vertices[i]=-1;
 			}
+		}
+		if(val_cpt == val_reduc){
+			for(uint j=i+1; j <nbr_vertex; j++){
+				if(Random_list_vertices[j] !=-1){
+				Entiers *couple = new Entiers();
+				couple->push_back(Random_list_vertices.at(j));
+				tableau_de_correspondance->push_back(couple);}
+			}
+			break;
 		}
 	}
 
@@ -964,6 +1009,13 @@ void contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntie
 	liste_corr.push_back(tableau_de_correspondance);
 	std::cout<<"\n"<<std::endl;
 	baseg.push_back(gtmp); // Ajout du graphe modifié à la "base des graphe"
+
+
+	if(val_cpt == val_reduc)
+		return true;
+	else
+		return false;
+
 }
 
 Entiers Liste_adjacence(UnorientedGraph &g, int vertexs,const Entiers &random_vertices){ // a revoir !!!!

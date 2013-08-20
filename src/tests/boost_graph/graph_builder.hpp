@@ -132,6 +132,7 @@ public:
         boost::add_edge(v29, v27, 1., graph);
         boost::add_edge(v29, v28, 1., graph);
         boost::add_edge(v30, v27, 1., graph);
+        boost::add_edge(v30, v28, 1., graph);
         boost::add_edge(v31, v32, 1., graph);
         boost::add_edge(v31, v10, 1., graph);
         boost::add_edge(v32, v33, 1., graph);

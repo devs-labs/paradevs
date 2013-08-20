@@ -43,7 +43,7 @@ int main()
 {
     boost::timer t;
 
-    srand(7266);
+    srand((unsigned)time(NULL));
 
     UnorientedGraph* g = new UnorientedGraph();
     OrientedGraph* go = new OrientedGraph();
@@ -55,7 +55,7 @@ int main()
 
     delete gop;
 
-    int nbr_parties = 38;
+    int nbr_parties = 4;
 
     /*EntiersEntiers Partition = Random_partitioning(g,nbr_parties);
 
@@ -73,7 +73,9 @@ int main()
     InputEdgeList inputedgelist;
     Connections connections;
 
-    OrientedGraphs graphs = Multiniveau(38, g, graph_origin, go, nbr_parties,"HEM", "gggp_pond",
+    std::cout<<num_vertices(*g)/4<<std::endl;
+
+    OrientedGraphs graphs = Multiniveau(num_vertices(*g)/2, g, graph_origin, go, nbr_parties,"rand", "gggp_pond",
                                         "cut_norm", "norm", edge_partie ,
                                         outputedgeslist, inputedgelist,
                                         connections);
@@ -123,6 +125,7 @@ int main()
     }
 
 	delete graph_origin;
+	delete go;
 
     std::cout << "Duration : " << t.elapsed() << " seconds" << std::endl;
 

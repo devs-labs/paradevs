@@ -469,12 +469,16 @@ OrientedGraphs Multiniveau(uint niveau_contraction,
     baseg.push_back(g);
     ListEntiersEntiers liste_corr;
     uint cpt =0;
-    while(num_vertices(*baseg.at(cpt))>niveau_contraction)
+
+    int val_cpt = num_vertices(*g);
+    bool stop = false;
+
+    while(stop != true)
     {
     	if(contraction == "HEM")
-    		contraction_HEM(baseg.at(cpt),baseg,liste_corr);
+    		stop = contraction_HEM(baseg.at(cpt),baseg,liste_corr,niveau_contraction,val_cpt);
     	else
-    		contraction_Random_Maching(baseg.at(cpt),baseg,liste_corr);
+    		stop = contraction_Random_Maching(baseg.at(cpt),baseg,liste_corr,niveau_contraction,val_cpt);
         cpt++;
         std::cout<<"passage"<<std::endl;
     }
@@ -494,15 +498,53 @@ OrientedGraphs Multiniveau(uint niveau_contraction,
         }
         std::cout << std::endl;
     }
-
+    UnorientedGraph *gtmp = new UnorientedGraph();
+    *gtmp = *baseg.at(baseg.size() - 1);
     std::cout<<"Partitionnement "<<std::endl;
     if(type_methode == "gggp_pond" || type_methode == "gggp"){
-        for(uint i = 0;i < num_vertices(*baseg.at(baseg.size() - 1)); i++)
-        {
-            part->push_back(i);
-        }
-        Partition.push_back(part);
-    	bissectionRec(baseg.at(baseg.size()-1),Partition,nbr_parties,type_methode);
+		for(uint i = 0;i < num_vertices(*baseg.at(baseg.size() - 1)); i++)
+		{
+			part->push_back(i);
+		}
+		Partition.push_back(part);
+		bissectionRec(baseg.at(baseg.size()-1),Partition,nbr_parties,type_methode);
+		double cut_norm = Cut_cluster(Partition,*gtmp,"norm");
+		std::cout<<"Cout de coupe normalisé initial : "<<cut_norm<<std::endl;
+		int cpt_part = 0;
+		while (cpt_part!=3){
+			EntiersEntiers new_Partition;
+			Entiers *new_part = new Entiers();
+			for(uint i = 0;i < num_vertices(*baseg.at(baseg.size() - 1)); i++)
+			{
+				new_part->push_back(i);
+			}
+			new_Partition.push_back(new_part);
+			bissectionRec(baseg.at(baseg.size()-1),new_Partition,nbr_parties,type_methode);
+			double new_cut_norm = Cut_cluster(new_Partition,*gtmp,"norm");
+			std::cout<<"Nouveau cout de coupe normalisé : "<<new_cut_norm<<std::endl;
+
+			if(new_cut_norm<cut_norm){
+				std::cout<<"Changement !!!"<<std::endl;
+				for(EntiersEntiers::iterator it = Partition.begin(); it != Partition.end(); it++)
+				{
+					delete *it;
+					*it = NULL;
+				}
+				Partition = new_Partition;
+				cut_norm = new_cut_norm;
+			}
+			else{
+				for(EntiersEntiers::iterator it = new_Partition.begin(); it != new_Partition.end(); it++)
+				{
+					delete *it;
+					*it = NULL;
+				}
+			}
+			cpt_part++;
+		}
+		std::cout<<std::endl;
+		std::cout<<"Cout de coupe normalisé conservé : "<<cut_norm<<std::endl;
+		delete gtmp;
     }
     else
     	Partition = Random_partitioning(baseg.at(baseg.size()-1),nbr_parties);

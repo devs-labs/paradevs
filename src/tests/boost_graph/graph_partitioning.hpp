@@ -44,7 +44,8 @@ public:
                OutputEdgeList& output_edges,
                Connections& parent_connections)
     {
-        srand(7266);
+        srand((unsigned)time(NULL));
+    	//srand(7266);
 
         UnorientedGraph* g = new UnorientedGraph();
         OrientedGraph* go = new OrientedGraph();
@@ -56,25 +57,20 @@ public:
 
         delete gop;
 
-        int nbr_parties = 8;
+        int nbr_parties = 12;
         Edges edge_partie;
         Connections connections;
 
-        /*
-         * teste sur la fonction gggp_pond amélioration + validation complete
-         * sur un nombre de parties supérieur à 6. Recherche de l'origine de
-         * l'erreur de segmentation et la corriger
-         */
-
         output_edges = OutputEdgeList(nbr_parties);
 
-        graphs = Multiniveau(num_vertices(*g)/4, g, graph_origin, go, nbr_parties,"rand", "gggp_pond",
+        graphs = Multiniveau(num_vertices(*g)/2, g, graph_origin, go, nbr_parties,"rand", "gggp_pond",
                              "cut_norm", "norm", edge_partie ,
                              output_edges, input_edges,
                              parent_connections);
         //std::cout<<"Sorti ! "<<std::endl;
 
         delete graph_origin;
+        delete go;
 
     }
 };
