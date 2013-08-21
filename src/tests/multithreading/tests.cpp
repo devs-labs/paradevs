@@ -25,10 +25,11 @@
  */
 
 #include <tests/multithreading/graph_manager.hpp>
-#include <tests/pdevs/models.hpp>
 #include <tests/pdevs/graph_manager.hpp>
 
 #include <common/RootCoordinator.hpp>
+
+#include <chrono>
 
 #define CATCH_CONFIG_MAIN
 #include <tests/catch.hpp>
@@ -36,9 +37,12 @@
 using namespace paradevs::tests::pdevs;
 using namespace paradevs::tests::multithreading;
 using namespace paradevs::common;
+using namespace std::chrono;
 
-TEST_CASE("pdevs/hierachical", "run")
+TEST_CASE("pdevs/multithreading/hierachical", "run")
 {
+    steady_clock::time_point t1 = steady_clock::now();
+
     paradevs::common::RootCoordinator <
         DoubleTime, paradevs::pdevs::multithreading::Coordinator <
             DoubleTime,
@@ -46,8 +50,90 @@ TEST_CASE("pdevs/hierachical", "run")
                 DoubleTime, SchedulerHandle >,
             SchedulerHandle,
             paradevs::tests::multithreading::RootGraphManager >
-        > rc(0, 10000, "root", paradevs::common::NoParameters(),
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
              paradevs::common::NoParameters());
 
     rc.run();
+
+    steady_clock::time_point t2 = steady_clock::now();
+
+    duration < double > time_span = duration_cast <
+        duration < double > >(t2 - t1);
+
+    std::cout << "multithreading/dependant -> " << time_span.count()
+              << std::endl;
 }
+
+TEST_CASE("pdevs/classic/hierachical", "run")
+{
+    steady_clock::time_point t1 = steady_clock::now();
+
+    paradevs::common::RootCoordinator <
+        DoubleTime, paradevs::pdevs::Coordinator <
+            DoubleTime,
+            paradevs::common::scheduler::HeapScheduler <
+                DoubleTime, SchedulerHandle >,
+            SchedulerHandle,
+            paradevs::tests::pdevs::RootGraphManager >
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
+             paradevs::common::NoParameters());
+
+    rc.run();
+
+    steady_clock::time_point t2 = steady_clock::now();
+
+    duration < double > time_span = duration_cast <
+        duration < double > >(t2 - t1);
+
+    std::cout << "classic/dependant -> " << time_span.count() << std::endl;
+}
+
+TEST_CASE("pdevs/multithreading/independant", "run")
+{
+    steady_clock::time_point t1 = steady_clock::now();
+
+    paradevs::common::RootCoordinator <
+        DoubleTime, paradevs::pdevs::multithreading::Coordinator <
+            DoubleTime,
+            paradevs::common::scheduler::HeapScheduler <
+                DoubleTime, SchedulerHandle >,
+            SchedulerHandle,
+            paradevs::tests::multithreading::Root2GraphManager >
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
+             paradevs::common::NoParameters());
+
+    rc.run();
+
+    steady_clock::time_point t2 = steady_clock::now();
+
+    duration < double > time_span = duration_cast <
+        duration < double > >(t2 - t1);
+
+    std::cout << "multithreading/independant -> " << time_span.count()
+              << std::endl;
+}
+
+TEST_CASE("pdevs/classic/independant", "run")
+{
+    steady_clock::time_point t1 = steady_clock::now();
+
+    paradevs::common::RootCoordinator <
+        DoubleTime, paradevs::pdevs::Coordinator <
+            DoubleTime,
+            paradevs::common::scheduler::HeapScheduler <
+                DoubleTime, SchedulerHandle >,
+            SchedulerHandle,
+            paradevs::tests::multithreading::Root3GraphManager >
+        > rc(0, 100, "root", paradevs::common::NoParameters(),
+             paradevs::common::NoParameters());
+
+    rc.run();
+
+    steady_clock::time_point t2 = steady_clock::now();
+
+    duration < double > time_span = duration_cast <
+        duration < double > >(t2 - t1);
+
+    std::cout << "classic/independant -> " << time_span.count() << std::endl;
+}
+

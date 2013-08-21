@@ -24,8 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_TRACE
-#define COMMON_TRACE 1
+#ifndef COMMON_UTILS_TRACE
+#define COMMON_UTILS_TRACE 1
 
 #include <algorithm>
 #include <iterator>

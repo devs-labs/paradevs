@@ -1,5 +1,5 @@
 /**
- * @file String.hpp
+ * @file common/utils/String.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,8 +24,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_STRING
-#define COMMON_STRING 1
+#ifndef COMMON_UTILS_STRING
+#define COMMON_UTILS_STRING 1
 
 #include <string>
 

@@ -32,7 +32,23 @@
 
 #include <kernel/pdevs/Dynamics.hpp>
 
+#include <chrono>
+
+#define DELAY 100
+
 namespace paradevs { namespace tests { namespace pdevs {
+
+void delay()
+{
+    for (unsigned int i = 0; i < DELAY; ++i) {
+        std::vector < int > v;
+
+        for (unsigned int j = 1000; j > 0; --j) {
+            v.push_back(j);
+        }
+        std::sort(v.begin(), v.end());
+    }
+}
 
 template < class SchedulerHandle>
 class A :
@@ -60,6 +76,8 @@ public:
                 common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
+
+        delay();
 
         if (_phase == SEND) {
             _phase = WAIT;
@@ -210,6 +228,8 @@ public:
                 common::DELTA_INT);
         common::Trace < common::DoubleTime >::trace().flush();
 #endif
+
+        delay();
 
         if (_phase == SEND) {
             _phase = WAIT;

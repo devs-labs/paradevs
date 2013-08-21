@@ -27,58 +27,55 @@
 #ifndef PDEVS_MULTITHREADING_COORDINATOR
 #define PDEVS_MULTITHREADING_COORDINATOR 1
 
+#include <common/utils/Multithreading.hpp>
 #include <kernel/pdevs/Coordinator.hpp>
 
-#include <future>
+#include <thread>
 
 namespace paradevs { namespace pdevs { namespace multithreading {
 
-class Barrier
+template < class Time>
+struct start_message
 {
-    struct SubBarrier
-    {
-        std::condition_variable _cv;
-        std::mutex              _lck;
-        int                     _runners;
-    };
-
-public:
-    Barrier(int count) : _max(count)
-    {
-        _current = &_sub_barriers[0];
-        for (int i = 0; i < 2; ++i) {
-            _sub_barriers[i]._runners = count;
-        }
-    }
-
-    virtual ~Barrier()
+    explicit start_message(typename Time::type t) : _t(t)
     { }
 
-    int wait()
-    {
-        SubBarrier *sub_barrier = _current;
+    typename Time::type _t;
+};
 
-        std::unique_lock < std::mutex > lck(sub_barrier->_lck);
+template < class Time>
+struct transition_message
+{
+    explicit transition_message(typename Time::type t) : _t(t)
+    { }
 
-        if (sub_barrier->_runners == 1) {
-            if (_max != 1) {
-                sub_barrier->_runners = _max;
-                _current = (_current == &_sub_barriers[0]) ? &_sub_barriers[1] :
-                    &_sub_barriers[0];
-                sub_barrier->_cv.notify_all();
-            }
-        } else {
-            sub_barrier->_runners--;
-            while (sub_barrier->_runners != _max)
-                sub_barrier->_cv.wait(lck);
-        }
-        return 0;
-    }
+    typename Time::type _t;
+};
 
-private:
-    int         _max;
-    SubBarrier  _sub_barriers[2];
-    SubBarrier* _current;
+template < class Time, class SchedulerHandle >
+struct done_start_message
+{
+    explicit done_start_message(typename Time::type tn,
+                                common::Model < Time,
+                                                SchedulerHandle >* child) :
+        _tn(tn), _child(child)
+    { }
+
+    typename Time::type                      _tn;
+    common::Model < Time, SchedulerHandle >* _child;
+};
+
+template < class Time, class SchedulerHandle >
+struct done_transition_message
+{
+    explicit done_transition_message(typename Time::type tn,
+                                     common::Model < Time,
+                                                     SchedulerHandle >* child) :
+        _tn(tn), _child(child)
+    { }
+
+    typename Time::type                      _tn;
+    common::Model < Time, SchedulerHandle >* _child;
 };
 
 template < class Time,
@@ -95,6 +92,12 @@ class Coordinator : public pdevs::Coordinator < Time, Scheduler,
                                  Parameters, GraphParameters > parent_type;
     typedef Coordinator < Time, Scheduler, SchedulerHandle, GraphManager,
                           Parameters, GraphParameters > type;
+    typedef done_start_message < Time,
+                                 SchedulerHandle > done_start_message_type;
+    typedef start_message < Time > start_message_type;
+    typedef done_transition_message < Time,
+                                 SchedulerHandle > done_transition_message_type;
+    typedef transition_message < Time > transition_message_type;
 
 public:
     Coordinator(const std::string& name,
@@ -102,70 +105,131 @@ public:
                 const GraphParameters& graph_parameters) :
         pdevs::Coordinator < Time, Scheduler, SchedulerHandle, GraphManager,
                              Parameters, GraphParameters >(name, parameters,
-                                                           graph_parameters)
-    {
-        for (auto & child : parent_type::_graph_manager.children()) {
-            if (not child->is_atomic()) {
-                type* coordinator = dynamic_cast < type* >(child);
-
-                _threads.push_back(std::thread([&]{ coordinator->loop(); }));
-            }
-        }
-    }
+                                                           graph_parameters),
+        _thread(std::thread([&]{ loop(); }))
+    { type::_graph_manager.init(); }
 
     virtual ~Coordinator()
-    { }
+    {
+        done();
+        _thread.join();
+    }
+
+    void done()
+    { get_sender().send(paradevs::common::Close()); }
+
+    paradevs::common::Sender get_sender()
+    { return _incoming; }
+
+    void set_sender(common::Sender sender)
+    { _sender = sender; }
 
     void loop()
     {
-        bool stop = false;
-
-        while (not stop) {
-
+        try
+        {
+            for(;;) {
+                _incoming.wait()
+                    .template handle < start_message_type >(
+                        [&](start_message_type const& msg)
+                        {
+                            typename Time::type tn = start(msg._t);
+                            _sender.send(done_start_message_type(tn, this));
+                        })
+                    .template handle < done_start_message_type >(
+                        [&](done_start_message_type const& msg)
+                        {
+                            type::_event_table.init(msg._tn, msg._child);
+                            --_received;
+                            if (_received == 0) {
+                                _received_mutex.unlock();
+                            }
+                        })
+                    .template handle < transition_message_type >(
+                        [&](transition_message_type const& msg)
+                        {
+                            typename Time::type tn = transition(msg._t);
+                            _sender.send(done_transition_message_type(tn,
+                                                                      this));
+                        })
+                    .template handle < done_transition_message_type >(
+                        [&](done_transition_message_type const& msg)
+                        {
+                            type::_event_table.put(msg._tn, msg._child);
+                            --_received;
+                            if (_received == 0) {
+                                _received_mutex.unlock();
+                            }
+                        });
+            }
         }
+        catch(paradevs::common::Close const&)
+        { }
     }
 
     typename Time::type start(typename Time::type t)
     {
+        _received = 0;
         for (auto & child : parent_type::_graph_manager.children()) {
             if (child->is_atomic()) {
                 type::_event_table.init(child->start(type::_tn), child);
             } else {
-
+                ++_received;
             }
         }
+
+        if (_received > 0) {
+            type::_graph_manager.start(t);
+            _received_mutex.lock();
+
+            std::lock_guard < std::mutex > lock(_received_mutex);
+
+        }
+
         type::_tl = t;
         type::_tn = type::_event_table.get_current_time();
         return type::_tn;
     }
 
-    void output(typename Time::type t)
-    {
-        parent_type::output(t);
-    }
-
     typename Time::type transition(typename Time::type t)
     {
-        return parent_type::transition(t);
-    }
+        assert(t >= type::_tl and t <= type::_tn);
 
-    void post_event(typename Time::type t,
-                    const common::ExternalEvent < Time,
-                                                  SchedulerHandle >& event)
-    {
-         parent_type::post_event(t, event);
-    }
+        common::Models < Time, SchedulerHandle > receivers =
+            type::_event_table.get_current_models(t);
 
-    typename Time::type dispatch_events(
-        common::Bag < Time, SchedulerHandle > bag, typename Time::type t)
-    {
-        return parent_type::dispatch_events(bag, t);
+        type::add_models_with_inputs(receivers);
+
+        _received = 0;
+        for (auto & model : receivers) {
+            if (model->is_atomic()) {
+                type::_event_table.put(model->transition(t), model);
+            } else {
+                ++_received;
+            }
+        }
+
+        if (_received > 0) {
+            type::_graph_manager.transition(receivers, t);
+            _received_mutex.lock();
+
+            std::lock_guard < std::mutex > lock(_received_mutex);
+
+        }
+
+        parent_type::update_event_table(t);
+        type::_tl = t;
+        type::_tn = type::_event_table.get_current_time();
+        type::clear_bag();
+        return type::_tn;
     }
 
 private:
-    typedef std::vector < std::thread > Threads;
-
-    Threads _threads;
+    std::thread                _thread;
+    paradevs::common::Receiver _incoming;
+    paradevs::common::Sender   _sender;
+    unsigned int               _received;
+    std::mutex                 _received_mutex;
 };
 
 } } } // namespace paradevs pdevs multithreading
