@@ -118,6 +118,8 @@ void run_hierarchic_with_vector()
 
 int main()
 {
+    boost::timer::cpu_timer t;
+
     srand(108364);
 
     run_flat_with_heap < 10 >();
@@ -144,18 +146,18 @@ int main()
     run_flat_with_vector < 100 >();
     run_flat_with_vector < 200 >();
 
-    double t2 = t.elapsed();
+    double t2 = t.elapsed().user;
 
     std::cout << "run_hierarchic_with_heap ..." << std::endl;
     run_hierarchic_with_heap();
 
-    double t3 = t.elapsed();
+    double t3 = t.elapsed().user;
 
     std::cout << "... OK -> " << (t3 - t2) << std::endl;
     std::cout << "run_hierarchic_with_vector ..." << std::endl;
     run_hierarchic_with_vector();
 
-    double t4 = t.elapsed();
+    double t4 = t.elapsed().user;
 
     std::cout << "... OK -> "  << (t4 - t3) << std::endl;
 

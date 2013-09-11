@@ -32,6 +32,7 @@
 namespace paradevs { namespace tests { namespace boost_graph {
 
 void build_graph(UnorientedGraph& g, OrientedGraph& graph);
+void build_corsen_graph(OrientedGraph& graph);
 
 } } } // namespace paradevs tests boost_graph
 

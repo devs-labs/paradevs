@@ -74,9 +74,11 @@ void Affinage_recherche_locale(UnorientedGraph *g, EntiersEntiers &Partition,
 void projection(EntiersEntiers &Partition,ListEntiersEntiers::iterator lit);
 
 bool contraction_HEM(UnorientedGraph *g, Base_Graph &baseg,
-                     ListEntiersEntiers &liste_corr, int val_reduc, int &val_cpt);
+                     ListEntiersEntiers &liste_corr, int val_reduc,
+                     int &val_cpt);
 bool contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg,
-								ListEntiersEntiers &liste_corr, int val_reduc, int &val_cpt);
+                                ListEntiersEntiers &liste_corr, int val_reduc,
+                                int &val_cpt);
 
 Entiers Liste_adjacence(UnorientedGraph &g, int vertexs,
                         const Entiers &random_vertices);
@@ -100,6 +102,12 @@ double Cout_coupe_pond(Entiers P,int val, UnorientedGraph &g);
 int In_community_dichotomie(const EntiersEntiers &part, int val);
 double Degree(UnorientedGraph &g , int node);
 double Cluster_Degree(UnorientedGraph &g , const Entiers &cluster);
+
+void make_unoriented_graph(const OrientedGraph& og, UnorientedGraph& uog);
+
+void adjacence_ggp(int vertex, Entiers &sommets_adj, UnorientedGraph *g);
+
+float modif_Cout_coupe(const Entiers &P, int val, float cut, UnorientedGraph *g);
 
 } } } // namespace paradevs tests boost_graph
 

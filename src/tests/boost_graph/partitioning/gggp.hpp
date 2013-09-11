@@ -31,6 +31,9 @@
 
 namespace paradevs { namespace tests { namespace boost_graph {
 
+void ggp(UnorientedGraph *g, Entiers *sommetsSource,
+         Entiers *sommetsDestination, EntiersEntiers &Partition);
+
 void gggp(UnorientedGraph *g, Entiers *sommetsSource,
           Entiers *sommetsDestination, EntiersEntiers &Partition);
 

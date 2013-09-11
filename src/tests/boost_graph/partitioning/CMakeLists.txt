@@ -15,7 +15,7 @@ SET(PARTITIONING_CPP utils.cpp gggp.cpp graph_build.cpp)
 
 ADD_LIBRARY(partitioning SHARED ${PARTITIONING_HPP};${PARTITIONING_CPP})
 
-TARGET_LINK_LIBRARIES(partitioning
+TARGET_LINK_LIBRARIES(partitioning corsen
   ${Boost_LIBRARIES}
   ${GLIBMM_LIBRARIES}
   ${LIBXML_LIBRARIES}

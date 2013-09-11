@@ -228,10 +228,10 @@ void Affinage_equilibrage_charge(UnorientedGraph *g, EntiersEntiers &Partition)
 
     std::clog << "Poids initial des parties : " << std::endl;
 
-    for (uint i = 0; i < poids_parties.size(); i++){
-        std::cout << poids_parties.at(i) << " ";
-    }
-    std::cout << "\n" << std::endl;
+    // for (uint i = 0; i < poids_parties.size(); i++){
+    //     std::cout << poids_parties.at(i) << " ";
+    // }
+    // std::cout << "\n" << std::endl;
 
     /*
      * Le critère d'amélioration consiste à faire tendre vers 0 la somme
@@ -251,7 +251,7 @@ void Affinage_equilibrage_charge(UnorientedGraph *g, EntiersEntiers &Partition)
     // on conserve le poids maximum
     double p_max = *max_element(poids_parties.begin(), poids_parties.end());
 
-    std::cout << "Valeurs du criètre de départ : " << critere << std::endl;
+    // std::cout << "Valeurs du criètre de départ : " << critere << std::endl;
 
     // création d'un second critère légérement plsu faible que le premier
     double best_critere = critere - 1e-7;
@@ -358,13 +358,14 @@ void Affinage_equilibrage_charge(UnorientedGraph *g, EntiersEntiers &Partition)
                         suprim_val(*Partition.at(community.at(val)),vertex);
                         Partition.at(cpt)->push_back(vertex);
                         std::sort(Partition.at(cpt)->begin(), Partition.at(cpt)->end());
-                        std::cout<<" C'EST MORT RETOUR EN ARRIERE ! "<<std::endl;
+                        // std::cout<<" C'EST MORT RETOUR EN ARRIERE ! "<<std::endl
+                            ;
                     }
                     else
                     {
                         poids_parties = new_poids_parties;
                         decision = true;
-                        std::cout<<" Modification reussi ! "<<std::endl;
+                        // std::cout<<" Modification reussi ! "<<std::endl;
                     }
                 }
             }
@@ -390,16 +391,16 @@ void Affinage_equilibrage_charge(UnorientedGraph *g, EntiersEntiers &Partition)
             nbr_passage = 0;
         }
 
-        std::clog<<"Poids des parties modifié : "<<std::endl;
-        for(uint i = 0; i<poids_parties.size(); i++){
-            std::cout<<poids_parties.at(i)<<" ";
-        }
-        std::cout<<"\n"<<std::endl;
+        // std::clog<<"Poids des parties modifié : "<<std::endl;
+        // for(uint i = 0; i<poids_parties.size(); i++){
+        //     std::cout<<poids_parties.at(i)<<" ";
+        // }
+        // std::cout<<"\n"<<std::endl;
         p_max = *max_element(poids_parties.begin(),poids_parties.end());
-        std::cout<<"Valeurs du criètre : "<<critere<<std::endl;
-        std::cout<<"Valeurs du best_criètre : "<<best_critere<<std::endl;
-        std::cout<<"Nombre de passage : "<<nbr_passage<<std::endl;
-        std::cout<<"\n"<<std::endl;
+        // std::cout<<"Valeurs du criètre : "<<critere<<std::endl;
+        // std::cout<<"Valeurs du best_criètre : "<<best_critere<<std::endl;
+        // std::cout<<"Nombre de passage : "<<nbr_passage<<std::endl;
+        // std::cout<<"\n"<<std::endl;
 
     }
 }
@@ -465,7 +466,7 @@ void Affinage_recherche_locale(UnorientedGraph *g, EntiersEntiers &Partition, do
                 double cut_min = *min_element(tmp_cut.begin(),tmp_cut.end());
                 //std::cout<<"cout de coupe minimum de la liste : "<<cut_min<<std::endl;
                 if(cut_min<cut){
-                    std::clog<<"Changement ! "<<std::endl;
+                    // std::clog<<"Changement ! "<<std::endl;
                     int tmp = recherche_val_double(tmp_cut,cut_min);
                     cut=cut_min;
                     Partition.at(community.at(tmp))->push_back(vertex);
@@ -767,7 +768,7 @@ bool contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 				Random_list_vertices[i]=-1;
 				Random_list_vertices[recherche_val(Random_list_vertices,best_vertexs)]=-1;
 				val_cpt--;
-				std::cout<<val_cpt<<std::endl;
+				// std::cout<<val_cpt<<std::endl;
 			}
 			else{
 				/*
@@ -809,7 +810,7 @@ bool contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 	}
 
 	std::sort(sommets_a_detruire.begin(), sommets_a_detruire.end()); // Trie dans l'ordre croissant des "sommets à détruire"
-	std::cout<<"\n"<<std::endl;
+	// std::cout<<"\n"<<std::endl;
 	/*
 	 * Suppression des sommets de la liste "sommets à détruire". Cette suppression est
 	 * effectuée dans l'ordre décroissant afin à maintenir à jour la renumérotation
@@ -820,25 +821,25 @@ bool contraction_HEM(UnorientedGraph *g, Base_Graph &baseg, ListEntiersEntiers &
 		remove_vertex(sommets_a_detruire[j],*gtmp);
 	}
 
-	std::clog<<"Affichage avant tri "<<std::endl;
-	for(uint k = 0;k<tableau_de_correspondance->size();k++){
-		for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
-			std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
-		}
-		std::cout<<"\n"<<std::endl;
-	}
+	// std::clog<<"Affichage avant tri "<<std::endl;
+	// for(uint k = 0;k<tableau_de_correspondance->size();k++){
+	// 	for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
+	// 		std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
+	// 	}
+	// 	std::cout<<"\n"<<std::endl;
+	// }
 	std::sort(tableau_de_correspondance->begin(),tableau_de_correspondance->end(),myobject); // Trie dans l'ordre croissant des couples de sommets de la liste de correspondance
 
-	std::clog<<"Tableau de correspondance "<<std::endl;
-	for(uint k = 0;k<tableau_de_correspondance->size();k++){
-		for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
-			std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
-		}
-		std::cout<<"\n"<<std::endl;
-	}
+	// std::clog<<"Tableau de correspondance "<<std::endl;
+	// for(uint k = 0;k<tableau_de_correspondance->size();k++){
+	// 	for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
+	// 		std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
+	// 	}
+	// 	std::cout<<"\n"<<std::endl;
+	// }
 
 	liste_corr.push_back(tableau_de_correspondance);
-	std::cout<<"\n"<<std::endl;
+	// std::cout<<"\n"<<std::endl;
 	baseg.push_back(gtmp); // Ajout du graphe modifié à la "base des graphe"
 
 	if(val_cpt == val_reduc)
@@ -952,7 +953,7 @@ bool contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntie
 				Random_list_vertices[i]=-1;
 				Random_list_vertices[recherche_val(Random_list_vertices,best_vertexs)]=-1;
 				val_cpt--;
-				std::cout<<val_cpt<<std::endl;
+				// std::cout<<val_cpt<<std::endl;
 			}
 			else{
 				/*
@@ -998,16 +999,16 @@ bool contraction_Random_Maching(UnorientedGraph *g, Base_Graph &baseg, ListEntie
 	}*/
 	std::sort(tableau_de_correspondance->begin(),tableau_de_correspondance->end(),myobject); // Trie dans l'ordre croissant des couples de sommets de la liste de correspondance
 
-	std::clog<<"Tableau de correspondance "<<std::endl;
-	for(uint k = 0;k<tableau_de_correspondance->size();k++){
-		for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
-			std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
-		}
-		std::cout<<"\n"<<std::endl;
-	}
+	// std::clog<<"Tableau de correspondance "<<std::endl;
+	// for(uint k = 0;k<tableau_de_correspondance->size();k++){
+	// 	for(uint v = 0; v<tableau_de_correspondance->at(k)->size();v++){
+	// 		std::cout<<tableau_de_correspondance->at(k)->at(v)<<" ";
+	// 	}
+	// 	std::cout<<"\n"<<std::endl;
+	// }
 
 	liste_corr.push_back(tableau_de_correspondance);
-	std::cout<<"\n"<<std::endl;
+	// std::cout<<"\n"<<std::endl;
 	baseg.push_back(gtmp); // Ajout du graphe modifié à la "base des graphe"
 
 
@@ -1502,5 +1503,86 @@ OrientedGraphs Graph_Partition(const EntiersEntiers& Partition,
 	std::sort(Neight);
 	return Neight;
 }*/
+
+void make_unoriented_graph(const OrientedGraph& og, UnorientedGraph& ug)
+{
+    std::vector < vertex_t > ug_vertex_list;
+    std::vector < vertex_t > og_vertex_list;
+
+    for (uint i = 0; i < num_vertices(og); ++i) {
+        ug_vertex_list.push_back(add_vertex(ug));
+    }
+
+    OrientedGraph::vertex_iterator it_og, end_og;
+    UnorientedGraph::vertex_iterator it_ug, end_ug;
+
+    tie(it_og, end_og) = vertices(og);
+    tie(it_ug, end_ug) = vertices(ug);
+    for (; it_og != end_og; ++it_og, ++it_ug) {
+        ug[*it_ug] = og[*it_og];
+        og_vertex_list.push_back(*it_og);
+    }
+
+    OrientedGraph::edge_iterator ite_og, ende_og;
+
+    tie(ite_og, ende_og) = edges(og);
+    for (; ite_og != ende_og; ++ite_og) {
+        boost::add_edge(source(*ite_og, og), target(*ite_og, og),
+                        og[*ite_og], ug);
+    }
+
+    // std::cout << "Oriented graph: " << std::endl;
+    // tie(it_og, end_og) = vertices(og);
+    // for (; it_og != end_og; ++it_og) {
+    //     OrientedGraph::adjacency_iterator neighbour_it, neighbour_end;
+
+    //     std::cout << og[*it_og]._index << " is connected with ";
+    //     tie(neighbour_it, neighbour_end) = adjacent_vertices(*it_og, og);
+    //     for (; neighbour_it != neighbour_end; ++neighbour_it)
+    //         std::cout << og[*neighbour_it]._index << " ";
+    //     std::cout << " and weight = " << og[*it_og]._weight << std::endl;
+    // }
+    // std::cout << std::endl;
+
+    // std::cout << "Unoriented graph: " << std::endl;
+    // tie(it_ug, end_ug) = vertices(ug);
+    // for (; it_ug != end_ug; ++it_ug) {
+    //     UnorientedGraph::adjacency_iterator neighbour_it, neighbour_end;
+
+    //     std::cout << ug[*it_ug]._index << " is connected with ";
+    //     tie(neighbour_it, neighbour_end) = adjacent_vertices(*it_ug, ug);
+    //     for (; neighbour_it != neighbour_end; ++neighbour_it)
+    //         std::cout << ug[*neighbour_it]._index << " ";
+    //     std::cout << " and weight = " << ug[*it_ug]._weight << std::endl;
+    // }
+    // std::cout << std::endl;
+}
+
+void adjacence_ggp(int vertex, Entiers &sommets_adj, UnorientedGraph *g)
+{
+    tie(neighbourIt, neighbourEnd) = adjacent_vertices(vertex, *g);
+    for (; neighbourIt != neighbourEnd; ++neighbourIt)
+    {
+        sommets_adj.push_back(*neighbourIt);
+    }
+
+}
+
+float modif_Cout_coupe(const Entiers &P, int val, float cut, UnorientedGraph *g)
+{
+    //std::cout<<"Cout de coupe initiale : "<<cut<<std::endl;
+    //std::cout<<"degré du sommet tiré : "<<Degree(*g,val)<<std::endl;
+    double cpt=0;
+    float new_cut;
+    tie(neighbourIt, neighbourEnd) = adjacent_vertices(val, *g);
+    for (; neighbourIt != neighbourEnd; neighbourIt++){
+        if(In_tab(P,*neighbourIt)==1){
+            cpt++;
+        }
+    }
+    new_cut = cut + (Degree(*g,val) - (2 * cpt));
+    return new_cut;
+}
+
 
 } } } // namespace paradevs tests boost_graph

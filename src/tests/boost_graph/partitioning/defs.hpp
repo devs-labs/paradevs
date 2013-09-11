@@ -27,32 +27,10 @@
 #ifndef TESTS_BOOST_GRAPH_PARTITIONING_DEFS_H
 #define TESTS_BOOST_GRAPH_PARTITIONING_DEFS_H 1
 
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <iostream>
-// #include <iomanip>
-// #include <fstream>
 #include <list>
 #include <vector>
-// #include <map>
-// #include <exception>
-// #include <ctime>       /* clock_t, clock, CLOCKS_PER_SEC */
-// #include <cmath>
-// #include <algorithm>
 
-// #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/adjacency_list.hpp>
-// #include <boost/graph/adjacency_matrix.hpp>
-// #include <boost/graph/graph_utility.hpp>
-// #include <boost/version.hpp>
-// #include <boost/graph/graph_traits.hpp>
-// #include <boost/graph/graph_concepts.hpp>
-// #include <boost/concept/assert.hpp>
-// #include <boost/graph/adjacency_iterator.hpp>
-// #include <boost/limits.hpp>
-// #include <boost/graph/breadth_first_search.hpp>
-// #include <boost/graph/graphviz.hpp>
-// #include <boost/graph/undirected_graph.hpp>
 
 #include <tests/boost_graph/graph_defs.hpp>
 

@@ -26,6 +26,8 @@
 
 #include <tests/boost_graph/partitioning/graph_build.hpp>
 
+#include <tests/corsen/lib/Corsen.hpp>
+
 namespace paradevs { namespace tests { namespace boost_graph {
 
 void build_graph(UnorientedGraph& ug, OrientedGraph& og)
@@ -352,6 +354,81 @@ void build_graph(UnorientedGraph& ug, OrientedGraph& og)
     ug[v36] = VertexProperties(36, 1.5, TOP_PIXEL);
     ug[v37] = VertexProperties(37, 1.5, NORMAL_PIXEL);
 
+}
+
+void modify_file_paths(std::string& absolutePath,
+                       std::vector < std::string* >& files)
+{
+    for (std::vector < std::string* >::iterator it = files.begin();
+         it != files.end(); it++) {
+        (*it)->insert(0, absolutePath);
+    }
+}
+
+void build_corsen_graph(OrientedGraph& graph)
+{
+    std::string absolutePath(
+        "/home/eric/vle/vle-labs/paradevs/src/tests/corsen/data_s/");
+    std::string modeFile(".mode");
+    std::string parametersFile("par.txt");
+    std::string elevationFile("alt");
+    std::string outletFile("arbre");
+    std::string layersFile("couche");
+    std::string contextFile("contexte_yar_scenario.xml");
+    std::string slopeFile("pav");
+    std::vector < std::string* > files;
+    Corsen c;
+
+    files.push_back(&parametersFile);
+    files.push_back(&modeFile);
+    files.push_back(&elevationFile);
+    files.push_back(&outletFile);
+    files.push_back(&slopeFile);
+    files.push_back(&contextFile);
+    files.push_back(&layersFile);
+    modify_file_paths(absolutePath, files);
+
+    c.read(files, absolutePath);
+    c.buildGraph();
+
+    const DirectedGraph& g = c.getGraph().graph();
+    std::vector < vertex_t > og_vertex_list;
+    std::vector < vertex_t > dg_vertex_list;
+    std::vector < int > dg_in_vertex_list;
+    DirectedGraph::vertex_iterator it_dg, end_dg;
+
+    tie(it_dg, end_dg) = vertices(g);
+    for (uint i = 0; it_dg != end_dg; ++it_dg, ++i) {
+        og_vertex_list.push_back(add_vertex(graph));
+        dg_vertex_list.push_back(*it_dg);
+        dg_in_vertex_list.push_back(0);
+    }
+
+    tie(it_dg, end_dg) = vertices(g);
+    for (uint i = 0; it_dg != end_dg; ++it_dg, ++i) {
+        DirectedGraph::adjacency_iterator neighbour_it, neighbour_end;
+
+        tie(neighbour_it, neighbour_end) = adjacent_vertices(*it_dg, g);
+        for (; neighbour_it != neighbour_end; ++neighbour_it) {
+            uint index = 0;
+
+            while (dg_vertex_list[index] != *neighbour_it) {
+                ++index;
+            }
+            ++dg_in_vertex_list[index];
+            boost::add_edge(og_vertex_list[i], og_vertex_list[index],
+                            EdgeProperties(1.), graph);
+        }
+    }
+
+    tie(it_dg, end_dg) = vertices(g);
+    for (uint i = 0; it_dg != end_dg; ++it_dg, ++i) {
+        if (dg_in_vertex_list[i] == 0) {
+            graph[og_vertex_list[i]] = VertexProperties(i, 1., TOP_PIXEL);
+        } else {
+            graph[og_vertex_list[i]] = VertexProperties(i, 1., NORMAL_PIXEL);
+        }
+    }
 }
 
 } } } // namespace paradevs tests boost_graph

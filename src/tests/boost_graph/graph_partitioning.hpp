@@ -31,12 +31,16 @@
 #include <tests/boost_graph/partitioning/graph_build.hpp>
 #include <tests/boost_graph/partitioning/gggp.hpp>
 
+#include <boost/graph/copy.hpp>
+
 namespace paradevs { namespace tests { namespace boost_graph {
 
 class PartitioningGraphBuilder
 {
 public:
-    PartitioningGraphBuilder()
+    PartitioningGraphBuilder(int cn, std::string pmn, int cc, bool ccf) :
+        cluster_number(cn), partitioning_method_name(pmn),
+        contraction_coef(cc), contraction_coef_flag(ccf)
     { }
 
     void build(OrientedGraphs& graphs,
@@ -48,30 +52,66 @@ public:
     	//srand(7266);
 
         UnorientedGraph* g = new UnorientedGraph();
-        OrientedGraph* go = new OrientedGraph();
-        UnorientedGraph* graph_origin = new UnorientedGraph();
-        OrientedGraph* gop = new OrientedGraph();
+        OrientedGraph go;
+        UnorientedGraph graph_origin;
 
-        build_graph(*g, *go);
-        build_graph(*graph_origin, *gop);
+        // internal examples
+        // {
+        //     build_graph(*g, go);
+        //     boost::copy_graph(*g, graph_origin);
+        // }
 
-        delete gop;
+        // corsen examples
+        {
+            build_corsen_graph(go);
+            make_unoriented_graph(go, *g);
+            boost::copy_graph(*g, graph_origin);
+        }
 
-        int nbr_parties = 12;
         Edges edge_partie;
         Connections connections;
 
-        output_edges = OutputEdgeList(nbr_parties);
+        output_edges = OutputEdgeList(cluster_number);
 
-        graphs = Multiniveau(num_vertices(*g)/2, g, graph_origin, go, nbr_parties,"rand", "gggp_pond",
-                             "cut_norm", "norm", edge_partie ,
-                             output_edges, input_edges,
-                             parent_connections);
-        //std::cout<<"Sorti ! "<<std::endl;
+        if (contraction_coef_flag) {
+            graphs = Multiniveau(num_vertices(*g) / contraction_coef,
+                                 g, &graph_origin, &go,
+                                 cluster_number, "HEM",
+                                 partitioning_method_name,
+                                 "cut_norm", "norm", edge_partie ,
+                                 output_edges, input_edges,
+                                 parent_connections);
+        } else {
+            graphs = Multiniveau(contraction_coef, g, &graph_origin, &go,
+                                 cluster_number, "HEM",
+                                 partitioning_method_name,
+                                 "cut_norm", "norm", edge_partie ,
+                                 output_edges, input_edges,
+                                 parent_connections);
+        }
+    }
 
-        delete graph_origin;
-        delete go;
+private:
+    int cluster_number;
+    std::string partitioning_method_name;
+    int contraction_coef;
+    bool contraction_coef_flag;
+};
 
+class CorsenFlatGraphBuilder
+{
+public:
+    CorsenFlatGraphBuilder()
+    { }
+
+    void build(OrientedGraphs& graphs, InputEdgeList& /* input_edges */,
+               OutputEdgeList& /* output_edges */,
+               Connections& /* parent_connections */)
+    {
+        OrientedGraph graph;
+
+        build_corsen_graph(graph);
+        graphs.push_back(graph);
     }
 };
 
