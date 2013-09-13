@@ -33,6 +33,8 @@
 
 namespace paradevs { namespace tests { namespace boost_graph {
 
+int N;
+
 struct TopPixelParameters
 { };
 
@@ -56,6 +58,8 @@ public:
 
         // std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
         //           << t << ": dint" << std::endl;
+
+        N++;
 
     }
 
@@ -106,7 +110,7 @@ public:
     virtual ~NormalPixel()
     { }
 
-    virtual void dint(typename common::DoubleTime::type /* t */)
+    virtual void dint(typename common::DoubleTime::type t)
     {
 
         // std::cout << NormalPixel < SchedulerHandle >::get_name() << " at "
@@ -115,10 +119,11 @@ public:
         if (_phase == SEND) {
             _phase = WAIT;
             _received = 0;
+            _last_time = t;
         }
     }
 
-    virtual void dext(typename common::DoubleTime::type /* t */,
+    virtual void dext(typename common::DoubleTime::type t,
                       typename common::DoubleTime::type /* e */,
                       const common::Bag < common::DoubleTime,
                                           SchedulerHandle >& bag)
@@ -132,8 +137,14 @@ public:
                                     SchedulerHandle >::const_iterator it =
                  bag.begin(); it != bag.end(); ++it) {
             if (it->on_port("in")) {
+                if (_last_time == t) {
+                    std::cout << "oups !" << std::endl;
+                }
                 ++_received;
                 if (_received == _neighbour_number) {
+
+                    N++;
+
                     _phase = SEND;
                 }
             }
@@ -149,8 +160,13 @@ public:
     virtual typename common::DoubleTime::type start(
         typename common::DoubleTime::type /* t */)
     {
+
+        // std::cout << NormalPixel < SchedulerHandle >::get_name()
+        //           << " = " <<_neighbour_number << std::endl;
+
         _phase = WAIT;
         _received = 0;
+        _last_time = common::DoubleTime::negative_infinity;
         return common::DoubleTime::infinity;
     }
 
@@ -189,8 +205,9 @@ private:
 
     unsigned int _neighbour_number;
 
-    Phase _phase;
-    unsigned int _received;
+    Phase                             _phase;
+    unsigned int                      _received;
+    typename common::DoubleTime::type _last_time;
 };
 
 } } } // namespace paradevs tests boost_graph

@@ -223,6 +223,9 @@ public:
         BuiltFlatGraphManager < SchedulerHandle >::build_flat_graph(
             parameters._graph, parameters._input_edges);
         // input
+
+        // std::cout << "Input edges:" << std::endl;
+
         for (Edges::const_iterator it = parameters._input_edges.begin();
              it != parameters._input_edges.end(); ++it) {
             std::ostringstream ss_in;
@@ -235,8 +238,18 @@ public:
                 coordinator, ss_in.str(),
                 BuiltFlatGraphManager <
                     SchedulerHandle >::_normal_simulators[it->second], "in");
+
+            // std::cout << "link = " << coordinator->get_name()
+            //           << "::" << ss_in.str() << " -> "
+            //           << BuiltFlatGraphManager <
+            //               SchedulerHandle >::_normal_simulators[it->second]
+            //     ->get_name() << "::" << "in" << std::endl;
+
         }
         // output
+
+        // std::cout << "Output edges:" << std::endl;
+
         for (Edges::const_iterator it = parameters._output_edges.begin();
              it != parameters._output_edges.end(); ++it) {
             std::ostringstream ss_out;
@@ -245,14 +258,45 @@ public:
             if (not coordinator->exist_out_port(ss_out.str())) {
                 coordinator->add_out_port(ss_out.str());
             }
-            if (not BuiltFlatGraphManager < SchedulerHandle>::exist_link(
+
+            if (BuiltFlatGraphManager <
+                    SchedulerHandle >::_normal_simulators.find(it->first) !=
                 BuiltFlatGraphManager <
-                    SchedulerHandle >::_normal_simulators[it->first], "out",
-                coordinator, ss_out.str())) {
-                BuiltFlatGraphManager < SchedulerHandle>::add_link(
-                    BuiltFlatGraphManager <
-                        SchedulerHandle >::_normal_simulators[it->first], "out",
-                    coordinator, ss_out.str());
+                    SchedulerHandle >::_normal_simulators.end()) {
+                if (not BuiltFlatGraphManager < SchedulerHandle>::exist_link(
+                        BuiltFlatGraphManager <
+                            SchedulerHandle >::_normal_simulators[it->first],
+                        "out", coordinator, ss_out.str())) {
+                    BuiltFlatGraphManager < SchedulerHandle>::add_link(
+                        BuiltFlatGraphManager <
+                            SchedulerHandle >::_normal_simulators[it->first],
+                        "out", coordinator, ss_out.str());
+
+                    // std::cout << "link = " << BuiltFlatGraphManager <
+                    //     SchedulerHandle >::_normal_simulators[it->first]
+                    //     ->get_name() << "::" << "out -> "
+                    //           << coordinator->get_name()
+                    //           << "::" << ss_out.str()
+                    //           << std::endl;
+                }
+            } else {
+                if (not BuiltFlatGraphManager < SchedulerHandle>::exist_link(
+                        BuiltFlatGraphManager <
+                            SchedulerHandle >::_top_simulators[it->first],
+                        "out", coordinator, ss_out.str())) {
+                    BuiltFlatGraphManager < SchedulerHandle>::add_link(
+                        BuiltFlatGraphManager <
+                            SchedulerHandle >::_top_simulators[it->first],
+                        "out", coordinator, ss_out.str());
+
+                    // std::cout << "link = " << BuiltFlatGraphManager <
+                    //     SchedulerHandle >::_top_simulators[it->first]
+                    //     ->get_name() << "::" << "out -> "
+                    //           << coordinator->get_name()
+                    //           << "::" << ss_out.str()
+                    //           << std::endl;
+
+                }
             }
         }
     }
@@ -298,7 +342,7 @@ public:
             if (not coordinator->exist_out_port(ss_out.str())) {
                 coordinator->add_out_port(ss_out.str());
             }
-            if (not ParallelBuiltFlatGraphManager < SchedulerHandle>::exist_link(
+            if (not ParallelBuiltFlatGraphManager < SchedulerHandle >::exist_link(
                 ParallelBuiltFlatGraphManager <
                     SchedulerHandle >::_normal_simulators[it->first], "out",
                 coordinator, ss_out.str())) {
@@ -397,31 +441,12 @@ public:
         graph_builder.build(graphs, input_edges, output_edges,
                             parent_connections);
 
-        // for (unsigned int i = 0; i < graphs.size(); ++i) {
-        //     std::cout << "graph[" << i << "]:" << std::endl;
-        //     const OrientedGraph& og = graphs[i];
-        //     OrientedGraph::vertex_iterator it_og, end_og;
-        //     tie(it_og, end_og) = vertices(og);
-        //     for (; it_og != end_og; ++it_og) {
-        //         OrientedGraph::adjacency_iterator neighbour_it, neighbour_end;
-
-        //         std::cout << og[*it_og]._index << " is connected with ";
-        //         tie(neighbour_it, neighbour_end) = adjacent_vertices(*it_og,
-        //                                                              og);
-        //         for (; neighbour_it != neighbour_end; ++neighbour_it)
-        //             std::cout << og[*neighbour_it]._index << " ";
-        //         std::cout << " and weight = " << og[*it_og]._weight
-        //                   << std::endl;
-        //     }
-        //     std::cout << "===" << std::endl;
-        // }
-
         // build coordinators (graphs)
         for (unsigned int i = 0; i < graphs.size(); ++i) {
             Coordinator* coordinator = 0;
             std::ostringstream ss;
 
-            ss << "S" << (i + 1);
+            ss << "S" << i;
             coordinator =
                 new Coordinator(ss.str(), paradevs::common::NoParameters(),
                                 GraphParameters(graphs[i], input_edges[i],
@@ -432,6 +457,8 @@ public:
                                                coordinator);
 
         }
+
+        // std::cout << "Root:" << std::endl;
 
         // builds internal connections (edges)
         for (Connections::const_iterator it = parent_connections.begin();
@@ -449,6 +476,15 @@ public:
                         ss_out.str(),
                         _coordinators[connection.second.first - 1],
                         ss_in.str())) {
+
+                // std::cout << "link = "
+                //           << _coordinators[connection.first.first - 1]
+                //     ->get_name()
+                //           << "::" << ss_out.str() << " -> "
+                //           << _coordinators[connection.second.first - 1]
+                //     ->get_name()
+                //           << "::" << ss_in.str() << std::endl;
+
                 HeapHierarchicalGraphManager <
                     SchedulerHandle, GraphBuilder >::add_link(
                         _coordinators[connection.first.first - 1],
@@ -512,7 +548,7 @@ public:
             Coordinator* coordinator = 0;
             std::ostringstream ss;
 
-            ss << "S" << (i + 1);
+            ss << "S" << i;
             coordinator =
                 new Coordinator(ss.str(), paradevs::common::NoParameters(),
                                 GraphParameters(graphs[i], input_edges[i],
@@ -604,7 +640,7 @@ public:
             ParallelCoordinator* coordinator = 0;
             std::ostringstream ss;
 
-            ss << "S" << (i + 1);
+            ss << "S" << i;
             coordinator =
                 new ParallelCoordinator(ss.str(),
                                         paradevs::common::NoParameters(),

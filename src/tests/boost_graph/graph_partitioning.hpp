@@ -48,25 +48,22 @@ public:
                OutputEdgeList& output_edges,
                Connections& parent_connections)
     {
-        srand((unsigned)time(NULL));
-    	//srand(7266);
-
         UnorientedGraph* g = new UnorientedGraph();
         OrientedGraph go;
         UnorientedGraph graph_origin;
 
         // internal examples
-        // {
-        //     build_graph(*g, go);
-        //     boost::copy_graph(*g, graph_origin);
-        // }
-
-        // corsen examples
         {
-            build_corsen_graph(go);
-            make_unoriented_graph(go, *g);
+            build_graph(*g, go);
             boost::copy_graph(*g, graph_origin);
         }
+
+        // corsen examples
+        // {
+        //     build_corsen_graph(go);
+        //     make_unoriented_graph(go, *g);
+        //     boost::copy_graph(*g, graph_origin);
+        // }
 
         Edges edge_partie;
         Connections connections;
@@ -89,6 +86,60 @@ public:
                                  output_edges, input_edges,
                                  parent_connections);
         }
+
+        std::cout << "*********************************" << std::endl;
+        std::cout << "Graphs:" << std::endl;
+        for (unsigned int i = 0; i < graphs.size(); ++i) {
+            std::cout << "graph[" << i << "]:" << std::endl;
+            const OrientedGraph& og = graphs[i];
+            OrientedGraph::vertex_iterator it_og, end_og;
+
+            tie(it_og, end_og) = vertices(og);
+            for (; it_og != end_og; ++it_og) {
+                OrientedGraph::adjacency_iterator neighbour_it, neighbour_end;
+
+                std::cout << og[*it_og]._index << " -> { ";
+                tie(neighbour_it, neighbour_end) = adjacent_vertices(*it_og,
+                                                                     og);
+                for (; neighbour_it != neighbour_end; ++neighbour_it) {
+                    std::cout << og[*neighbour_it]._index << " ";
+                }
+                std::cout << "}" << std::endl;
+            }
+        }
+        {
+            unsigned int i = 0;
+
+            std::cout << "Input edges:" << std::endl;
+            for (InputEdgeList::const_iterator it = input_edges.begin();
+                 it != input_edges.end(); ++it, ++i) {
+                std::cout << "S" << i << " = {";
+                for (InputEdges::const_iterator it2 = it->begin();
+                     it2 != it->end(); ++it2) {
+                    std::cout << " ( " << it2->first << " -> " << it2->second
+                              << " )";
+                }
+                std::cout << " }" << std::endl;;
+            }
+        }
+        {
+            unsigned int i = 0;
+
+            std::cout << "Output edges:" << std::endl;
+            for (OutputEdgeList::const_iterator it = output_edges.begin();
+                 it != output_edges.end(); ++it, ++i) {
+                std::cout << "S" << i << " = {";
+                for (OutputEdges::const_iterator it2 = it->begin();
+                     it2 != it->end(); ++it2) {
+                    std::cout << " ( " << it2->first << " -> " << it2->second
+                              << " )";
+                }
+                std::cout << " }" << std::endl;;
+            }
+        }
+
+        std::cout << "*********************************" << std::endl;
+
     }
 
 private:
