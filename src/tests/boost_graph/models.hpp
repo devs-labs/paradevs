@@ -33,8 +33,6 @@
 
 namespace paradevs { namespace tests { namespace boost_graph {
 
-int N;
-
 struct TopPixelParameters
 { };
 
@@ -58,8 +56,6 @@ public:
 
         // std::cout << TopPixel < SchedulerHandle >::get_name() << " at "
         //           << t << ": dint" << std::endl;
-
-        N++;
 
     }
 
@@ -142,9 +138,6 @@ public:
                 }
                 ++_received;
                 if (_received == _neighbour_number) {
-
-                    N++;
-
                     _phase = SEND;
                 }
             }

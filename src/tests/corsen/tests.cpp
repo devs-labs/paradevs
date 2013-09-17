@@ -24,21 +24,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/timer.hpp>
-
-#include <common/RootCoordinator.hpp>
-
 #include "lib/Corsen.hpp"
-
-// #include <tests/boost_graph/models.hpp>
-// #include <tests/boost_graph/graph_builder.hpp>
-// #include <tests/boost_graph/graph_manager.hpp>
-// #include <tests/boost_graph/graph_partitioning.hpp>
-
-// using namespace paradevs::common;
-// using namespace paradevs::common::scheduler;
-// using namespace paradevs::pdevs;
-// using namespace paradevs::tests::boost_graph;
 
 /**
  * \fn void modifyFilesPath(string & absolutePath, vector<string *> & files)
@@ -104,7 +90,6 @@ int main(int argc, char** argv)
                     exit(0);
                 }
                 contextFile.clear();
-                //contextFile.append("data/");
                 contextFile.append(argv[i++]);
                 std::vector<std::string *>context;
                 context.push_back(&contextFile);
@@ -124,7 +109,7 @@ int main(int argc, char** argv)
         Corsen c;
         c.read(files, absolutePath);
         c.buildGraph();
-        // c.display();
+        c.display();
     } catch(std::exception & e) {
         std::cout<<e.what()<<std::endl;
     }

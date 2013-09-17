@@ -197,18 +197,10 @@ void test(double duration, std::string partitioning_method_name,
                 double t1 = t.elapsed();
 
                 for (unsigned int i = 0; i < 20; ++i) {
-
-                    N = 0;
-
-                    std::cout << "********************" << std::endl;
-
                     partitionning_heap_test(duration, n,
                                             partitioning_method_name,
                                             contraction_coef,
                                             contraction_coef_flag);
-
-                    std::cout << "N=" << N << std::endl;
-
                 }
 
                 double t2 = t.elapsed();
@@ -292,21 +284,22 @@ void test_flat_38()
     std::cout << (t3 - t2) / 20 << std::endl;
 }
 
+const double duration_38 = -1;
+
 void test_partiotining_38()
 {
+    for (int i = 1; i <= 2; ++i) {
+        test(duration_38, "ggp", 2, 16, 2, true, true, i, true);
+        test(duration_38, "gggp_pond", 2, 16, 2, true, true, i, true);
+        test(duration_38, "random", 2, 16, 2, true, true, i, true);
+    }
 
-    test(0, "gggp_pond", 4, 4, 2, false, true, 1, true);
-
-    // for (int i = 1; i <= 2; ++i) {
-    //     test(10000, "ggp", 2, 16, 2, true, true, i, true);
-    //     test(10000, "gggp_pond", 2, 16, 2, true, true, i, true);
-    //     test(10000, "random", 2, 16, 2, true, true, i, true);
-    // }
-
-    // for (int i = 2; i <= 8; i += 2) {
-    //     test(10000, "gggp_pond", 0, 0, 0, true, true, i, false);
-    // }
+    for (int i = 2; i <= 8; i += 2) {
+        test(duration_38, "gggp_pond", 0, 0, 0, true, true, i, false);
+    }
 }
+
+const double corsen_duration = 20;
 
 void test_flat_corsen()
 {
@@ -315,24 +308,22 @@ void test_flat_corsen()
     std::cout << "== CORSEN == " << std::endl;
     std::cout << "flat graph with heap = ";
     for (unsigned int i = 0; i < 20; ++i) {
-        flat_heap_test< CorsenFlatGraphBuilder >(10);
+        flat_heap_test< CorsenFlatGraphBuilder >(corsen_duration);
     }
 
     double t2 = t.elapsed();
 
     std::cout << t2 / 20 << std::endl;
 
-    std::cout << "flat graph with vector = ";
-    for (unsigned int i = 0; i < 20; ++i) {
-        flat_vector_test< CorsenFlatGraphBuilder >(10);
-    }
+    // std::cout << "flat graph with vector = ";
+    // for (unsigned int i = 0; i < 20; ++i) {
+    //     flat_vector_test< CorsenFlatGraphBuilder >(corsen_duration);
+    // }
 
-    double t3 = t.elapsed();
+    // double t3 = t.elapsed();
 
-    std::cout << (t3 - t2) / 20 << std::endl;
+    // std::cout << (t3 - t2) / 20 << std::endl;
 }
-
-const double corsen_duration = 10;
 
 void test_partitioning_corsen()
 {
@@ -378,10 +369,10 @@ int main()
     srand(7262);
 
     // test_flat_38();
-    test_partiotining_38();
+    // test_partiotining_38();
 
-    // test_flat_corsen();
-    // test_partitioning_corsen();
+    test_flat_corsen();
+    test_partitioning_corsen();
 
     return 0;
 }

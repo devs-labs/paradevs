@@ -893,7 +893,7 @@ OrientedGraphs Multiniveau(uint niveau_contraction,
 
     }
 
-    OrientedGraphs Graphes = Graph_Partition(Partition, go, g, outputedgelist,
+    OrientedGraphs Graphes = Graph_Partition(Partition, go, graph_origin, outputedgelist,
                                              inputedgelist, connections);
 
     // std::cout<<std::endl;
