@@ -45,11 +45,11 @@ template < class Time, class SchedulerHandle >
 class ExternalEvent
 {
 public:
-    ExternalEvent(const std::string& port_name, double content) :
+    ExternalEvent(const std::string& port_name, void* content) :
         _port_name(port_name), _model(0), _content(content)
     { }
 
-    ExternalEvent(const Node < Time, SchedulerHandle >& node, double content) :
+    ExternalEvent(const Node < Time, SchedulerHandle >& node, void* content) :
         _port_name(node.get_port_name()),
         _model(node.get_model()),
         _content(content)
@@ -61,13 +61,13 @@ public:
     virtual ~ExternalEvent()
     { }
 
-    double get_content() const
+    void* get_content() const
     { return _content; }
 
     const std::string& get_port_name() const
     { return _port_name; }
 
-    void set_content(double content)
+    void set_content(void* content)
     { _content = content; }
 
     Model < Time, SchedulerHandle >* get_model() const
@@ -84,14 +84,14 @@ public:
         std::ostringstream ss;
 
         ss << "( " << _port_name << " , " << (_model?_model->get_name():"<>")
-           << " , " << _content << ")";
+           << " , " << *(double*)_content << ")";
         return ss.str();
     }
 
 private :
     std::string                      _port_name;
     Model < Time, SchedulerHandle >* _model;
-    double                           _content;
+    void*                            _content;
 };
 
 } } // namespace paradevs common

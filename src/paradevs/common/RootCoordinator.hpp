@@ -38,12 +38,12 @@ template < class Time, class Coordinator >
 class RootCoordinator
 {
 public :
-    RootCoordinator(const typename Time::type& t_start,
-                    const typename Time::type& t_max,
-                    const std::string& root_name,
-                    const typename Coordinator::parameters_type& parameters,
-                    const typename Coordinator::graph_parameters_type&
-                    graph_parameters) :
+    RootCoordinator(
+        const typename Time::type& t_start,
+        const typename Time::type& t_max,
+        const std::string& root_name,
+        const typename Coordinator::parameters_type& parameters,
+        const typename Coordinator::graph_parameters_type& graph_parameters) :
         _root(root_name, parameters, graph_parameters),
         _t_max(t_max), _tn(t_start)
     { }

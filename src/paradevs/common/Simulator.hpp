@@ -34,7 +34,7 @@
 namespace paradevs { namespace common {
 
 template < class Time, class SchedulerHandle >
-class Simulator : public Model < Time, SchedulerHandle >
+class Simulator : public virtual Model < Time, SchedulerHandle >
 {
 public :
     Simulator(const std::string& name) : Model < Time, SchedulerHandle >(name)

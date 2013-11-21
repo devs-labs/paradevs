@@ -1,5 +1,5 @@
 /**
- * @file kernel/dtss/GraphManager.hpp
+ * @file kernel/sss/GraphManager.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,16 +24,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DTSS_GRAPH_MANAGER
-#define DTSS_GRAPH_MANAGER 1
+#ifndef SSS_GRAPH_MANANGER
+#define SSS_GRAPH_MANANGER 1
 
 #include <paradevs/common/Coordinator.hpp>
 #include <paradevs/common/Links.hpp>
-#include <paradevs/common/Model.hpp>
 #include <paradevs/common/Parameters.hpp>
 #include <paradevs/common/scheduler/SchedulerHandle.hpp>
 
-namespace paradevs { namespace dtss {
+#include <paradevs/kernel/sss/Model.hpp>
+
+namespace paradevs { namespace sss {
 
 template < class Time,
            class SchedulerHandle =
@@ -50,7 +51,7 @@ public:
     virtual ~GraphManager()
     { }
 
-    void add_child(common::Model < Time, SchedulerHandle >* child)
+    void add_child(sss::Model < Time, SchedulerHandle >* child)
     {
         _child_list.push_back(child);
         child->set_parent(_coordinator);
@@ -77,7 +78,7 @@ public:
         _link_list.add(src_model, src_port_name, dst_model, dst_port_name);
     }
 
-    const common::Models < Time, SchedulerHandle >& children() const
+    const sss::Models < Time, SchedulerHandle >& children() const
     { return _child_list; }
 
     void dispatch_events(common::Bag < Time, SchedulerHandle > bag,
@@ -133,10 +134,10 @@ public:
 
 private:
     common::Links < Time, SchedulerHandle >        _link_list;
-    common::Models < Time, SchedulerHandle >       _child_list;
+    sss::Models < Time, SchedulerHandle >          _child_list;
     common::Coordinator < Time, SchedulerHandle >* _coordinator;
 };
 
-} } // namespace paradevs dtss
+} } // namespace paradevs sss
 
 #endif

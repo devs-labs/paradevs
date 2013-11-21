@@ -45,6 +45,7 @@ class Simulator : public common::Simulator < Time, SchedulerHandle >
 
 public :
     Simulator(const std::string& name, const Parameters& parameters) :
+        common::Model < Time, SchedulerHandle >(name),
         common::Simulator < Time, SchedulerHandle >(name),
         _dynamics(name, parameters)
     { }

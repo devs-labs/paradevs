@@ -103,6 +103,7 @@ public:
     Coordinator(const std::string& name,
                 const Parameters& parameters,
                 const GraphParameters& graph_parameters) :
+        common::Model < Time, SchedulerHandle >(name),
         pdevs::Coordinator < Time, Scheduler, SchedulerHandle, GraphManager,
                              Parameters, GraphParameters >(name, parameters,
                                                            graph_parameters),

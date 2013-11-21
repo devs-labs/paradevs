@@ -55,6 +55,7 @@ public:
     Coordinator(const std::string& name,
                 const Parameters& /* parameters */,
                 const GraphParameters& graph_parameters) :
+        common::Model < Time, SchedulerHandle >(name),
         common::Coordinator < Time, SchedulerHandle >(name),
         _graph_manager(this, graph_parameters)
     { }
@@ -87,10 +88,7 @@ public:
         assert(_graph_manager.children().size() > 0);
 
         for (auto & child : _graph_manager.children()) {
-            _event_table.init(child->start(
-                                  Coordinator < Time, Scheduler,
-                                  SchedulerHandle, GraphManager, Parameters,
-                                  GraphParameters >::_tn), child);
+            _event_table.init(child->start(t), child);
         }
         type::_tl = t;
         type::_tn = _event_table.get_current_time();

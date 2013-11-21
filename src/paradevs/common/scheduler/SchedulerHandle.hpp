@@ -24,7 +24,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_SCHEDULER_SCHEDULER_HAMDLE_HPP
+#ifndef COMMON_SCHEDULER_SCHEDULER_HANDLE_HPP
 #define COMMON_SCHEDULER_SCHEDULER_HANDLE_HPP 1
 
 namespace paradevs { namespace common { namespace scheduler {

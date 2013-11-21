@@ -132,14 +132,6 @@ public:
         _inputs->push_back(message);
     }
 
-    const common::Bag < Time, SchedulerHandle >& get_bag()
-    {
-        if (_inputs == 0) {
-            _inputs = new Bag < Time, SchedulerHandle >;
-        }
-        return *_inputs;
-    }
-
     void clear_bag()
     {
         if (_inputs) {
@@ -155,6 +147,14 @@ public:
         } else {
             return 0;
         }
+    }
+
+    const common::Bag < Time, SchedulerHandle >& get_bag()
+    {
+        if (_inputs == 0) {
+            _inputs = new Bag < Time, SchedulerHandle >;
+        }
+        return *_inputs;
     }
 
     // time

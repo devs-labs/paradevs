@@ -1,5 +1,5 @@
 /**
- * @file kernel/dtss/Simulator.hpp
+ * @file kernel/sss/Simulator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,23 +24,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DTSS_SIMULATOR
-#define DTSS_SIMULATOR 1
+#ifndef SSS_SIMULATOR
+#define SSS_SIMULATOR 1
 
 #include <paradevs/common/Coordinator.hpp>
 #include <paradevs/common/Parameters.hpp>
 #include <paradevs/common/Simulator.hpp>
 #include <paradevs/common/utils/Trace.hpp>
 
+#include <paradevs/kernel/sss/Model.hpp>
+
 #include <cassert>
 
-namespace paradevs { namespace dtss {
+namespace paradevs { namespace sss {
 
 template < class Time, class Dynamics,
            class SchedulerHandle =
                paradevs::common::scheduler::NoSchedulerHandle,
            class Parameters = common::NoParameters >
-class Simulator : public common::Simulator < Time, SchedulerHandle >
+class Simulator : public common::Simulator < Time, SchedulerHandle >,
+                  public sss::Model < Time, SchedulerHandle >
 {
     typedef Simulator < Time, Dynamics, SchedulerHandle, Parameters > type;
 
@@ -49,12 +52,19 @@ public:
         const Parameters& parameters) :
         common::Model < Time, SchedulerHandle >(name),
         common::Simulator < Time, SchedulerHandle >(name),
+        sss::Model < Time, SchedulerHandle >(name),
         _dynamics(name, parameters),
         _time_step(time_step)
     { }
 
     ~Simulator()
     {  }
+
+    virtual bool is_atomic() const
+    { return common::Simulator < Time, SchedulerHandle >::is_atomic(); }
+
+    virtual std::string to_string(int level) const
+    { return common::Simulator < Time, SchedulerHandle >::to_string(level); }
 
     typename Time::type start(typename Time::type t)
     {
@@ -163,10 +173,15 @@ public:
 
         assert(t == type::_tn);
 
-        _dynamics.transition(type::get_bag(), t);
-        type::_tl = t;
-        type::_tn = t + _time_step;
-        type::clear_bag();
+        if (type::is_marked()) {
+            if (type::is_send()) {
+                type::_tl = t;
+                type::_tn = t + _time_step;
+            }
+        } else {
+            _dynamics.transition(type::get_bag(), t);
+            type::clear_bag();
+        }
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
@@ -180,11 +195,14 @@ public:
         return type::_tn;
     }
 
+    virtual void update_buffer(typename Time::type time)
+    { _dynamics.update_buffer(time); }
+
 private :
     Dynamics            _dynamics;
     typename Time::type _time_step;
 };
 
-} } // namespace paradevs dtss
+} } // namespace paradevs sss
 
 #endif

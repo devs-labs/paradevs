@@ -1,5 +1,5 @@
 /**
- * @file kernel/dtss/Coordinator.hpp
+ * @file kernel/sss/Coordinator.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,17 +24,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DTSS_COORDINATOR
-#define DTSS_COORDINATOR 1
+#ifndef SSS_COORDINATOR
+#define SSS_COORDINATOR 1
 
 #include <paradevs/common/Coordinator.hpp>
 #include <paradevs/common/Parameters.hpp>
 #include <paradevs/common/utils/Trace.hpp>
 
+#include <paradevs/kernel/sss/Model.hpp>
+
 #include <cassert>
 #include <iostream>
 
-namespace paradevs { namespace dtss {
+namespace paradevs { namespace sss {
 
 template < class Time >
 class Parameters
@@ -49,7 +51,8 @@ public:
 template < class Time, class Policy, class GraphManager,
            class SchedulerHandle, class Parameters = Parameters < Time >,
            class GraphParameters = common::NoParameters >
-class Coordinator : public common::Coordinator < Time, SchedulerHandle >
+class Coordinator : public common::Coordinator < Time, SchedulerHandle >,
+                    public sss::Model < Time, SchedulerHandle >
 {
     typedef Coordinator < Time, Policy, GraphManager, SchedulerHandle,
                           Parameters, GraphParameters > type;
@@ -63,12 +66,19 @@ public:
                 const GraphParameters& graph_paramaters) :
         common::Model < Time, SchedulerHandle >(name),
         common::Coordinator < Time, SchedulerHandle >(name),
+        sss::Model < Time, SchedulerHandle >(name),
         _graph_manager(this, graph_paramaters),
         _time_step(parameters._time_step)
     { }
 
     virtual ~Coordinator()
     { }
+
+    virtual bool is_atomic() const
+    { return common::Coordinator < Time, SchedulerHandle >::is_atomic(); }
+
+    virtual std::string to_string(int level) const
+    { return common::Coordinator < Time, SchedulerHandle >::to_string(level); }
 
     typename Time::type start(typename Time::type t)
     {
@@ -84,11 +94,11 @@ public:
 
         assert(_graph_manager.children().size() > 0);
 
+        type::_tl = t;
+        type::_tn = t;
         for (auto & child : _graph_manager.children()) {
             child->start(t);
         }
-        type::_tl = t;
-        type::_tn = t;
 
 #ifdef WITH_TRACE
         common::Trace < Time >::trace()
@@ -151,7 +161,13 @@ public:
 
         if (t == type::_tn) {
             for (auto & model : _graph_manager.children()) {
-                model->output(t);
+                model->update_buffer(t);
+            }
+            for (auto & model : _graph_manager.children()) {
+                if (not model->is_send() && model->is_marked()) {
+                    model->output(t);
+                    model->send();
+                }
             }
         }
 
@@ -207,14 +223,39 @@ public:
 #endif
 
         if (t == type::_tn) {
+            bool end = true;
+
             for (auto & event : _policy.bag()) {
                 post_event(t, event);
             }
             for (auto & model : _graph_manager.children()) {
-                model->transition(t);
+                if (not model->is_marked()) {
+                    if (model->all_ports_are_assigned()) {
+                        model->transition(t);
+                        model->mark();
+                        end = false;
+                    } else {
+                        end = false;
+                    }
+                } else {
+                    if (not model->is_send()) {
+                        end = false;
+                    } else {
+                        if (t == model->get_tn()) {
+                            model->transition(t);
+                        }
+                    }
+                }
             }
-            type::_tl = t;
-            type::_tn = t + _time_step;
+
+            if (end) {
+                for (auto & model : _graph_manager.children()) {
+                    model->unmark();
+                    model->unsend();
+                }
+                type::_tl = t;
+                type::_tn = t + _time_step;
+            }
         }
         type::clear_bag();
 
@@ -229,12 +270,15 @@ public:
         return type::_tn;
     }
 
+    virtual void update_buffer(typename Time::type /* time */)
+    { }
+
 private:
     GraphManager        _graph_manager;
     typename Time::type _time_step;
     Policy              _policy;
 };
 
-} } // namespace paradevs dtss
+} } // namespace paradevs sss
 
 #endif

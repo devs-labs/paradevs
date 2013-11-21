@@ -41,7 +41,7 @@ template < class Time, class SchedulerHandle >
 class Model;
 
 template < class Time, class SchedulerHandle >
-class Coordinator : public Model < Time, SchedulerHandle >
+class Coordinator : public virtual Model < Time, SchedulerHandle >
 {
 public :
     Coordinator(const std::string& name) : Model < Time, SchedulerHandle >(name)
