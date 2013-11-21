@@ -82,16 +82,6 @@ public:
 
     typename Time::type start(typename Time::type t)
     {
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::I_MESSAGE)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
         assert(_graph_manager.children().size() > 0);
 
         type::_tl = t;
@@ -99,16 +89,6 @@ public:
         for (auto & child : _graph_manager.children()) {
             child->start(t);
         }
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::I_MESSAGE)
-            << ": AFTER => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
         return type::_tn;
     }
 
@@ -116,27 +96,7 @@ public:
                                                       SchedulerHandle > bag,
                                         typename Time::type t)
     {
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::Y_MESSAGE)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn << " ; bag = " << bag.to_string();
-        common::Trace < Time >::trace().flush();
-#endif
-
         _graph_manager.dispatch_events(bag, t);
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::Y_MESSAGE)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
         return type::_tn;
     }
 
@@ -149,16 +109,6 @@ public:
 
     void output(typename Time::type t)
     {
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::OUTPUT)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
         if (t == type::_tn) {
             for (auto & model : _graph_manager.children()) {
                 model->update_buffer(t);
@@ -170,58 +120,21 @@ public:
                 }
             }
         }
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::OUTPUT)
-            << ": AFTER => " << "tl = " << type::_tl << " ; tn = " << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
     }
 
     void post_event(typename Time::type t,
                     const common::ExternalEvent < Time,
                                                   SchedulerHandle >& event)
     {
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::POST_EVENT)
-            << ": BEFORE => " << event.to_string();
-        common::Trace < Time >::trace().flush();
-#endif
-
         if (t == type::_tn) {
             _graph_manager.post_event(t, event);
         } else {
             _policy(t, event, type::_tl, type::_tn);
         }
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::POST_EVENT)
-            << ": AFTER => " << event.to_string();
-        common::Trace < Time >::trace().flush();
-#endif
-
     }
 
     typename Time::type transition(typename Time::type t)
     {
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::S_MESSAGE)
-            << ": BEFORE => " << "tl = " << type::_tl << " ; tn = "
-            << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
         if (t == type::_tn) {
             bool end = true;
 
@@ -258,15 +171,6 @@ public:
             }
         }
         type::clear_bag();
-
-#ifdef WITH_TRACE
-        common::Trace < Time >::trace()
-            << common::TraceElement < Time >(type::get_name(), t,
-                                             common::S_MESSAGE)
-            << ": AFTER => " << "tl = " << type::_tl << " ; tn = " << type::_tn;
-        common::Trace < Time >::trace().flush();
-#endif
-
         return type::_tn;
     }
 
