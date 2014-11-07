@@ -8,7 +8,7 @@
  * PARADEVS - the multimodeling and simulation environment
  * This file is a part of the PARADEVS environment
  *
- * Copyright (C) 2013 ULCO http://www.univ-litoral.fr
+ * Copyright (C) 2013-2015 ULCO http://www.univ-litoral.fr
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
