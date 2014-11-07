@@ -49,12 +49,12 @@ public:
 };
 
 template < class Time, class Policy, class GraphManager,
-           class SchedulerHandle, class Parameters = Parameters < Time >,
+           class Parameters = Parameters < Time >,
            class GraphParameters = common::NoParameters >
-class Coordinator : public common::Coordinator < Time, SchedulerHandle >,
-                    public sss::Model < Time, SchedulerHandle >
+class Coordinator : public common::Coordinator < Time >,
+                    public sss::Model < Time >
 {
-    typedef Coordinator < Time, Policy, GraphManager, SchedulerHandle,
+    typedef Coordinator < Time, Policy, GraphManager,
                           Parameters, GraphParameters > type;
 
 public:
@@ -64,9 +64,9 @@ public:
     Coordinator(const std::string& name,
                 const Parameters& parameters,
                 const GraphParameters& graph_paramaters) :
-        common::Model < Time, SchedulerHandle >(name),
-        common::Coordinator < Time, SchedulerHandle >(name),
-        sss::Model < Time, SchedulerHandle >(name),
+        common::Model < Time >(name),
+        common::Coordinator < Time >(name),
+        sss::Model < Time >(name),
         _graph_manager(this, graph_paramaters),
         _time_step(parameters._time_step)
     { }
@@ -75,10 +75,10 @@ public:
     { }
 
     virtual bool is_atomic() const
-    { return common::Coordinator < Time, SchedulerHandle >::is_atomic(); }
+    { return common::Coordinator < Time >::is_atomic(); }
 
     virtual std::string to_string(int level) const
-    { return common::Coordinator < Time, SchedulerHandle >::to_string(level); }
+    { return common::Coordinator < Time >::to_string(level); }
 
     typename Time::type start(typename Time::type t)
     {
@@ -92,8 +92,7 @@ public:
         return type::_tn;
     }
 
-    typename Time::type dispatch_events(common::Bag < Time,
-                                                      SchedulerHandle > bag,
+    typename Time::type dispatch_events(common::Bag < Time > bag,
                                         typename Time::type t)
     {
         _graph_manager.dispatch_events(bag, t);
@@ -123,8 +122,7 @@ public:
     }
 
     void post_event(typename Time::type t,
-                    const common::ExternalEvent < Time,
-                                                  SchedulerHandle >& event)
+                    const common::ExternalEvent < Time >& event)
     {
         if (t == type::_tn) {
             _graph_manager.post_event(t, event);

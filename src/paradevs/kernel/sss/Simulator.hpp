@@ -39,20 +39,18 @@
 namespace paradevs { namespace sss {
 
 template < class Time, class Dynamics,
-           class SchedulerHandle =
-               paradevs::common::scheduler::NoSchedulerHandle,
            class Parameters = common::NoParameters >
-class Simulator : public common::Simulator < Time, SchedulerHandle >,
-                  public sss::Model < Time, SchedulerHandle >
+class Simulator : public common::Simulator < Time >,
+                  public sss::Model < Time >
 {
-    typedef Simulator < Time, Dynamics, SchedulerHandle, Parameters > type;
+    typedef Simulator < Time, Dynamics, Parameters > type;
 
 public:
     Simulator(const std::string& name, typename Time::type time_step,
         const Parameters& parameters) :
-        common::Model < Time, SchedulerHandle >(name),
-        common::Simulator < Time, SchedulerHandle >(name),
-        sss::Model < Time, SchedulerHandle >(name),
+        common::Model < Time >(name),
+        common::Simulator < Time >(name),
+        sss::Model < Time >(name),
         _dynamics(name, parameters),
         _time_step(time_step)
     { }
@@ -61,10 +59,10 @@ public:
     {  }
 
     virtual bool is_atomic() const
-    { return common::Simulator < Time, SchedulerHandle >::is_atomic(); }
+    { return common::Simulator < Time >::is_atomic(); }
 
     virtual std::string to_string(int level) const
-    { return common::Simulator < Time, SchedulerHandle >::to_string(level); }
+    { return common::Simulator < Time >::to_string(level); }
 
     typename Time::type start(typename Time::type t)
     {
@@ -110,13 +108,13 @@ public:
 #endif
 
         if (t == type::_tn) {
-            common::Bag < Time, SchedulerHandle > bag = _dynamics.lambda(t);
+            common::Bag < Time > bag = _dynamics.lambda(t);
 
             if (not bag.empty()) {
                 for (auto & event : bag) {
                     event.set_model(this);
                 }
-                dynamic_cast < common::Coordinator < Time, SchedulerHandle >* >(
+                dynamic_cast < common::Coordinator < Time >* >(
                     type::get_parent())->dispatch_events(bag, t);
             }
         }
@@ -131,8 +129,7 @@ public:
     }
 
     void post_event(typename Time::type t,
-                    const common::ExternalEvent < Time,
-                                                  SchedulerHandle >& event)
+                    const common::ExternalEvent < Time >& event)
     {
 
 #ifndef WITH_TRACE

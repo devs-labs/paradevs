@@ -33,20 +33,28 @@
 
 #include <sstream>
 
-namespace paradevs { namespace common { namespace scheduler {
+namespace paradevs { namespace common {
+
+template < class Time >
+class Model;
+
+template < class Time >
+class Models;
+
+namespace scheduler {
 
 template < class Time, class T >
 class HeapScheduler :
         public boost::heap::fibonacci_heap <
-    InternalEvent < Time, T >,
+    InternalEvent < Time >,
     boost::heap::compare <
-        EventCompare < InternalEvent < Time, T > > > >
+        EventCompare < InternalEvent < Time > > > >
 {
 public:
     typedef HeapScheduler < Time, T > type;
-    typedef Model < Time, T >         model_type;
-    typedef Models < Time, T >        models_type;
-    typedef InternalEvent < Time, T > internal_event_type;
+    typedef Model < Time >            model_type;
+    typedef Models < Time >           models_type;
+    typedef InternalEvent < Time >    internal_event_type;
 
     HeapScheduler()
     { }
@@ -79,7 +87,7 @@ public:
         model->handle(T(type::push(internal_event_type(time, model))));
     }
 
-    void put(typename Time::type time, model_type* model)
+    void put(typename Time::type time, const model_type* model)
     {
         typename Time::type previous_time =
             (*model->handle()._handle).get_time();

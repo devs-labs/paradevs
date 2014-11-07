@@ -1,5 +1,5 @@
 /**
- * @file Bag.hpp
+ * @file Scheduler.hpp
  * @author The PARADEVS Development Team
  * See the AUTHORS or Authors.txt file
  */
@@ -24,42 +24,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_BAG
-#define COMMON_BAG 1
+#ifndef COMMON_SCHEDULER
+#define COMMON_SCHEDULER 1
 
-#include <paradevs/common/ExternalEvent.hpp>
-
-#include <sstream>
-#include <string>
-#include <vector>
+#include <paradevs/common/scheduler/HeapScheduler.hpp>
 
 namespace paradevs { namespace common {
 
-template < class Time >
-class ExternalEvent;
+struct SchedulerHandle;
 
-template < class Time >
-class Bag : public std::vector < ExternalEvent < Time > >
+typedef typename paradevs::common::scheduler::HeapScheduler <
+    common::DoubleTime, SchedulerHandle >::type SchedulerType;
+
+struct SchedulerHandle
 {
-public:
-    Bag()
-    { }
-    virtual ~Bag()
+    SchedulerHandle()
     { }
 
-    std::string to_string() const
-    {
-        std::ostringstream ss;
+    SchedulerHandle(const SchedulerType::handle_type& handle)
+        : _handle(handle)
+    { }
 
-        ss << "{ ";
-        for (typename Bag < Time >::const_iterator it =
-                 Bag < Time >::begin();
-             it != Bag < Time >::end(); ++it) {
-            ss << it->to_string() << " ";
-        }
-        ss << "}";
-        return ss.str();
-    }
+    const SchedulerHandle& handle() const
+    { return *this; }
+
+    void handle(const SchedulerHandle& handle)
+    { _handle = handle._handle; }
+
+    SchedulerType::handle_type _handle;
 };
 
 } } // namespace paradevs common

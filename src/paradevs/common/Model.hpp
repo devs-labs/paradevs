@@ -30,6 +30,7 @@
 #include <paradevs/common/Bag.hpp>
 #include <paradevs/common/ExternalEvent.hpp>
 #include <paradevs/common/InternalEvent.hpp>
+#include <paradevs/common/Scheduler.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -39,19 +40,19 @@
 
 namespace paradevs { namespace common {
 
-template < class Time, class SchedulerHandle >
+template < class Time >
 class ExternalEvent;
 
-template < class Time, class SchedulerHandle >
+template < class Time >
 class InternalEvent;
 
-template < class Tim, class SchedulerHandlee >
+template < class Time >
 class Bag;
 
 typedef std::string Port;
 typedef std::vector < Port > Ports;
 
-template < class Time, class SchedulerHandle >
+template < class Time >
 class Model
 {
 public:
@@ -112,22 +113,21 @@ public:
     const std::string& get_name() const
     { return _name; }
 
-    Model < Time, SchedulerHandle >* get_parent() const
+    Model < Time >* get_parent() const
     { return _parent; }
 
     virtual bool is_atomic() const = 0;
 
-    void set_parent(Model < Time, SchedulerHandle >* parent)
+    void set_parent(Model < Time >* parent)
     { _parent = parent; }
 
     virtual std::string to_string(int /* level */) const =0;
 
     // event
-    void add_event(const common::ExternalEvent < Time, SchedulerHandle >&
-                   message)
+    void add_event(const common::ExternalEvent < Time >& message)
     {
         if (_inputs == 0) {
-            _inputs = new Bag < Time, SchedulerHandle >;
+            _inputs = new Bag < Time >;
         }
         _inputs->push_back(message);
     }
@@ -149,10 +149,10 @@ public:
         }
     }
 
-    const common::Bag < Time, SchedulerHandle >& get_bag()
+    const common::Bag < Time >& get_bag()
     {
         if (_inputs == 0) {
-            _inputs = new Bag < Time, SchedulerHandle >;
+            _inputs = new Bag < Time >;
         }
         return *_inputs;
     }
@@ -168,9 +168,7 @@ public:
     virtual void observation(std::ostream& file) const =0;
     virtual void output(typename Time::type t) =0;
     virtual void post_event(typename Time::type t,
-                            const common::ExternalEvent < Time,
-                                                          SchedulerHandle >&
-                            event) = 0;
+                            const common::ExternalEvent < Time >& event) = 0;
     virtual typename Time::type start(typename Time::type t) =0;
     virtual typename Time::type transition(typename Time::type t) =0;
 
@@ -186,17 +184,17 @@ protected:
     typename Time::type _tn;
 
 private :
-    Model < Time, SchedulerHandle >* _parent;
-    std::string                      _name;
-    Ports                            _in_ports;
-    Ports                            _out_ports;
+    Model < Time >* _parent;
+    std::string     _name;
+    Ports           _in_ports;
+    Ports           _out_ports;
 
-    Bag < Time, SchedulerHandle >*   _inputs;
-    SchedulerHandle                  _handle;
+    Bag < Time >*   _inputs;
+    SchedulerHandle _handle;
 };
 
-template < class Time, class SchedulerHandle >
-class Models : public std::vector < Model < Time, SchedulerHandle >* >
+template < class Time >
+class Models : public std::vector < Model < Time >* >
 {
 public:
     Models()
@@ -209,9 +207,9 @@ public:
         std::ostringstream ss;
 
         ss << "{ ";
-        for (typename Models < Time, SchedulerHandle >::const_iterator it =
-                 Models < Time, SchedulerHandle >::begin();
-             it != Models < Time, SchedulerHandle >::end(); ++it) {
+        for (typename Models < Time >::const_iterator it =
+                 Models < Time >::begin();
+             it != Models < Time >::end(); ++it) {
             ss << (*it)->get_name() << " ";
         }
         ss << "}";

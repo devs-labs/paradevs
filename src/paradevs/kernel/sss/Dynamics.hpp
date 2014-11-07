@@ -34,7 +34,6 @@
 namespace paradevs { namespace sss {
 
 template < class Time,
-           class SchedulerHandle = common::scheduler::NoSchedulerHandle,
            class Parameters = common::NoParameters >
 class Dynamics
 {
@@ -46,17 +45,16 @@ public:
     virtual ~Dynamics()
     { }
 
-    virtual void transition(const common::Bag < Time,
-                                                SchedulerHandle >& /* x */,
+    virtual void transition(const common::Bag < Time >& /* x */,
                             typename Time::type /* t */)
     { }
 
     virtual typename Time::type start(typename Time::type/* time */)
     { return Time::infinity; }
 
-    common::Bag < Time, SchedulerHandle > lambda(
+    common::Bag < Time > lambda(
         typename Time::type /* time */) const
-    { return common::Bag < Time, SchedulerHandle >(); }
+    { return common::Bag < Time >(); }
 
     virtual void observation(std::ostream& /* file */) const
     { }

@@ -35,18 +35,18 @@
 
 namespace paradevs { namespace common {
 
-template < class Time, class SchedulerHandle >
+template < class Time >
 class Node;
 
-template < class Time, class SchedulerHandle >
-class Links : public std::multimap < Node < Time, SchedulerHandle >,
-                                     Node < Time, SchedulerHandle > >
+template < class Time >
+class Links : public std::multimap < Node < Time >,
+                                     Node < Time > >
 {
 public:
 
     typedef std::pair <
-        typename Links < Time, SchedulerHandle >::const_iterator,
-        typename Links < Time, SchedulerHandle >::const_iterator
+        typename Links < Time >::const_iterator,
+        typename Links < Time >::const_iterator
     > Result;
 
     Links()
@@ -54,47 +54,47 @@ public:
     virtual ~Links()
     { }
 
-    void add(Model < Time, SchedulerHandle >* out_model,
+    void add(Model < Time >* out_model,
              const std::string& out_port_name,
-             Model < Time, SchedulerHandle >* in_model,
+             Model < Time >* in_model,
              const std::string& in_port_name)
     {
-        std::multimap < Node < Time, SchedulerHandle >,
-                        Node < Time, SchedulerHandle > >::insert(
-                            std::pair < Node < Time, SchedulerHandle >,
-                                        Node < Time, SchedulerHandle > >(
-                                            Node < Time, SchedulerHandle >(
+        std::multimap < Node < Time >,
+                        Node < Time > >::insert(
+                            std::pair < Node < Time >,
+                                        Node < Time > >(
+                                            Node < Time >(
                                                 out_model, out_port_name),
-                                            Node < Time, SchedulerHandle >(
+                                            Node < Time >(
                                                 in_model, in_port_name)));
     }
 
-    bool exist(Model < Time, SchedulerHandle >* out_model,
+    bool exist(Model < Time >* out_model,
                const std::string& out_port_name,
-               Model < Time, SchedulerHandle >* in_model,
+               Model < Time >* in_model,
                const std::string& in_port_name) const
     {
-        typename Links < Time, SchedulerHandle >::const_iterator it =
-            std::multimap < Node < Time, SchedulerHandle >,
-                            Node < Time, SchedulerHandle > >::find(
-                                Node < Time, SchedulerHandle >(out_model,
+        typename Links < Time >::const_iterator it =
+            std::multimap < Node < Time >,
+                            Node < Time > >::find(
+                                Node < Time >(out_model,
                                                                out_port_name));
         bool found = false;
 
-        while (not found and it != Links < Time, SchedulerHandle >::end()) {
-            found = it->second == Node < Time, SchedulerHandle >(
+        while (not found and it != Links < Time >::end()) {
+            found = it->second == Node < Time >(
                 in_model, in_port_name);
             ++it;
         }
         return found;
     }
 
-    Links::Result find(Model < Time, SchedulerHandle >* out_model,
+    Links::Result find(Model < Time >* out_model,
                        const std::string& out_port_name) const
     {
-        return std::multimap < Node < Time, SchedulerHandle >,
-                               Node < Time, SchedulerHandle > >::equal_range(
-                                   common::Node < Time, SchedulerHandle >(
+        return std::multimap < Node < Time >,
+                               Node < Time > >::equal_range(
+                                   common::Node < Time >(
                                        out_model, out_port_name));
     }
 
@@ -103,9 +103,9 @@ public:
         std::stringstream ss;
 
         ss << common::spaces(level * 2) << "Links:" << std::endl;
-        for (typename Links < Time, SchedulerHandle >::const_iterator it =
-                 Links < Time, SchedulerHandle >::begin();
-             it != Links < Time, SchedulerHandle >::end(); ++it) {
+        for (typename Links < Time >::const_iterator it =
+                 Links < Time >::begin();
+             it != Links < Time >::end(); ++it) {
             ss << common::spaces((level + 1) * 2)
                << it->first.get_model()->get_name() << "::"
                << it->first.get_port_name()

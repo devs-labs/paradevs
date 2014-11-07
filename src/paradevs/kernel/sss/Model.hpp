@@ -31,12 +31,12 @@
 
 namespace paradevs { namespace sss {
 
-template < class Time, class SchedulerHandle >
-class Model : public virtual common::Model < Time, SchedulerHandle >
+template < class Time >
+class Model : public virtual common::Model < Time >
 {
 public:
     Model(const std::string& name) :
-        common::Model < Time, SchedulerHandle >(name)
+        common::Model < Time >(name)
     {
         assigned = 0;
         _mark = false;
@@ -48,10 +48,10 @@ public:
 
     virtual void update_buffer(typename Time::type /* time */) = 0;
 
-    void add_event(const common::ExternalEvent < Time, SchedulerHandle >&
+    void add_event(const common::ExternalEvent < Time >&
                    message)
     {
-        common::Model < Time, SchedulerHandle >::add_event(message);
+        common::Model < Time >::add_event(message);
         std::map < std::string, bool >::iterator it =
             port_assigned.find(message.get_port_name());
 
@@ -63,7 +63,7 @@ public:
 
     void add_in_port(const std::string& port_name, bool sync)
     {
-        common::Model < Time, SchedulerHandle >::add_in_port(port_name);
+        common::Model < Time >::add_in_port(port_name);
         if (sync) {
             port_assigned[port_name] = false;
         }
@@ -74,7 +74,7 @@ public:
 
     void clear_bag()
     {
-        common::Model < Time, SchedulerHandle >::clear_bag();
+        common::Model < Time >::clear_bag();
 
         for (auto & p: port_assigned) {
             p.second = false;
@@ -107,8 +107,8 @@ private:
     bool _send;
 };
 
-template < class Time, class SchedulerHandle >
-class Models : public std::vector < sss::Model < Time, SchedulerHandle >* >
+template < class Time >
+class Models : public std::vector < sss::Model < Time >* >
 {
 public:
     Models()
@@ -121,9 +121,9 @@ public:
         std::ostringstream ss;
 
         ss << "{ ";
-        for (typename Models < Time, SchedulerHandle >::const_iterator it =
-                 Models < Time, SchedulerHandle >::begin();
-             it != Models < Time, SchedulerHandle >::end(); ++it) {
+        for (typename Models < Time >::const_iterator it =
+                 Models < Time >::begin();
+             it != Models < Time >::end(); ++it) {
             ss << (*it)->get_name() << " ";
         }
         ss << "}";

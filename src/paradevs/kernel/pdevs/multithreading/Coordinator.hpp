@@ -52,59 +52,52 @@ struct transition_message
     typename Time::type _t;
 };
 
-template < class Time, class SchedulerHandle >
+template < class Time >
 struct done_start_message
 {
     explicit done_start_message(typename Time::type tn,
-                                common::Model < Time,
-                                                SchedulerHandle >* child) :
+                                common::Model < Time >* child) :
         _tn(tn), _child(child)
     { }
 
-    typename Time::type                      _tn;
-    common::Model < Time, SchedulerHandle >* _child;
+    typename Time::type     _tn;
+    common::Model < Time >* _child;
 };
 
-template < class Time, class SchedulerHandle >
+template < class Time >
 struct done_transition_message
 {
     explicit done_transition_message(typename Time::type tn,
-                                     common::Model < Time,
-                                                     SchedulerHandle >* child) :
+                                     common::Model < Time >* child) :
         _tn(tn), _child(child)
     { }
 
-    typename Time::type                      _tn;
-    common::Model < Time, SchedulerHandle >* _child;
+    typename Time::type     _tn;
+    common::Model < Time >* _child;
 };
 
 template < class Time,
-           class Scheduler,
-           class SchedulerHandle,
            class GraphManager,
            class Parameters = common::NoParameters,
            class GraphParameters = common::NoParameters >
-class Coordinator : public pdevs::Coordinator < Time, Scheduler,
-                                                SchedulerHandle, GraphManager,
+class Coordinator : public pdevs::Coordinator < Time, GraphManager,
                                                 Parameters, GraphParameters >
 {
-    typedef pdevs::Coordinator < Time, Scheduler, SchedulerHandle, GraphManager,
+    typedef pdevs::Coordinator < Time, GraphManager,
                                  Parameters, GraphParameters > parent_type;
-    typedef Coordinator < Time, Scheduler, SchedulerHandle, GraphManager,
+    typedef Coordinator < Time, GraphManager,
                           Parameters, GraphParameters > type;
-    typedef done_start_message < Time,
-                                 SchedulerHandle > done_start_message_type;
+    typedef done_start_message < Time > done_start_message_type;
     typedef start_message < Time > start_message_type;
-    typedef done_transition_message < Time,
-                                 SchedulerHandle > done_transition_message_type;
+    typedef done_transition_message < Time > done_transition_message_type;
     typedef transition_message < Time > transition_message_type;
 
 public:
     Coordinator(const std::string& name,
                 const Parameters& parameters,
                 const GraphParameters& graph_parameters) :
-        common::Model < Time, SchedulerHandle >(name),
-        pdevs::Coordinator < Time, Scheduler, SchedulerHandle, GraphManager,
+        common::Model < Time >(name),
+        pdevs::Coordinator < Time, GraphManager,
                              Parameters, GraphParameters >(name, parameters,
                                                            graph_parameters),
         _thread(std::thread([&]{ loop(); }))
@@ -196,7 +189,7 @@ public:
     {
         assert(t >= type::_tl and t <= type::_tn);
 
-        common::Models < Time, SchedulerHandle > receivers =
+        common::Models < Time > receivers =
             type::_event_table.get_current_models(t);
 
         type::add_models_with_inputs(receivers);
