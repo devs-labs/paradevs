@@ -30,6 +30,8 @@
 #include <paradevs/common/Model.hpp>
 #include <paradevs/common/Node.hpp>
 
+#include <boost/serialization/serialization.hpp>
+
 #include <sstream>
 #include <string>
 #include <vector>
@@ -83,12 +85,30 @@ public:
     {
         std::ostringstream ss;
 
-        ss << "( " << _port_name << " , " << (_model?_model->get_name():"<>")
-           << " , " << *(double*)_content << ")";
+        ss << "( " << _port_name << " , "
+           << (_model ? _model->get_name() : "<>")
+           << " , ";
+        if (_content) {
+            ss << *(double*)_content;
+        } else {
+            ss << "null";
+        }
+        ss << ")";
         return ss.str();
     }
 
-private :
+private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        (void) version;
+
+        ar & _port_name;
+        // ar & _model->get_name();
+    }
+
     std::string     _port_name;
     Model < Time >* _model;
     void*           _content;

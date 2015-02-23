@@ -9,9 +9,8 @@ LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
   ${LIBXML_LIBRARY_DIR})
 
-SET(PDEVS_HPP Coordinator.hpp Dynamics.hpp GraphManager.hpp Simulator.hpp)
+SET(PDEVS_MPI_HPP Coordinator.hpp GraphManager.hpp LogicalProcessor.hpp
+  ModelProxy.hpp)
 
-INSTALL(FILES ${PDEVS_HPP} DESTINATION ${PARADEVS_INCLUDE_DIRS}/kernel/pdevs)
-
-ADD_SUBDIRECTORY(multithreading)
-ADD_SUBDIRECTORY(mpi)
+INSTALL(FILES ${PDEVS_MPI_HPP} DESTINATION
+  ${PARADEVS_INCLUDE_DIRS}/kernel/pdevs/mpi)

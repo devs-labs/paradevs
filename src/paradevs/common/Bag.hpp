@@ -29,6 +29,8 @@
 
 #include <paradevs/common/ExternalEvent.hpp>
 
+#include <boost/serialization/vector.hpp>
+
 #include <sstream>
 #include <string>
 #include <vector>
@@ -60,6 +62,28 @@ public:
         ss << "}";
         return ss.str();
     }
+
+private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void save(Archive & ar, const unsigned int version) const
+    {
+        (void) version;
+
+        ar & *dynamic_cast < const std::vector < ExternalEvent < Time > >* >(
+            this);
+    }
+
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+        (void) version;
+
+        ar & *dynamic_cast < std::vector < ExternalEvent < Time > >* >(this);
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 } } // namespace paradevs common

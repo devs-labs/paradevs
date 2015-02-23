@@ -97,7 +97,7 @@ ENDIF (WIN32)
 SET(Boost_DETAILED_FAILURE_MSG FALSE)
 SET(Boost_DEBUG FALSE)
 
-FIND_PACKAGE(Boost COMPONENTS graph timer system)
+FIND_PACKAGE(Boost COMPONENTS graph mpi timer serialization system)
 IF (NOT Boost_GRAPH_FOUND)
   MESSAGE(FATAL_ERROR "The boost graph library is required")
 ENDIF (NOT Boost_GRAPH_FOUND)

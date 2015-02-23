@@ -118,6 +118,9 @@ public:
 
     virtual bool is_atomic() const = 0;
 
+    virtual bool is_remote() const
+    { return false; }
+
     void set_parent(Model < Time >* parent)
     { _parent = parent; }
 

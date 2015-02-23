@@ -7,8 +7,7 @@ INCLUDE_DIRECTORIES(
 
 LINK_DIRECTORIES(
   ${GLIBMM_LIBRARY_DIRS}
-  ${LIBXML_LIBRARY_DIR}
-  ${Boost_LIBRARY_DIRS})
+  ${LIBXML_LIBRARY_DIR})
 
 SET(COMMON_HPP Bag.hpp Coordinator.hpp ExternalEvent.hpp InternalEvent.hpp
   Links.hpp Model.hpp Node.hpp Parameters.hpp RootCoordinator.hpp Scheduler.hpp

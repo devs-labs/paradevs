@@ -93,14 +93,8 @@ public:
                      it != result_model.second; ++it) {
                 // event on output port of coupled Model
                 if (it->second.get_model() == _coordinator) {
-                    common::Bag < Time > ymessages;
-
-                    ymessages.push_back(
-                        common::ExternalEvent <Time >(it->second,
-                                                      ymsg.get_content()));
-                    dynamic_cast < common::Coordinator < Time >* >(
-                        _coordinator->get_parent())->dispatch_events(
-                            ymessages, t);
+                    dispatch_events_to_parent(it->second, ymsg.get_content(),
+                                              t);
                 } else { // event on input port of internal model
                     it->second.get_model()->post_event(
                         t, common::ExternalEvent < Time >(
@@ -108,6 +102,19 @@ public:
                 }
             }
         }
+    }
+
+    virtual void dispatch_events_to_parent(common::Node < Time > node,
+                                           void* content,
+                                           typename Time::type t)
+    {
+        common::Bag < Time > ymessages;
+
+        ymessages.push_back(
+            common::ExternalEvent <Time >(node, content));
+        dynamic_cast < common::Coordinator < Time >* >(
+            _coordinator->get_parent())->dispatch_events(
+                ymessages, t);
     }
 
     bool exist_link(common::Model < Time >* src_model,
