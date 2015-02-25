@@ -173,11 +173,10 @@ public:
         }
 
         if (_received > 0) {
-            type::_graph_manager.start(t);
             _received_mutex.lock();
+            type::_graph_manager.start(t);
 
             std::lock_guard < std::mutex > lock(_received_mutex);
-
         }
 
         type::_tl = t;
@@ -204,17 +203,17 @@ public:
         }
 
         if (_received > 0) {
-            type::_graph_manager.transition(receivers, t);
             _received_mutex.lock();
+            type::_graph_manager.transition(receivers, t);
 
             std::lock_guard < std::mutex > lock(_received_mutex);
-
         }
 
         parent_type::update_event_table(t);
         type::_tl = t;
         type::_tn = type::_event_table.get_current_time();
         type::clear_bag();
+
         return type::_tn;
     }
 
