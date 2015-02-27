@@ -99,14 +99,16 @@ public:
         common::Model < Time >(name),
         pdevs::Coordinator < Time, GraphManager,
                              Parameters, GraphParameters >(name, parameters,
-                                                           graph_parameters),
-        _thread(std::thread([&]{ loop(); }))
-    { type::_graph_manager.init(); }
+                                                           graph_parameters)
+    {
+        type::_graph_manager.init();
+        _thread = new std::thread([&]{ loop(); });
+    }
 
     virtual ~Coordinator()
     {
         done();
-        _thread.join();
+        _thread->join();
     }
 
     void done()
@@ -218,7 +220,7 @@ public:
     }
 
 private:
-    std::thread                _thread;
+    std::thread*               _thread;
     paradevs::common::Receiver _incoming;
     paradevs::common::Sender   _sender;
     unsigned int               _received;
