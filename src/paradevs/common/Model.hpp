@@ -116,6 +116,10 @@ public:
     Model < Time >* get_parent() const
     { return _parent; }
 
+    // TODO: to remove
+    virtual int get_receiver_number(typename Time::type t)
+    { return 0; }
+
     virtual bool is_atomic() const = 0;
 
     virtual bool is_remote() const

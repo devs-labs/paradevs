@@ -186,6 +186,10 @@ public:
         return type::_tn;
     }
 
+    // TODO: to remove
+    virtual int get_receiver_number(typename Time::type t)
+    { return type::_event_table.get_current_models(t).size(); }
+
     typename Time::type transition(typename Time::type t)
     {
         assert(t >= type::_tl and t <= type::_tn);
@@ -205,6 +209,28 @@ public:
         }
 
         if (_received > 0) {
+
+            // double sum = 0;
+            // double max = 0;
+            // double min = 100000;
+
+            // for (auto & model : receivers) {
+            //     if (not model->is_atomic()) {
+            //         int n = model->get_receiver_number(t);
+
+            //         sum += n;
+            //         if (max < n) max = n;
+            //         if (min > n) min = n;
+
+            //         std::cout << t << "\t" << model->get_name()
+            //                   << "\t" << n << std::endl;
+
+            //     }
+            // }
+            // std::cout << t << "\t" << (sum / receivers.size())
+            //           << "\t" << (sum / max)
+            //           << "\t" << min << "\t" << max << std::endl;
+
             _received_mutex.lock();
             type::_graph_manager.transition(receivers, t);
 
