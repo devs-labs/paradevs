@@ -109,6 +109,7 @@ public:
     {
         done();
         _thread->join();
+        delete _thread;
     }
 
     void done()
