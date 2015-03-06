@@ -29,6 +29,8 @@
 
 #include <algorithm>
 #include <iterator>
+#include <memory>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -156,11 +158,14 @@ template < class Time >
 class Trace
 {
 public:
+    virtual ~Trace()
+    { }
+
     static Trace& trace()
     {
-        if (_instance == 0) {
-            _instance = new Trace();
-        }
+        std::call_once(_flag, [] ()
+                       { _instance.reset(new Trace()); }
+            );
         return *_instance;
     }
 
@@ -180,6 +185,9 @@ public:
         _trace.push_back(_element);
     }
 
+    std::mutex& mutex()
+    { return _mutex; }
+
     void set_element(const TraceElement < Time >& element)
     { _element = element; }
 
@@ -194,19 +202,14 @@ public:
 private:
     Trace()
     { _sstream = 0; }
-    virtual ~Trace()
-    {
-        delete _instance;
-        if (_sstream) {
-            delete _sstream;
-        }
-    }
 
-    static Trace < Time >* _instance;
+    static std::shared_ptr < Trace < Time > > _instance;
+    static std::once_flag _flag;
 
     TraceElements < Time > _trace;
     TraceElement < Time >  _element;
     std::ostringstream*    _sstream;
+    std::mutex             _mutex;
 };
 
 } } // namespace paradevs common
@@ -216,6 +219,8 @@ paradevs::common::Trace < Time >& operator<<(
     paradevs::common::Trace < Time >& trace,
     const paradevs::common::TraceElement < Time >& e)
 {
+    std::lock_guard < std::mutex > lock(trace.mutex());
+
     trace.set_element(e);
     return trace;
 }
@@ -225,6 +230,8 @@ paradevs::common::Trace < Time >& operator<<(
     paradevs::common::Trace < Time >& trace,
     const std::string& str)
 {
+    std::lock_guard < std::mutex > lock(trace.mutex());
+
     trace.sstream() << str;
     return trace;
 }
@@ -234,12 +241,17 @@ paradevs::common::Trace < Time >& operator<<(
     paradevs::common::Trace < Time >& trace,
     typename Time::type t)
 {
+    std::lock_guard < std::mutex > lock(trace.mutex());
+
     trace.sstream() << t;
     return trace;
 }
 
 template < class Time >
-paradevs::common::Trace < Time >*
-paradevs::common::Trace < Time >::_instance = 0;
+std::shared_ptr < paradevs::common::Trace < Time > >
+paradevs::common::Trace < Time >::_instance = nullptr;
+
+template < class Time >
+std::once_flag paradevs::common::Trace < Time >::_flag;
 
 #endif
