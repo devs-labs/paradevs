@@ -27,6 +27,7 @@
 #ifndef PDEVS_MPI_MODEL_PROXY
 #define PDEVS_MPI_MODEL_PROXY 1
 
+#include <paradevs/common/Coordinator.hpp>
 #include <paradevs/common/Model.hpp>
 
 #include <boost/mpi/communicator.hpp>
