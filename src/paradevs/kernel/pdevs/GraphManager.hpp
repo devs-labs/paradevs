@@ -105,13 +105,14 @@ public:
     }
 
     virtual void dispatch_events_to_parent(common::Node < Time > node,
-                                           void* content,
+                                           const common::Value& content,
                                            typename Time::type t)
     {
         common::Bag < Time > ymessages;
 
         ymessages.push_back(
             common::ExternalEvent <Time >(node, content));
+
         dynamic_cast < common::Coordinator < Time >* >(
             _coordinator->get_parent())->dispatch_events(
                 ymessages, t);

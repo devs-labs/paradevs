@@ -49,12 +49,13 @@ public:
     { }
 
     void dispatch_events_to_parent(common::Node < Time > node,
-                                   void* content,
+                                   const common::Value& content,
                                    typename Time::type t)
     {
         (void) t;
 
-        _output_bag.push_back(common::ExternalEvent <Time >(node, content));
+        _output_bag.push_back(
+            common::ExternalEvent <Time >(node, content));
     }
 
     void loop()
@@ -105,8 +106,8 @@ private:
     int _rank;
     int _parent;
     boost::mpi::communicator _communicator;
-    common::Model < Time >* _model;
-    common::Bag < Time > _output_bag;
+    common::Model < Time >*  _model;
+    common::Bag < Time >     _output_bag;
 };
 
 } } } // namespace paradevs pdevs mpi

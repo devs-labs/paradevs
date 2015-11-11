@@ -29,8 +29,10 @@
 
 #include <paradevs/common/Model.hpp>
 #include <paradevs/common/Node.hpp>
+#include <paradevs/common/Value.hpp>
 
 #include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
 
 #include <sstream>
 #include <string>
@@ -47,11 +49,11 @@ template < class Time >
 class ExternalEvent
 {
 public:
-    ExternalEvent(const std::string& port_name, void* content) :
+    ExternalEvent(const std::string& port_name, const Value& content) :
         _port_name(port_name), _model(0), _content(content)
     { }
 
-    ExternalEvent(const Node < Time >& node, void* content) :
+    ExternalEvent(const Node < Time >& node, const Value& content) :
         _port_name(node.get_port_name()),
         _model(node.get_model()),
         _content(content)
@@ -63,13 +65,13 @@ public:
     virtual ~ExternalEvent()
     { }
 
-    void* get_content() const
+    const Value& get_content() const
     { return _content; }
 
     const std::string& get_port_name() const
     { return _port_name; }
 
-    void set_content(void* content)
+    void set_content(const Value& content)
     { _content = content; }
 
     Model < Time >* get_model() const
@@ -88,8 +90,8 @@ public:
         ss << "( " << _port_name << " , "
            << (_model ? _model->get_name() : "<>")
            << " , ";
-        if (_content) {
-            ss << *(double*)_content;
+        if (not _content.empty()) {
+            ss << _content.to_string();
         } else {
             ss << "null";
         }
@@ -106,12 +108,15 @@ private:
         (void) version;
 
         ar & _port_name;
+        _model = 0;
+        // ar & _model;
+        ar & _content;
         // ar & _model->get_name();
     }
 
     std::string     _port_name;
     Model < Time >* _model;
-    void*           _content;
+    Value           _content;
 };
 
 } } // namespace paradevs common

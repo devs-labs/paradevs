@@ -11,7 +11,7 @@ LINK_DIRECTORIES(
 
 SET(COMMON_HPP Bag.hpp Coordinator.hpp ExternalEvent.hpp InternalEvent.hpp
   Links.hpp Model.hpp Node.hpp Parameters.hpp RootCoordinator.hpp Scheduler.hpp
-  Simulator.hpp)
+  Simulator.hpp Value.hpp)
 
 INSTALL(FILES ${COMMON_HPP} DESTINATION ${PARADEVS_INCLUDE_DIRS}/common)
 
