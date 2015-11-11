@@ -118,7 +118,7 @@ public:
 
     // TODO: to remove
     virtual int get_receiver_number(typename Time::type t)
-    { return 0; }
+    { (void)t; return 0; }
 
     virtual bool is_atomic() const = 0;
 
